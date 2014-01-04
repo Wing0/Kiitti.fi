@@ -1,4 +1,4 @@
-/* line 17, ../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 17, ../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -20,95 +20,151 @@ time, mark, audio, video {
   vertical-align: baseline;
 }
 
-/* line 22, ../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 22, ../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 html {
   line-height: 1;
 }
 
-/* line 24, ../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 24, ../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 ol, ul {
   list-style: none;
 }
 
-/* line 26, ../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 26, ../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 table {
   border-collapse: collapse;
   border-spacing: 0;
 }
 
-/* line 28, ../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 28, ../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 caption, th, td {
   text-align: left;
   font-weight: normal;
   vertical-align: middle;
 }
 
-/* line 30, ../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 30, ../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 q, blockquote {
   quotes: none;
 }
-/* line 103, ../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 103, ../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 q:before, q:after, blockquote:before, blockquote:after {
   content: "";
   content: none;
 }
 
-/* line 32, ../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 32, ../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 a img {
   border: none;
 }
 
-/* line 116, ../../../../../../../Library/Ruby/Gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+/* line 116, ../../../../../../Ruby200/lib/ruby/gems/2.0.0/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section, summary {
   display: block;
 }
 
-/* line 10, ../../config/sass/screen.scss */
+/* line 10, ../config/sass/screen.scss */
 h2 {
-  color: red;
-  background-color: #e77b02;
+  color: Black;
 }
-/* line 14, ../../config/sass/screen.scss */
+/* line 13, ../config/sass/screen.scss */
 h2.joku {
   color: blue;
 }
 
-/* line 20, ../../config/sass/screen.scss */
-h2 {
-  background-color: #e77b02;
-  color: red;
-}
-
-/* line 25, ../../config/sass/screen.scss */
+/* line 17, ../config/sass/screen.scss */
 h2:hover {
-  background-color: #fdac52;
+  background-color: #333333;
 }
 
-/* line 30, ../../config/sass/screen.scss */
-h2.joku {
-  background-color: #e77b02;
-  color: blue;
+/* line 21, ../config/sass/screen.scss */
+.tabs {
+  position: absolute;
+  min-height: 200px;
+  /* This part sucks */
+  clear: both;
+  margin: 25px 0;
 }
 
-/* line 35, ../../config/sass/screen.scss */
-.juttu {
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  opacity: 0.5;
-  -webkit-box-shadow: 1px 1px 1px black;
-  -moz-box-shadow: 1px 1px 1px black;
-  box-shadow: 1px 1px 1px black;
+/* line 29, ../config/sass/screen.scss */
+.tab {
+  float: left;
 }
 
-/* line 40, ../../config/sass/screen.scss */
-.animation {
-  -webkit-transition: opacity 0.5s ease-in-out;
-  -moz-transition: opacity 0.5s ease-in-out;
-  -o-transition: opacity 0.5s ease-in-out;
-  transition: opacity 0.5s ease-in-out;
-  opacity: 0.5;
+/* line 32, ../config/sass/screen.scss */
+.tab label {
+  background: #eee;
+  padding: 10px;
+  border: 1px solid #ccc;
+  margin-left: -1px;
+  position: relative;
+  left: 7px;
 }
 
-/* line 44, ../../config/sass/screen.scss */
-.animation:hover {
-  opacity: 1.0;
+/* line 40, ../config/sass/screen.scss */
+.tab [type=radio] {
+  display: none;
+}
+
+/* line 43, ../config/sass/screen.scss */
+.content {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  background: white;
+  right: 0;
+  bottom: 0;
+  padding: 13px;
+  border: 5px solid blue;
+  width: 270px;
+  margin: 5px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  background: #F0F8FF;
+  font-size: 11px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  border-color: blue;
+}
+
+/* line 66, ../config/sass/screen.scss */
+[type=radio]:checked ~ label {
+  background: white;
+  border-bottom: 0px solid white;
+  z-index: 2;
+}
+
+/* line 71, ../config/sass/screen.scss */
+[type=radio]:checked ~ label ~ .content {
+  z-index: 1;
+}
+
+/* line 75, ../config/sass/screen.scss */
+#container {
+  width: 480px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* line 82, ../config/sass/screen.scss */
+#leftinnercolumn {
+  width: 100px;
+  height: auto;
+  float: none;
+  margin: 5px;
+  margin-left: auto;
+  padding: 5px;
+  background: #F0F8FF;
+  font-size: 25px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+
+/* line 96, ../config/sass/screen.scss */
+.clear {
+  clear: both;
 }
