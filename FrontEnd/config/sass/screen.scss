@@ -8,15 +8,74 @@ $color-background: white;
 
 
 h2 {
-   color: Black;
+   color: Black;    
 
    &.joku {
     color: blue;
    }
-}
+
+text-align: center;}
 h2:hover {
     background-color: lighten(black, 20);
 }
+
+h4{
+    clolor: Black;
+
+  }
+
+h4:hover {
+  color: lighten(black, 50);
+
+}
+
+img.ikoni1
+{
+width:64px;
+height:64px;
+background:url(img_navsprites.gif) 0 0;
+}
+
+img.ikoni2
+{
+width:64px;
+height:64px;
+background:url(img_navsprites.gif) 0 0;
+}
+
+img.ikoni3
+{
+width:64px;
+height:64px;
+background:url(img_navsprites.gif) 0 0;
+}
+
+#searchBoxOne {
+    font-size: 16px;
+    color: #999;
+    padding: 6px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    -moz-box-shadow:inset 2px 2px 5px #ccc;
+    box-shadow:inset 2px 2px 5px #ccc;
+    border: 5px solid #b8b8b8;
+
+}
+
+#searchBoxTwo {
+    font-size: 16px;
+    color: #999;
+    padding: 6px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    -moz-box-shadow:inset 2px 2px 5px #ccc;
+    box-shadow:inset 2px 2px 5px #ccc;
+    border: 5px solid #b8b8b8;
+
+}
+
 
 .tabs {
   position: absolute;   
@@ -30,43 +89,55 @@ h2:hover {
   float: left;
 }
 .tab label {
-  background: #eee; 
+  background: white; 
   padding: 10px; 
-  border: 1px solid #ccc; 
-  margin-left: -1px; 
+  border: solid #6495ED; 
+  margin-left: auto; 
   position: relative;
-  left: 7px; 
+  left: auto;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.tab label:hover {
+  color: lighten(black, 50);
+}
+
+.tab label:active {
+background: grey;
 }
 .tab [type=radio] {
-  display: none;   
+  display: none;
+  //margin: 0px;   
 }
 .content {
   position: absolute;
-  top: 44px;
+  top: 20px;
   left: 0;
   background: white;
   right: 0;
   bottom: 0;
   padding: 13px;
-  border: 5px solid blue;
+  border: 5px solid #6495ED;
   //clear: both;
-      width: 270px;
-    margin: 5px;
+      width: 329px;
+    //margin: 5px;
     margin-left: auto;
     margin-right: auto;
     text-align: center;
    // padding: 5px;
-    background: #F0F8FF;
-    font-size: 11px;
+    background: white;
+    font-size: 25px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
-    border-color: blue;
+    border-color: #6495ED;
 }
 [type=radio]:checked ~ label {
   background: white;
   border-bottom: 0px solid white;
-  z-index: 2;
+  z-index: 0;
 }
 [type=radio]:checked ~ label ~ .content {
   z-index: 1;
@@ -74,6 +145,7 @@ h2:hover {
 
 #container {
     width:480px;
+    height: 3px;
     text-align: center;
     margin-left: auto;
     margin-right: auto;

@@ -66,18 +66,76 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 /* line 10, ../config/sass/screen.scss */
 h2 {
   color: Black;
+  text-align: center;
 }
 /* line 13, ../config/sass/screen.scss */
 h2.joku {
   color: blue;
 }
 
-/* line 17, ../config/sass/screen.scss */
+/* line 18, ../config/sass/screen.scss */
 h2:hover {
   background-color: #333333;
 }
 
-/* line 21, ../config/sass/screen.scss */
+/* line 22, ../config/sass/screen.scss */
+h4 {
+  clolor: Black;
+}
+
+/* line 27, ../config/sass/screen.scss */
+h4:hover {
+  color: gray;
+}
+
+/* line 33, ../config/sass/screen.scss */
+img.ikoni1 {
+  width: 64px;
+  height: 64px;
+  background: url(img_navsprites.gif) 0 0;
+}
+
+/* line 40, ../config/sass/screen.scss */
+img.ikoni2 {
+  width: 64px;
+  height: 64px;
+  background: url(img_navsprites.gif) 0 0;
+}
+
+/* line 47, ../config/sass/screen.scss */
+img.ikoni3 {
+  width: 64px;
+  height: 64px;
+  background: url(img_navsprites.gif) 0 0;
+}
+
+/* line 53, ../config/sass/screen.scss */
+#searchBoxOne {
+  font-size: 16px;
+  color: #999;
+  padding: 6px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  -moz-box-shadow: inset 2px 2px 5px #ccc;
+  box-shadow: inset 2px 2px 5px #ccc;
+  border: 5px solid #b8b8b8;
+}
+
+/* line 66, ../config/sass/screen.scss */
+#searchBoxTwo {
+  font-size: 16px;
+  color: #999;
+  padding: 6px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  -moz-box-shadow: inset 2px 2px 5px #ccc;
+  box-shadow: inset 2px 2px 5px #ccc;
+  border: 5px solid #b8b8b8;
+}
+
+/* line 80, ../config/sass/screen.scss */
 .tabs {
   position: absolute;
   min-height: 200px;
@@ -86,70 +144,83 @@ h2:hover {
   margin: 25px 0;
 }
 
-/* line 29, ../config/sass/screen.scss */
+/* line 88, ../config/sass/screen.scss */
 .tab {
   float: left;
 }
 
-/* line 32, ../config/sass/screen.scss */
+/* line 91, ../config/sass/screen.scss */
 .tab label {
-  background: #eee;
+  background: white;
   padding: 10px;
-  border: 1px solid #ccc;
-  margin-left: -1px;
+  border: solid #6495ED;
+  margin-left: auto;
   position: relative;
-  left: 7px;
+  left: auto;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
 }
 
-/* line 40, ../config/sass/screen.scss */
+/* line 103, ../config/sass/screen.scss */
+.tab label:hover {
+  color: gray;
+}
+
+/* line 107, ../config/sass/screen.scss */
+.tab label:active {
+  background: grey;
+}
+
+/* line 110, ../config/sass/screen.scss */
 .tab [type=radio] {
   display: none;
 }
 
-/* line 43, ../config/sass/screen.scss */
+/* line 114, ../config/sass/screen.scss */
 .content {
   position: absolute;
-  top: 44px;
+  top: 20px;
   left: 0;
   background: white;
   right: 0;
   bottom: 0;
   padding: 13px;
-  border: 5px solid blue;
-  width: 270px;
-  margin: 5px;
+  border: 5px solid #6495ED;
+  width: 329px;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
-  background: #F0F8FF;
-  font-size: 11px;
+  background: white;
+  font-size: 25px;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  border-color: blue;
+  border-color: #6495ED;
 }
 
-/* line 66, ../config/sass/screen.scss */
+/* line 137, ../config/sass/screen.scss */
 [type=radio]:checked ~ label {
   background: white;
   border-bottom: 0px solid white;
-  z-index: 2;
+  z-index: 0;
 }
 
-/* line 71, ../config/sass/screen.scss */
+/* line 142, ../config/sass/screen.scss */
 [type=radio]:checked ~ label ~ .content {
   z-index: 1;
 }
 
-/* line 75, ../config/sass/screen.scss */
+/* line 146, ../config/sass/screen.scss */
 #container {
   width: 480px;
+  height: 3px;
   text-align: center;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* line 82, ../config/sass/screen.scss */
+/* line 154, ../config/sass/screen.scss */
 #leftinnercolumn {
   width: 100px;
   height: auto;
@@ -164,7 +235,7 @@ h2:hover {
   border-radius: 5px;
 }
 
-/* line 96, ../config/sass/screen.scss */
+/* line 168, ../config/sass/screen.scss */
 .clear {
   clear: both;
 }
