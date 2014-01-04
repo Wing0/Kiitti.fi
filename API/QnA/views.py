@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from QnA.models import User
 
@@ -12,4 +12,4 @@ class UserAPI(APIView):
         userdata = User.objects.all()
         for user in userdata:
             data.append(user.serialize())
-        return Response("users": data, 200)
+        return Response({"users": data}, 200)
