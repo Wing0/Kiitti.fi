@@ -1,0 +1,47 @@
+@import "compass/reset";
+@import "compass/css3/opacity";
+@import "compass/css3/box-shadow";
+@import "compass/css3/transition";
+
+
+$color-background: rgb(231,123,2);
+
+
+h2 {
+   color: red;
+   background-color: $color-background;
+
+   &.joku {
+    color: blue;
+   }
+}
+
+
+h2 {
+    background-color: $color-background;
+    color: red;
+}
+
+h2:hover {
+    background-color: lighten($color-background, 20);
+
+}
+
+h2.joku {
+    background-color: $color-background;
+    color: blue;
+}
+
+.juttu {
+    @include opacity(0.5);
+    @include box-shadow(1px 1px 1px black);
+}
+
+.animation {
+    @include transition(opacity 0.5s ease-in-out);
+    opacity: 0.5;
+}
+.animation:hover {
+    opacity: 1.0;
+}
+
