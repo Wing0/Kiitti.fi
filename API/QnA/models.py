@@ -93,6 +93,23 @@ class Answer(models.Model):
 
     #history = models.TextField()
 
+
+# dummy
+class User(models.Model):
+    user_id = models.PositiveIntegerField(unique=True)
+    username = models.CharField(max_length=255)
+    reputation = models.IntegerField()
+
+    def serialize(self):
+        jsondict = {
+            'username': self.username,
+            'user_id': self.user_id,
+            'reputation': self.reputation
+        }
+
+        return jsondict
+
+
 class Comment(models.Model):
     '''
     This is the comment model.
@@ -130,18 +147,3 @@ ToDo:
         etc.
 
 '''
-
-# dummy
-class User(models.Model):
-	user_id = models.PositiveIntegerField(unique=True)
-    username = models.CharField(max_length=255)
-    reputation = models.IntegerField()
-
-    def serialize(self):
-        jsondict = {
-            'username': self.username,
-            'user_id': self.user_id,
-            'reputation': self.reputation
-        }
-
-        return jsondict
