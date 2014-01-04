@@ -1,13 +1,63 @@
 from django.db import models
 
-class Customer(models.Model):
+class AbstractMessage(models.Model):
     '''
-    Each customer has one unique Customer object. So far, this is only a dummy model.
+    This is the Abstract message class for all the message classes. The other message classes
+    will inherit this class.
+    '''
+    content = models.TextField()
+    version = models.PositiveIntegerField()
+    user_id = models.ForeignKey(User, to_field='user_id')
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField()
+    message_id = models.PositiveIntegerField()
 
-    ToDo: Complete the Customer model attributes.
+    def serialize(self):
+        jsondict = {
+            'content': self.content,
+            'version': self.version,
+            'user_id': self.user_id,
+            'created': self.created,
+            'modified': self.modified,
+            'message_id': self.message_id
+        }
+
+        return jsondict
+
+
+class Answer(AbstractMessage):
     '''
-    customer_id = models.PositiveIntegerField(unique=True)
-    name = models.CharField(max_length=100)
+
+    '''
+    question_id = models.PositiveIntegerField() #this is the message_id of the question this answer is response to
+
+    def serialize(self):
+        jsondict = super(Answer, self).serialize()
+        jsondict['question_id'] = self.question_id
+        return jsondict
+
+
+class Question(AbstractMessage):
+    '''
+
+    '''
+    topic = models.CharField(max_length=250)
+    def serialize(self):
+        jsondict = super(Question, self).serialize()
+        jsondict['topic'] = self.topic
+        return jsondict
+
+class Comment(AbstractMessage):
+    '''
+
+    '''
+    parent_id = models.PositiveIntegerField() #this is the message_id of the message to which this comment is for
+    def serialize(self):
+        jsondict = super(Comment, self).serialize()
+        jsondict['parent_id'] = self.parent_id
+        return jsondict
+
+
 
 class Topic(models.Model):
     '''
@@ -54,46 +104,6 @@ class Tag(models.Model):
     question_counter = models.IntegerField()
     course_flag = models.BooleanField(default=False)
 
-class Question(models.Model):
-    '''
-    This is the question model. Question is very similiar to Answer, but it also has heading but no votes.
-
-
-    '''
-
-    created = models.DateField(auto_now_add=True)
-    edited = models.DateField(auto_now=True)
-    customer = models.ForeignKey(Customer)
-
-    author = models.ForeignKey('User')
-    heading = models.CharField(max_length=150)
-    content = models.TextField()
-    #topic
-    #tags
-
-    view_counter = models.IntegerField()
-    #history = models.TextField()
-
-
-class Answer(models.Model):
-    '''
-    This is the answer model.
-
-
-    '''
-    answer_id = models.PositiveIntegerField(unique=True)
-    created = models.DateField(auto_now_add=True)
-    edited = models.DateField(auto_now=True)
-    parent = models.ForeignKey(Question)
-
-    author = models.ForeignKey('User')
-    content = models.TextField()
-    votes = models.IntegerField()
-    correct = models.BooleanField(default=False)
-
-    #history = models.TextField()
-
-
 # dummy
 class User(models.Model):
     user_id = models.PositiveIntegerField(unique=True)
@@ -113,22 +123,7 @@ class User(models.Model):
 
 
     '''
-class Comment(models.Model):
-    '''
-    This is the comment model.
 
-
-    '''
-
-    created = models.DateField(auto_now_add=True)
-    edited = models.DateField(auto_now=True)
-    parent_question = models.ForeignKey(Question, blank=True)
-    parent_answer = models.ForeignKey(Answer, to_field="answer_id")
-
-    author = models.ForeignKey(User, to_field="user_id")
-    content = models.TextField()
-
-    #history = models.TextField()
 
 '''
 ToDo:
