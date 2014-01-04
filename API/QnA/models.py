@@ -1,5 +1,53 @@
 from django.db import models
 
+class Organization(models.Model):
+
+    created = models.DateField(auto_now_add=True)
+    modified = models.DateField(auto_now=True)
+    name = models.CharField(max_length=255)
+    address = models.TextField()
+    #image = models.ImageField()
+
+    def get_image():
+        return null
+
+    def serialize(self):
+        jsondict = {
+            'name': self.name,
+            'address': self.address,
+            'created': self.created,
+            'modified': self.modified
+        }
+
+        return jsondict
+
+# dummy
+class User(models.Model):
+
+    user_id = models.PositiveIntegerField(unique=True)
+    username = models.CharField(max_length=255)
+    reputation = models.IntegerField()
+    firstname = models.CharField(max_length=255)
+    lastname = models.CharField(max_length=255)
+    password = models.CharField(max_length=255)
+    created = models.DateField(auto_now_add=True)
+    modified = models.DateField(auto_now=True)
+    organization_id = models.ForeignKey(Organization)
+
+    def serialize(self):
+        jsondict = {
+            'username': self.username,
+            'user_id': self.user_id,
+            'reputation': self.reputation,
+            'firstname': self.firstname,
+            'lastname': self.lastname,
+            'created': self.created,
+            'modified': self.modified,
+            'organization_id': organization_id
+        }
+
+        return jsondict
+
 class AbstractMessage(models.Model):
     '''
     This is the Abstract message class for all the message classes. The other message classes
@@ -88,60 +136,12 @@ class Tag(models.Model):
 
 '''
 
-class Organization(models.Model):
-
-    created = models.DateField(auto_now_add=True)
-    modified = models.DateField(auto_now=True)
-    name = models.CharField(max_length=255)
-    address = models.TextField()
-    image = models.ImageField()
-
-    def get_image():
-        return null
-
-    def serialize(self):
-        jsondict = {
-            'name': self.name,
-            'address': self.address,
-            'created': self.created,
-            'modified': self.modified
-        }
-
-        return jsondict
-
-# dummy
-class User(models.Model):
-
-    user_id = models.PositiveIntegerField(unique=True)
-    username = models.CharField(max_length=255)
-    reputation = models.IntegerField()
-    firstname = models.CharField(max_length=255)
-    lastname = models.CharField(max_length=255)
-    password = models.CharField(max_length=255)
-    created = models.DateField(auto_now_add=True)
-    modified = models.DateField(auto_now=True)
-    organization_id = models.ForeignKey(Organization)
-
-    def serialize(self):
-        jsondict = {
-            'username': self.username,
-            'user_id': self.user_id,
-            'reputation': self.reputation,
-            'firstname': self.firstname,
-            'lastname': self.lastname,
-            'created': self.created,
-            'modified': self.modified,
-            'organization_id': organization_id
-        }
-
-        return jsondict
-
 
 class Vote(models.Model):
 
     type = models.SmallIntegerField(default=0)
-    user_id = models.ForeignKey(User)
-    message_id = models.ForeignKey(User)
+    user_id = models.ForeignKey(User, to_field="user_id")
+    message_id = models.IntegerField(default=0)
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
 
