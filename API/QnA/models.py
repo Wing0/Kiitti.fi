@@ -108,8 +108,11 @@ class User(models.Model):
         }
 
         return jsondict
+    '''
+    def validate(self, jsondict):
 
 
+    '''
 class Comment(models.Model):
     '''
     This is the comment model.
