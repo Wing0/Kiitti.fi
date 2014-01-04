@@ -47,7 +47,7 @@ class Tag(models.Model):
     created = models.DateField(auto_now_add=True)
     last_use = models.DateField(auto_now=True)
     creator = models.ForeignKey('User')
-    customer = models.ForeignKey(Customer)
+    customer = models.ForeignKey(Customer, to_field="")
 
     name = models.CharField(max_length=30)
     follow_counter = models.IntegerField()
@@ -81,7 +81,7 @@ class Answer(models.Model):
 
 
     '''
-
+    answer_id = models.PositiveIntegerField(unique=True)
     created = models.DateField(auto_now_add=True)
     edited = models.DateField(auto_now=True)
     parent = models.ForeignKey(Question)
@@ -103,9 +103,9 @@ class Comment(models.Model):
     created = models.DateField(auto_now_add=True)
     edited = models.DateField(auto_now=True)
     parent_question = models.ForeignKey(Question, blank=True)
-    parent_answer = models.ForeignKey(Answer, blank=True)
+    parent_answer = models.ForeignKey(Answer, to_field="answer_id")
 
-    author = models.ForeignKey('User')
+    author = models.ForeignKey(User, to_field="user_id")
     content = models.TextField()
 
     #history = models.TextField()
@@ -133,5 +133,15 @@ ToDo:
 
 # dummy
 class User(models.Model):
-
+	user_id = models.PositiveIntegerField(unique=True)
     username = models.CharField(max_length=255)
+    reputation = models.IntegerField()
+
+    def serialize(self):
+        jsondict = {
+            'username': self.username,
+            'user_id': self.user_id,
+            'reputation': self.reputation
+        }
+
+        return jsondict
