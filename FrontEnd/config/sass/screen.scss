@@ -19,6 +19,37 @@ h2:hover {
     background-color: lighten(black, 20);
 }
 
+h4{
+    clolor: Black;
+
+  }
+
+h4:hover {
+  color: lighten(black, 50);
+
+}
+
+img.ikoni1
+{
+width:64px;
+height:64px;
+background:url(img_navsprites.gif) 0 0;
+}
+
+img.ikoni2
+{
+width:64px;
+height:64px;
+background:url(img_navsprites.gif) 0 0;
+}
+
+img.ikoni3
+{
+width:64px;
+height:64px;
+background:url(img_navsprites.gif) 0 0;
+}
+
 #searchBoxOne {
     font-size: 16px;
     color: #999;
@@ -67,6 +98,14 @@ h2:hover {
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
+}
+
+.tab label:hover {
+  color: lighten(black, 50);
+}
+
+.tab label:active {
+background: grey;
 }
 .tab [type=radio] {
   display: none;
