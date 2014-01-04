@@ -4,44 +4,117 @@
 @import "compass/css3/transition";
 
 
-$color-background: rgb(231,123,2);
+$color-background: white;
 
 
 h2 {
-   color: red;
-   background-color: $color-background;
+   color: Black;
 
    &.joku {
     color: blue;
    }
 }
-
-
-h2 {
-    background-color: $color-background;
-    color: red;
-}
-
 h2:hover {
-    background-color: lighten($color-background, 20);
-
+    background-color: lighten(black, 20);
 }
 
-h2.joku {
-    background-color: $color-background;
-    color: blue;
+.tabs {
+  position: absolute;   
+  min-height: 200px; /* This part sucks */
+  clear: both;
+  margin: 25px 0;
+
+
+}
+.tab {
+  float: left;
+}
+.tab label {
+  background: #eee; 
+  padding: 10px; 
+  border: 1px solid #ccc; 
+  margin-left: -1px; 
+  position: relative;
+  left: 7px; 
+}
+.tab [type=radio] {
+  display: none;   
+}
+.content {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  background: white;
+  right: 0;
+  bottom: 0;
+  padding: 13px;
+  border: 5px solid blue;
+  //clear: both;
+      width: 270px;
+    margin: 5px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+   // padding: 5px;
+    background: #F0F8FF;
+    font-size: 11px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border-color: blue;
+}
+[type=radio]:checked ~ label {
+  background: white;
+  border-bottom: 0px solid white;
+  z-index: 2;
+}
+[type=radio]:checked ~ label ~ .content {
+  z-index: 1;
 }
 
-.juttu {
-    @include opacity(0.5);
-    @include box-shadow(1px 1px 1px black);
+#container {
+    width:480px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.animation {
-    @include transition(opacity 0.5s ease-in-out);
-    opacity: 0.5;
+#leftinnercolumn { 
+    width: 100px;
+    height: auto; 
+    float: none;
+    margin: 5px;
+    margin-left: auto;
+    padding: 5px;
+    background: #F0F8FF;
+    font-size: 25px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
 }
-.animation:hover {
-    opacity: 1.0;
-}
+
+.clear { clear: both;}
+//:h2.joku {
+//    background-color: $color-background;
+//    color: blue;
+//}
+
+//.juttu {
+//    @include opacity(0.5);
+//    @include box-shadow(1px 1px 1px black);
+//}
+//
+//.animation {
+//    @include transition(opacity 0.5s ease-in-out);
+//    opacity: 0.5;
+//}
+//.animation:hover {
+//    opacity: 1.0;
+//}
+//#container {
+//    width:480px;
+//    text-align: center;
+//    margin-left: auto;
+//    margin-right: auto;
+//}
 
