@@ -28,8 +28,10 @@ class Topic(models.Model):
     follow_counter = models.IntegerField()
     question_counter = models.IntegerField()
 
+'''
 class Tag(models.Model):
-    '''
+
+    ####
     This is the tag model for questions. Each Question may have 0-5 tags.
     Courses are also tags, but for those, the course_flag is set to True.
 
@@ -39,10 +41,10 @@ class Tag(models.Model):
     name: String, name of the topic, for example "Integrating"
     follow_counter: Integer, counter that easily expresses the number of followers in the tag
     question_counter: Integer, counter that easily expresses the number of questions in this category
-    course_flag: Boolean, this is set to True if the tag represents a course, otherwise it's False
+    course_flag: Boolean, this is set to True if the tag represents a course, otherwise it is False
 
     ToDo: Tags are customer-specific. How can we make a distinction between the tags of different customers? ForeignKey or separate table?
-    '''
+    ####
 
     created = models.DateField(auto_now_add=True)
     last_use = models.DateField(auto_now=True)
@@ -53,6 +55,8 @@ class Tag(models.Model):
     follow_counter = models.IntegerField()
     question_counter = models.IntegerField()
     course_flag = models.BooleanField(default=False)
+
+'''
 
 class Question(models.Model):
     '''
@@ -94,21 +98,101 @@ class Answer(models.Model):
     #history = models.TextField()
 
 
+class Organization(models.Model):
+
+    created = models.DateField(auto_now_add=True)
+    modified = models.DateField(auto_now=True)
+    name = models.CharField(max_length=255)
+    address = models.TextField()
+    image = models.ImageField()
+
+    def get_image():
+        return null
+
+    def serialize(self):
+        jsondict = {
+            'name': self.name,
+            'address': self.address,
+            'created': self.created,
+            'modified': self.modified
+        }
+
+        return jsondict
+
+
 # dummy
 class User(models.Model):
+
     user_id = models.PositiveIntegerField(unique=True)
     username = models.CharField(max_length=255)
     reputation = models.IntegerField()
+    firstname = models.CharField(max_length=255)
+    lastname = models.CharField(max_length=255)
+    password = models.CharField(max_length=255)
+    created = models.DateField(auto_now_add=True)
+    modified = models.DateField(auto_now=True)
+    organization_id = models.ForeignKey(Organization)
 
     def serialize(self):
         jsondict = {
             'username': self.username,
             'user_id': self.user_id,
-            'reputation': self.reputation
+            'reputation': self.reputation,
+            'firstname': self.firstname,
+            'lastname': self.lastname,
+            'created': self.created,
+            'modified': self.modified,
+            'organization_id': organization_id
         }
 
         return jsondict
 
+
+class Vote(models.Model):
+
+    type = models.SmallIntegerField(default=0)
+    user_id = models.ForeignKey(User)
+    message_id = models.ForeignKey(User)
+    created = models.DateField(auto_now_add=True)
+    modified = models.DateField(auto_now=True)
+
+    def serialize(self):
+        jsondict = {
+            'type': self.type,
+            'user_id': self.user_id,
+            'message_id': self.message_id,
+            'created': self.created,
+            'modified': self.modified
+        }
+
+        return jsondict
+
+class Tag(models.Model):
+
+    created = models.DateField(auto_now_add=True)
+    modified = models.DateField(auto_now=True)
+    creator = models.ForeignKey(User)
+    organization_id = models.ForeignKey(Organization)
+
+    name = models.CharField(max_length=30)
+    follow_counter = models.IntegerField()
+    question_counter = models.IntegerField()
+    course_flag = models.BooleanField(default=False)
+
+    def serialize(self):
+        jsondict = {
+            'creator': self.creator,
+            'user_id': self.user_id,
+            'message_id': self.message_id,
+            'created': self.created,
+            'modified': self.modified,
+            'organization_id': self.organization_id,
+            'follow_counter': self.follow_counter,
+            'question_counter': self.question_counter,
+            'course_flag': self.course_flag
+        }
+
+        return jsondict
 
 class Comment(models.Model):
     '''
