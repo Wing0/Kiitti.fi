@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'QnA',
     'Kiitti',
+    'south'
 )
 
 MIDDLEWARE_CLASSES = (
