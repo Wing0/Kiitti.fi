@@ -48,6 +48,8 @@ JSON example:
                 		"user_id": int,
                 		"username": string,
                 		"date": timestamp,
+                        "votes_up": int,
+                        "votes_down": int,
                 		"comments": [
                 			{
                 				"user_id": int,
@@ -75,9 +77,9 @@ Saves question to database.
 		"user_id": int,
 		"tags": [string, string, ...]
 	}
-	
+
 ## Answers
-	
+
 #### POST /answers
 
 Saves answer to database.
@@ -87,7 +89,7 @@ Saves answer to database.
 		"content": string,
 		"user_id": int
 	}
-	
+
 ## Comments
 
 #### POST /comments
@@ -100,4 +102,4 @@ Saves comment to database.
 		"user_id": int,
 		"message_id": int
 	}
-	
+
