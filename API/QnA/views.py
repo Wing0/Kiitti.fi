@@ -35,20 +35,21 @@ def post_abstract_message(abstractmessage, data):
     if 'version' in data.keys():
         abstractmessage.version = data["version"]
     else:
-        abstractmessage.version = 0
+        abstractmessage.version = -1
 
     if 'userId' in data.keys():
 
         abstractmessage.user_id = User.objects.get(user_id=data["userId"])
-    else:
-        abstractmessage.user_id = None
 
-    print "something"
+    else:
+        print "katoha"
+        abstractmessage.user_id = null
+        print "katohakakkone"
 
     if 'messageId' in data.keys():
         abstractmessage.message_id = data["messageId"]
     else:
-        abstractmessage.message_id = None
+        abstractmessage.message_id = null
 
 
 
@@ -162,13 +163,15 @@ class QuestionAPI(APIView):
         return Response(200)
 
     def post(self, request):
-        print "jotain"
         data = json.loads(request.body)
 
         abs_data = post_abstract_message(Question(), data)
-        print "katotaan"
         topic = data['topic']
         abs_data.topic = topic
-        abs_data.save()
-        return Response(200)
+
+        valid, messages = abs_data.validate()
+        if valid:
+            abs_data.save()
+
+        return Response({"messages":messages},200)
 
