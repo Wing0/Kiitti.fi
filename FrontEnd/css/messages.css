@@ -61,8 +61,8 @@
 }
 /* line 60, ../config/sass/messages.scss */
 .votes .down .thumb {
-  border-color: #eb8784;
-  background-color: #eb8784;
+  border-color: #e87b77;
+  background-color: #ee9d9a;
 }
 /* line 64, ../config/sass/messages.scss */
 .votes .up .thumb {
@@ -230,7 +230,7 @@
 }
 /* line 186, ../config/sass/messages.scss */
 .tags li:before, .tag:before {
-  content: "# ";
+  content: "#";
 }
 /* line 188, ../config/sass/messages.scss */
 .tags li:first-child, .tag:first-child {

@@ -303,9 +303,10 @@ nav li a:link, nav li a:visited {
 nav li a:hover, nav li a.active {
   background-color: #303030;
   color: #d6d6d6;
+  text-decoration: none;
 }
 
-/* line 176, ../config/sass/screen.scss */
+/* line 177, ../config/sass/screen.scss */
 .wrapper {
   width: 550px;
   text-align: justify;
@@ -315,7 +316,7 @@ nav li a:hover, nav li a.active {
   /* IE6-9 only hack */
 }
 
-/* line 184, ../config/sass/screen.scss */
+/* line 185, ../config/sass/screen.scss */
 .wrapper div {
   background: white;
   display: inline-block;
@@ -324,7 +325,7 @@ nav li a:hover, nav li a.active {
   *display: inline;
 }
 
-/* line 193, ../config/sass/screen.scss */
+/* line 194, ../config/sass/screen.scss */
 .wrapper:after {
   content: "";
   width: 100%;
@@ -395,8 +396,8 @@ nav li a:hover, nav li a.active {
 }
 /* line 60, ../config/sass/messages.scss */
 .votes .down .thumb {
-  border-color: #eb8784;
-  background-color: #eb8784;
+  border-color: #e87b77;
+  background-color: #ee9d9a;
 }
 /* line 64, ../config/sass/messages.scss */
 .votes .up .thumb {
@@ -564,7 +565,7 @@ nav li a:hover, nav li a.active {
 }
 /* line 186, ../config/sass/messages.scss */
 .tags li:before, .tag:before {
-  content: "# ";
+  content: "#";
 }
 /* line 188, ../config/sass/messages.scss */
 .tags li:first-child, .tag:first-child {

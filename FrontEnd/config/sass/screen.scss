@@ -164,6 +164,7 @@ nav {
       &:hover, &.active {
         background-color: lighten($color-nav, 15);
         color: lighten($color-nav, 80);
+        text-decoration: none;
       }
     }
   }
