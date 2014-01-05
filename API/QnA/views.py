@@ -41,14 +41,12 @@ def post_abstract_message(abstractmessage, data):
 
         abstractmessage.user_id = User.objects.get(user_id=data["userId"])
     else:
-        abstractmessage.user_id = None
-
-    print "something"
+        raise Exception("You must provide valid user id.")
 
     if 'messageId' in data.keys():
         abstractmessage.message_id = data["messageId"]
     else:
-        abstractmessage.message_id = None
+        raise Exception("You must provide valid message id.")
 
 
 
@@ -126,8 +124,12 @@ class AnswerAPI(APIView):
 
     def post(self, request):
         data = json.loads(request.body)
+        messages = {}
+        try:
+            abs_data = post_abstract_message(Answer(), data)
+        except Exception, e:
+            messages = {"type": "alert", "content": str(e), "identifier": ""}
 
-        abs_data = post_abstract_message(Answer(), data)
         if 'accepted' in data:
             abs_data.accepted = data["accepted"]
         else:
@@ -145,7 +147,11 @@ class CommentAPI(APIView):
 
     def post(self, request):
         data = json.loads(request.body)
-        abs_data = post_abstract_message(Comment(), data)
+        messages = {}
+        try:
+            abs_data = post_abstract_message(Answer(), data)
+        except Exception, e:
+            messages = {"type": "alert", "content": str(e), "identifier": ""}
 
         parent_id = data["parentId"]
         abs_data.parent_id = parent_id
@@ -167,11 +173,13 @@ class QuestionAPI(APIView):
         return Response(200)
 
     def post(self, request):
-        print "jotain"
         data = json.loads(request.body)
 
-        abs_data = post_abstract_message(Question(), data)
-        print "katotaan"
+        messages = {}
+        try:
+            abs_data = post_abstract_message(Answer(), data)
+        except Exception, e:
+            messages = {"type": "alert", "content": str(e), "identifier": ""}
         topic = data['topic']
         abs_data.topic = topic
         abs_data.save()

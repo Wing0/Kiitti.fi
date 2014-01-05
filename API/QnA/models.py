@@ -215,6 +215,7 @@ class Answer(AbstractMessage):
     Represents an Answer for Question.
 
     '''
+    answer_id = models.PositiveIntegerField()
     question_id = models.PositiveIntegerField() #this is the message_id of the question this answer is response to
     accepted = models.BooleanField(default=False)
 
@@ -235,11 +236,24 @@ class Answer(AbstractMessage):
             messages.append({"type": "alert", "content": "Accepted value must be a boolean.", "identifier": "accepted"})
         return valid, messages
 
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_objects = Answer.objects.all()
+            largest_id = max([0] + [obj.answer_id for obj in all_objects])
+            self.answer_id = largest_id + 1
+        # Just save
+        super(Answer, self).save(*args, **kwargs)
+
 
 class Question(AbstractMessage):
     '''
 
     '''
+    question_id = models.PositiveIntegerField()
     topic = models.CharField(max_length=250)
     def serialize(self):
         jsondict = super(Question, self).serialize()
@@ -256,10 +270,24 @@ class Question(AbstractMessage):
             messages.append({"type": "alert", "content": "Topic must be atleast five characters long.", "identifier": "topic"})
         return valid, messages
 
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_objects = Question.objects.all()
+            largest_id = max([0] + [obj.question_id for obj in all_objects])
+            self.question_id = largest_id + 1
+        # Just save
+        super(Question, self).save(*args, **kwargs)
+
+
 class Comment(AbstractMessage):
     '''
 
     '''
+    comment_id = models.PositiveIntegerField()
     parent_id = models.PositiveIntegerField() #this is the message_id of the message to which this comment is for
     def serialize(self):
         jsondict = super(Comment, self).serialize()
@@ -272,6 +300,18 @@ class Comment(AbstractMessage):
             valid = False
             messages.append({"type": "alert", "content": "Parent id has to be a integer.", "identifier": "parent_id"})
         return valid, messages
+
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_objects = Comment.objects.all()
+            largest_id = max([0] + [obj.comment_id for obj in all_objects])
+            self.comment_id = largest_id + 1
+        # Just save
+        super(Comment, self).save(*args, **kwargs)
 
 class Vote(models.Model):
 
