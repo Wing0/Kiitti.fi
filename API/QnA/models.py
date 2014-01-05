@@ -38,7 +38,7 @@ class User(AbstractUser):
             'email': self.email,
             'created': self.date_joined,
             'lastLogin': self.last_login,
-            'organizationId': organization_id
+            'organizationId': self.organization_id
         }
 
         return jsondict
