@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from QnA.models import User, Vote, AbstractMessage, Comment, Answer, Question
+from QnA.models import *
 import json
 
 # Create your views here...

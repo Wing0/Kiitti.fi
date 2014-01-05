@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from QnA.views import UserAPI, AnswerAPI, CommentAPI, VoteAPI, QuestionAPI
+from QnA.views import *
 
 from django.contrib import admin
 admin.autodiscover()
