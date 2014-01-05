@@ -50,9 +50,34 @@ app.controller('BrowsePopularController', function($scope, QuestionFactory) {
 
   $scope.question = QuestionFactory.get();
 
-  var questions = QuestionFactory.get(function(data) {
+  /*var questions = QuestionFactory.get(function(data) {
     console.log(data);
-  });
-
+  });*/
 
 });
+
+/* DIRECTIVES */
+
+app.directive('qnaComment', function() {
+  return {
+    restrict: 'A',
+    scope: {
+      comment: '=comment'
+    },
+    templateUrl: '../templates/qna-comment.html',
+    replace: true
+  }
+})
+
+app.directive('qnaVotes', function() {
+  return {
+    restrict: 'A',
+    scope: {
+      votes_up: '=votesUp',
+      votes_down: '=votesDown'
+    },
+    templateUrl: '../templates/qna-votes.html',
+    replace: true
+  }
+})
+

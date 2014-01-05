@@ -5,12 +5,16 @@ $page-max-width: 900px;
 $page-min-width: 480px;
 
 $color-main-emphasis: rgb(80,110,140);
+$color-link: rgb(30, 140, 230);
 $color-text: rgb(30,30,30);
 $color-text-muted: rgb(160,160,160);
 $color-light-text: rgb(255,255,255);
 $color-nav: rgb(10,10,10);
 $color-tag: lighten($color-main-emphasis, 52);
 $color-background: white;
+$color-positive: rgb(75,150,50);
+$color-negative: rgb(220,50,45);
+$color-separator: rgb(200,200,200);
 
 $block-padding-vertical: 40px;
 $block-padding-horizontal: 30px;

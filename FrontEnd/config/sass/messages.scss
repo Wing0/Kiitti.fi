@@ -5,15 +5,30 @@
 $vote-width: 100px;
 $thumb-size: 40px;
 
-.question {
-  &:not(:last-child) {
-    margin-bottom: 30px;
+.questions {
+  .question {
+    &:not(:last-child) {
+      margin-bottom: 30px;
+    }
+  }
+}
+
+.answers {
+  margin-top: 40px;
+  h3 {
+    font-size: 120%;
+    font-weight: bold;
+    padding-bottom: 7px;
+    border-bottom: 1px solid $color-separator;
+  }
+
+  .answer {
+    padding-bottom: 30px;
+    border-bottom: 1px solid $color-separator;
   }
 }
 
 .votes {
-  margin-top: 10px;
-
   position: absolute;
   left: 0;
   top: 0;
@@ -33,42 +48,31 @@ $thumb-size: 40px;
       margin-top: 6px;
     }
   }
-}
 
-.comments {
-  background-color: darken($color-background, 3);
-
-  margin-top: 20px;
-  padding: 15px;
-
-  font-size: 90%;
-
-  h4 {
-    font-size: 120%;
-    font-weight: 700;
-    margin-top: 0;
-    padding-top: 0;
+  .thumb {
+    padding: 7px;
+    width: $thumb-size - 14;
+    height: $thumb-size - 14;
+    @include border-radius($thumb-size/2);
+    border-width: 2px;
+    border-style: solid;
+  }
+  .down .thumb {
+    border-color: lighten($color-negative, 20);
+    background-color: lighten($color-negative, 20);
+  }
+  .up .thumb {
+    border-color: lighten($color-positive, 20);
+    background-color: lighten($color-positive, 30);
   }
 }
 
-.answers {
-  h3 {
-    font-size: 120%;
-    font-weight: bold;
-    padding-bottom: 5px;
-    border-bottom: 1px solid $color-text-muted;
-  }
-}
+.message-block {
 
-.thumb {
-  width: $thumb-size;
-  height: $thumb-size;
-  @include border-radius($thumb-size/2);
-  background-color: rgb(250,250,250);
-  border: 1px solid rgb(230,230,230);
-}
+  margin: 30px 0;
+  &:first-child, &.question { margin-top: 0; }
+  &:last-child, &.answers { margin-bottom: 0; }
 
-.message {
   position: relative;
   padding-left: $vote-width + 20px;
 
@@ -80,12 +84,47 @@ $thumb-size: 40px;
 
   header, .question-header {
     h1, h2, h3, .topic {
-
+      margin-bottom: 5px;
     }
   }
 
-  .content {
+  .comments {
+    background-color: darken($color-background, 3);
+
     margin-top: 20px;
+    padding: 15px;
+
+    font-size: 90%;
+
+    h4 {
+      font-size: 120%;
+      font-weight: 700;
+      margin-top: 0;
+      padding-top: 0;
+    }
+
+    .comment {
+      padding-top: 10px;
+      &:not(:last-child) {
+        padding-bottom: 10px;
+        border-bottom: 1px dotted $color-separator;
+      }
+
+      p {
+        display: inline;
+      }
+
+      .username {
+        margin-left: 5px;
+        &:before {
+          content: "– "
+        }
+      }
+      .date {
+        margin-left: 5px;
+        color: $color-text-muted;
+      }
+    }
   }
 
   footer {

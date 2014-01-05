@@ -12,6 +12,16 @@ body {
   }
 }
 
+a, a:visited {
+  @include transition(color 0.2s ease-in-out);
+  @include transition(text-decoration 0.2s ease-in-out);
+  color: $color-link;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
 /* GENERAL BLOCKS */
 
 .block {
