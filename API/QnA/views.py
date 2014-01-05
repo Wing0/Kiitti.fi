@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from QnA.models import User, Vote, AbstractMessage, Comment, Answer
+from QnA.models import *
 import json
 import re
 

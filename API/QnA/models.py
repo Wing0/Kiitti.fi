@@ -11,7 +11,7 @@ class Organization(models.Model):
     #image = models.ImageField()
 
     def get_image():
-        return null
+        return None
 
     def serialize(self):
         jsondict = {
@@ -35,11 +35,32 @@ class Organization(models.Model):
         # Just save
         super(Organization, self).save(*args, **kwargs)
 
+    def validate(self):
+        valid = True
+        messages = []
+        if not isinstance(self.organization_id, int) or self.organization_id < 0:
+            valid = False
+            messages.append({"type": "alert", "content": "Organization id must be a positive integer.", "identifier": "organization_id"})
+        if not isinstance(self.name, basetext):
+            valid = False
+            messages.append({"type": "alert", "content": "Name has to be a string.", "identifier": "name"})
+        if not len(self.name) < 3:
+            valid = False
+            messages.append({"type": "alert", "content": "Name has to be atleast 3 character long.", "identifier": "name"})
+        if not isinstance(self.address, basetext):
+            valid = False
+            messages.append({"type": "alert", "content": "Address has to be a string.", "identifier": "address"})
+        if not len(self.address) < 3:
+            valid = False
+            messages.append({"type": "alert", "content": "Address has to be atleast 3 character long.", "identifier": "address"})
+
+        return valid, messages
+
 class User(AbstractUser):
 
     user_id = models.PositiveIntegerField(unique=True)
     reputation = models.IntegerField(default=0)
-    organization_id = models.ForeignKey(Organization, to_field=organization_id, blank=True, null=True)
+    organization_id = models.ForeignKey(Organization, to_field='organization_id', blank=True, null=True)
 
     def serialize(self):
         jsondict = {
@@ -142,9 +163,30 @@ class AbstractMessage(models.Model):
 
         return jsondict
 
+    def validate(self):
+        valid = True
+        messages = []
+        if not isinstance(self.content, basetext):
+            valid = False
+            messages.append({"type": "alert", "content": "Content must be a string.", "identifier": "content"})
+        if len(self.content) < 1:
+            valid = False
+            messages.append({"type": "alert", "content": "Content must be a string.", "identifier": "content"})
+        if not isinstance(self.version, int) or self.version < 0:
+            valid = False
+            messages.append({"type": "alert", "content": "Version must be a positive integer.", "identifier": "version"})
+        if not isinstance(user_id, int) or self.user_id < 0:
+            valid = False
+            messages.append({"type": "alert", "content": "User id must be a positive integer.", "identifier": "user_id"})
+        if not isinstance(message_id, int) or self.message_id < 0:
+            valid = False
+            messages.append({"type": "alert", "content": "Message id must be a positive number.", "identifier": "message_id"})
+        return valid, messages
+
 
 class Answer(AbstractMessage):
     '''
+    Represents an Answer for Question.
 
     '''
     question_id = models.PositiveIntegerField() #this is the message_id of the question this answer is response to
@@ -157,6 +199,17 @@ class Answer(AbstractMessage):
 
         return jsondict
 
+    def validate(self):
+        valid = True
+        messages = []
+        if not isinstance(self.question_id, int) or self.question_id < 0:
+            valid = False
+            messages.append({"type": "alert", "content": "Question id must be a positive integer.", "identifier": "question_id"})
+        if not isinstance(self.accepted, bool):
+            valid = False
+            messages.append({"type": "alert", "content": "Accepted value must be a boolean.", "identifier": "accepted"})
+        return valid, messages
+
 
 class Question(AbstractMessage):
     '''
@@ -168,6 +221,17 @@ class Question(AbstractMessage):
         jsondict['topic'] = self.topic
         return jsondict
 
+    def validate(self):
+        valid = True
+        messages = []
+        if not isinstance(self.topic, basetext):
+            valid = False
+            messages.append({"type": "alert", "content": "Topic has to be a string.", "identifier": "topic"})
+        if len(self.topic) < 5:
+            valid = False
+            messages.append({"type": "alert", "content": "Topic must be atleast five characters long.", "identifier": "topic"})
+        return valid, messages
+
 class Comment(AbstractMessage):
     '''
 
@@ -178,6 +242,13 @@ class Comment(AbstractMessage):
         jsondict['parentId'] = self.parent_id
         return jsondict
 
+    def validate(self):
+        valid = True
+        messages = []
+        if not isinstance(self.parent_id, basetext) or self.parent_id < 0 :
+            valid = False
+            messages.append({"type": "alert", "content": "Parent id has to be a integer.", "identifier": "parent_id"})
+        return valid, messages
 
 '''
 class Tag(models.Model):
@@ -229,12 +300,27 @@ class Vote(models.Model):
 
         return jsondict
 
+    def validate(self):
+        valid = True
+        messages = []
+        if not isinstance(self.rate, int):
+            valid = False
+            messages.append({"type": "alert", "content": "Rate has to be a integer.", "identifier": "rate"})
+        if not isinstance(self.user_id, int) or self.user_id < 0:
+            valid = False
+            messages.append({"type": "alert", "content": "User id has to be a positive integer.", "identifier": "user_id"})
+        if not isinstance(self.user_id, int) or self.message_id < 0:
+            valid = False
+            messages.append({"type": "alert", "content": "Message id has to be a positive integer.", "identifier": "message_id"})
+
+        return valid, messages
+
 class Tag(models.Model):
 
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
-    creator = models.ForeignKey(User)
-    organization_id = models.ForeignKey(Organization)
+    creator = models.ForeignKey(User, to_field="user_id")
+    organization_id = models.ForeignKey(Organization, to_field="organization_id")
 
     name = models.CharField(max_length=30)
     follow_counter = models.IntegerField()
@@ -255,6 +341,32 @@ class Tag(models.Model):
         }
 
         return jsondict
+
+    def validate(self):
+        valid = True
+        messages = []
+        if not isinstance(self.creator, int) or self.creator < 0:
+            valid = False
+            messages.append({"type": "alert", "content": "Creator must be a positive integer.", "identifier": "creator"})
+        if not isinstance(self.organization_id, int) or self.organization_id < 0:
+            valid = False
+            messages.append({"type": "alert", "content": "Organization id has to be a positive integer.", "identifier": "organization_id"})
+        if not isinstance(self.name, int):
+            valid = False
+            messages.append({"type": "alert", "content": "Name has to be a string.", "identifier": "name"})
+        if not len(self.name) > 0:
+            valid = False
+            messages.append({"type": "alert", "content": "Name has to be atleast 1 character long.", "identifier": "name"})
+        if not isinstance(self.follow_counter, int) or self.follow_counter < 0:
+            valid = False
+            messages.append({"type": "alert", "content": "Follow counter must be a positive integer.", "identifier": "follow_counter"})
+        if not isinstance(self.question_counter, int) or self.question_counter < 0:
+            valid = False
+            messages.append({"type": "alert", "content": "Question counter must be a positive integer.", "identifier": "question_counter"})
+        if not isinstance(self.course_flag, bool):
+            valid = False
+            messages.append({"type": "alert", "content": "Course flag must be a boolean.", "identifier": "course_flag"})
+        return valid, messages
 
 '''
 ToDo:
