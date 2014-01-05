@@ -78,10 +78,12 @@ class Answer(AbstractMessage):
 
     '''
     question_id = models.PositiveIntegerField() #this is the message_id of the question this answer is response to
+    accepted = models.BooleanField(default=False)
 
     def serialize(self):
         jsondict = super(Answer, self).serialize()
         jsondict['question_id'] = self.question_id
+        jsondict['accepted'] = self.accepted
         return jsondict
 
 
