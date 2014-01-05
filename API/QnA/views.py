@@ -27,19 +27,26 @@ def post_abstract_message(abstractmessage, data):
     abstractmessage must be an instance of class that subclasses AbstractMessage.
     data is array that contains all json data.
     '''
-    content = data["content"]
-    version = data["version"]
-    user_id = data["userId"]
-    created = data["created"]
-    modified = data["modified"]
-    message_id = data["messageId"]
+    if 'content' in data.keys():
+        abstractmessage.content = data["content"]
+    else:
+        abstractmessage.content = ""
 
-    abstractmessage.content = content
-    abstractmessage.version = version
-    abstractmessage.user_id = user_id
-    abstractmessage.created = created
-    abstractmessage.modified = modified
-    abstractmessage.message_id = message_id
+    if 'version' in data.keys():
+        abstractmessage.version = data["version"]
+    else:
+        abstractmessage.version = 0
+
+    if 'userId' in data.keys():
+        abstractmessage.user_id = data["userId"]
+    else:
+        abstractmessage.user_id = None
+
+    if 'messageId' in data.keys():
+        abstractmessage.message_id = data["messageId"]
+    else:
+        abstractmessage.message_id = None
+
     return abstractmessage
 
 class UserAPI(APIView):
