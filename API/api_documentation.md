@@ -24,17 +24,17 @@ JSON example:
                 "topic": string,
                 "content": string,
                 "tags": [string, string, ...],
-                "votes_up": int,
-                "votes_down": int,
+                "votesUp": int,
+                "votesDown": int,
                 "date": timestamp,
                 "user": {
-                	"user_id": int,
+                	"userId": int,
                 	"username": string,
                 	"avatar": url
                 },
                 "comments": [
                 	{
-                		"user_id": int,
+                		"userId": int,
                 		"username": string,
                 		"content": string,
                 		"date": timestamp
@@ -45,14 +45,14 @@ JSON example:
                 	{
                 		"id": int,
                 		"content": string,
-                		"user_id": int,
+                		"userId": int,
                 		"username": string,
                 		"date": timestamp,
-                        "votes_up": int,
-                        "votes_down": int,
+                        "votesUp": int,
+                        "votesDown": int,
                 		"comments": [
                 			{
-                				"user_id": int,
+                				"userId": int,
                 				"username": string,
                 				"content": string,
                 				"date": timestamp
@@ -74,7 +74,7 @@ Saves question to database.
 	{
 		"topic": string,
 		"content": string,
-		"user_id": int,
+		"userId": int,
 		"tags": [string, string, ...]
 	}
 
@@ -85,9 +85,9 @@ Saves question to database.
 Saves answer to database.
 
 	{
-		"question_id": int,
+		"questionId": int,
 		"content": string,
-		"user_id": int
+		"userId": int
 	}
 
 ## Comments
@@ -99,7 +99,7 @@ Saves comment to database.
 	{
 		"content": string,
 		"username": string,
-		"user_id": int,
-		"message_id": int
+		"userId": int,
+		"messageId": int
 	}
 
