@@ -33,7 +33,7 @@ class Migration(SchemaMigration):
             ('date_joined', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
             ('user_id', self.gf('django.db.models.fields.PositiveIntegerField')(unique=True)),
             ('reputation', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('organization_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.Organization'])),
+            ('organization_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.Organization'], null=True, blank=True)),
         ))
         db.send_create_signal(u'QnA', ['User'])
 
@@ -92,7 +92,7 @@ class Migration(SchemaMigration):
         # Adding model 'Vote'
         db.create_table(u'QnA_vote', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('type', self.gf('django.db.models.fields.SmallIntegerField')(default=0)),
+            ('rate', self.gf('django.db.models.fields.SmallIntegerField')(default=0)),
             ('user_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.User'], to_field='user_id')),
             ('message_id', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('created', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
@@ -206,7 +206,7 @@ class Migration(SchemaMigration):
             'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'organization_id': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.Organization']"}),
+            'organization_id': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.Organization']", 'null': 'True', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'reputation': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'user_id': ('django.db.models.fields.PositiveIntegerField', [], {'unique': 'True'}),
@@ -219,7 +219,7 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'message_id': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'modified': ('django.db.models.fields.DateField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'type': ('django.db.models.fields.SmallIntegerField', [], {'default': '0'}),
+            'rate': ('django.db.models.fields.SmallIntegerField', [], {'default': '0'}),
             'user_id': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.User']", 'to_field': "'user_id'"})
         },
         u'auth.group': {

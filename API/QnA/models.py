@@ -26,7 +26,7 @@ class User(AbstractUser):
 
     user_id = models.PositiveIntegerField(unique=True)
     reputation = models.IntegerField(default=0)
-    organization_id = models.ForeignKey(Organization)
+    organization_id = models.ForeignKey(Organization, blank=True, null=True)
 
     def serialize(self):
         jsondict = {
@@ -43,7 +43,7 @@ class User(AbstractUser):
 
         return jsondict
 
-    def save(self):
+    def save(self, *args, **kwargs):
         '''
             The default save method is overridden to be able to generate appropriate user_id that is unique and ascending.
         '''
@@ -54,7 +54,7 @@ class User(AbstractUser):
             self.user_id = largest_id
             self.reputation = 0
         # Just save
-        super(User, self).save()
+        super(User, self).save(*args, **kwargs)
 
 class AbstractMessage(models.Model):
     '''

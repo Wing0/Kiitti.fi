@@ -9,6 +9,7 @@ urlpatterns = patterns('',
     url(r'^$', UserAPI.as_view()),
     #url(r'^$', 'Kiitti.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
-
+    url(r'^answers/', AnswerAPI.as_view()),
+    url(r'^comments/', CommentAPI.as_view()),
     url(r'^admin/', include(admin.site.urls)),
 )
