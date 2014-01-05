@@ -253,14 +253,7 @@ class Question(AbstractMessage):
     '''
 
     '''
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 7648e44bbda3943f471105ba24e762ea30426bad
-    topic = models.CharField(max_length=250)
-=======
     title = models.CharField(max_length=250)
->>>>>>> 1e13c718531f7d9393529bfcce82d5859ec2ae10
     def serialize(self):
         jsondict = super(Question, self).serialize()
         jsondict['title'] = self.title
@@ -281,7 +274,6 @@ class Question(AbstractMessage):
         '''
             The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
         '''
-
         if self.pk is None:
             # When created
             all_objects = Question.objects.all()
@@ -357,27 +349,12 @@ class Vote(models.Model):
 
 class Tag(models.Model):
     tag_id = models.PositiveIntegerField(unique=True)
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
     creator = models.ForeignKey(User, to_field="user_id")
-=======
->>>>>>> 7648e44bbda3943f471105ba24e762ea30426bad
-    creator = models.ForeignKey(User)
->>>>>>> 1e13c718531f7d9393529bfcce82d5859ec2ae10
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
     organization = models.ForeignKey(Organization)
 
-<<<<<<< HEAD
-    name = models.CharField(max_length=63)
-=======
-<<<<<<< HEAD
-    name = models.CharField(max_length=63)
-=======
     name = models.CharField(max_length=63, unique=True)
->>>>>>> 1e13c718531f7d9393529bfcce82d5859ec2ae10
->>>>>>> 7648e44bbda3943f471105ba24e762ea30426bad
     course_flag = models.BooleanField(default=False)
 
     def serialize(self):
@@ -407,14 +384,7 @@ class Tag(models.Model):
 
 
 class TagEntry(models.Model):
-<<<<<<< HEAD
-    tag_entry_id = models.PositiveIntegerField()
-<<<<<<< HEAD
-=======
-=======
     tag_entry_id = models.PositiveIntegerField(unique=True)
->>>>>>> 1e13c718531f7d9393529bfcce82d5859ec2ae10
->>>>>>> 7648e44bbda3943f471105ba24e762ea30426bad
     tag = models.ForeignKey(Tag, to_field="tag_id")
     message_id = models.PositiveIntegerField(default=0)
 
