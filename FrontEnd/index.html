@@ -35,16 +35,44 @@
 </head>
 
 <body>
-  <h1>Kiitti QnA</h1>
+<div id="wrapper">
 
-  <div ng-view></div>
+  <header class="main block">
+    <div class="container">
+      <div class="app-header">
+        <h2 class="app-name">Kiitti Q&amp;A</h2>
+      </div>
+      <div id="user-panel">
+        <img src="" class="avatar" alt="Wingo">
+        <p class="username">Wingo</p>
+        <p class="activity">16</p>
+      </div>
+    </div>
+    <div style="clear:both"></div>
+  </header>
+
+  <nav class="block">
+    <div class="container">
+      <ul>
+        <li><a href="popular" class="active">Suositut</a></li
+        ><li><a href="new">Uudet</a></li
+        ><li><a href="interesting">Kiinnostavat</a></li
+        ><li><a href="browse">Selaa</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section id="main-content">
+    <div ng-view></div>
+  </section>
 
   <script src="js/jquery.min.js"></script>
   <script src="js/angular.min.js"></script>
   <script src="js/angular-resource.min.js"></script>
   <script src="js/angular-route.min.js"></script>
   <script src="js/angular-animate.min.js"></script>
-  <script src="js/app.min.js"></script>
+  <script src="js/app.js"></script>
+</div>
 </body>
 
 </html>

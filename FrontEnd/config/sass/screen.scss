@@ -1,120 +1,164 @@
 @import "compass/reset";
-@import "compass/css3/opacity";
-@import "compass/css3/box-shadow";
-@import "compass/css3/transition";
+@import "compass/css3";
+@import "compass/typography/text/nowrap";
+@import "_base";
 
+$break-narrow: 540px;
+$break-full: 1060px;
 
-$color-background: white;
+$page-max-width: 900px;
 
+$color-main-emphasis: rgb(80,110,140);
+$color-text: rgb(30,30,30);
+$color-light-text: rgb(255,255,255);
+$color-nav: rgb(10,10,10);
 
-h2 {
-   color: Black;
+$block-padding-vertical: 20px;
+$block-padding-horizontal: 20px;
 
-   &.joku {
-    color: blue;
-   }
-}
-h2:hover {
-    background-color: lighten(black, 20);
-}
+$font-stack: 'Arial', sans-serif;
+$font-header: $font-stack;
+$font-paragraph: $font-stack;
 
-.tabs {
-  position: absolute;   
-  min-height: 200px; /* This part sucks */
-  clear: both;
-  margin: 25px 0;
+$header-height: 40px;
 
+body {
+  font-family: $font-stack;
 
-}
-.tab {
-  float: left;
-}
-.tab label {
-  background: #eee; 
-  padding: 10px; 
-  border: 1px solid #ccc; 
-  margin-left: -1px; 
-  position: relative;
-  left: 7px; 
-}
-.tab [type=radio] {
-  display: none;   
-}
-.content {
-  position: absolute;
-  top: 44px;
-  left: 0;
-  background: white;
-  right: 0;
-  bottom: 0;
-  padding: 13px;
-  border: 5px solid blue;
-  //clear: both;
-      width: 270px;
-    margin: 5px;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-   // padding: 5px;
-    background: #F0F8FF;
-    font-size: 11px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    border-color: blue;
-}
-[type=radio]:checked ~ label {
-  background: white;
-  border-bottom: 0px solid white;
-  z-index: 2;
-}
-[type=radio]:checked ~ label ~ .content {
-  z-index: 1;
+  #wrapper {
+    width: 100%;
+  }
 }
 
-#container {
-    width:480px;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
+/* GENERAL BLOCKS */
+
+.block {
+  @include box-sizing(border-box);
+  padding: $block-padding-vertical $block-padding-horizontal;
+
+  .container {
+    width: 100%;
+    max-width: $page-max-width;
+    position: relative;
+    margin: 0 auto;
+  }
 }
 
-#leftinnercolumn { 
-    width: 100px;
-    height: auto; 
-    float: none;
-    margin: 5px;
-    margin-left: auto;
-    padding: 5px;
-    background: #F0F8FF;
-    font-size: 25px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
+/* TYPOGRAPHY */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-header;
+  font-weight: 400;
+  //text-shadow: 3px 3px 0 darken($color-emphasis, 50);
 }
 
-.clear { clear: both;}
-//:h2.joku {
-//    background-color: $color-background;
-//    color: blue;
-//}
+h3, h4, h5 {
+  font-family: $font-paragraph;
+  text-transform: none;
+  margin-bottom: 10px;
+  margin-top: 25px;
+}
 
-//.juttu {
-//    @include opacity(0.5);
-//    @include box-shadow(1px 1px 1px black);
-//}
-//
-//.animation {
-//    @include transition(opacity 0.5s ease-in-out);
-//    opacity: 0.5;
-//}
-//.animation:hover {
-//    opacity: 1.0;
-//}
-//#container {
-//    width:480px;
-//    text-align: center;
-//    margin-left: auto;
-//    margin-right: auto;
-//}
+h1 { font-size: 300%; }
+h2 { font-size: 250%; }
+h3 { font-size: 150%; }
+h4 { font-size: 130%; }
+h5 { font-size: 110%; }
+h6 { font-size: 100%; }
 
+p {
+  font-family: $font-paragraph;
+  margin-top: 10px;
+}
+
+em, i {
+  font-style: italic;
+}
+
+strong, b {
+  font-style: 400;
+}
+
+/* HEADER */
+
+header.main {
+
+  &.block {
+    padding: 0 $block-padding-horizontal;
+  }
+  background-color: $color-main-emphasis;
+
+  .app-header {
+    @include inline-block;
+
+    .app-name {
+      display:table-cell;
+      vertical-align: center;
+      height: 100%;
+      background-color: red;
+      font-weight: 700;
+      color: $color-light-text;
+      font-size: 140%;
+      text-transform: uppercase;
+      margin: auto 0;
+    }
+  }
+
+  #user-panel {
+    display: inline;
+    float: right;
+    text-align: right;
+    background-color: darken($color-main-emphasis, 20);
+
+    .avatar {
+      width: $header-height;
+      height: $header-height;
+      background-color: white;
+      border: 0;
+    }
+
+    .username {
+      padding: 0 20px;
+    }
+
+    .activity {
+      padding: 0 20px;
+    }
+
+    .avatar, .username, .activity {
+      @include inline-block;
+    }
+  }
+}
+
+/* NAV */
+
+nav {
+  background-color: $color-nav;
+  padding: 0 $block-padding-horizontal 0 $block-padding-horizontal !important;
+
+  li {
+    @include inline-block; // needs line-break-hack to avoid invisible margin
+
+    a {
+      display: block;
+      padding: 15px 20px;
+
+      @include transition(color 0.2s ease-in-out);
+      @include transition(background-color 0.2s ease-in-out);
+      &:link, &:visited {
+        background-color: $color-nav;
+        color: lighten($color-nav, 50);
+      }
+      text-decoration: none;
+      &:hover, &.active {
+        background-color: lighten($color-nav, 15);
+        color: lighten($color-nav, 80);
+      }
+    }
+  }
+
+  ul {
+    //margin-left: -20px;
+  }
+}

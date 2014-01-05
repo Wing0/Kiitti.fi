@@ -1,0 +1,48 @@
+<section ng-repeat="question in questions" class="block">
+<div class="container">
+
+  <div class="question">
+    <header>
+      <h1>{{question.topic}}</h1>
+      <ul class="tags">
+        <li ng-repeat="tag in question.tags">{{tag}}</li>
+      </ul>
+    </header>
+
+    <div class="votes">
+      <div class="upvotes">{{question.votes_up}}</div>
+      <div class="downvotes">{{question.votes_down}}</div>
+    </div>
+
+    <div class="content">
+      <p>{{question.content}}</p>
+    </div>
+
+    <footer>
+      <div class="date">
+        <p class="date-posted">{{question.date}}</p>
+      </div>
+      <div class="userinfo">
+        <p class="username">{{question.user.username}}</p>
+      </div>
+    </footer>
+
+    <div ng-repeat="comment in question.comments">
+      <p class="date">{{comment.date}}</p>
+      <p class="comment">{{comment.content}}</p>
+      <p class="username">{{comment.username}}</p>
+    </div>
+  </div>
+
+  <div ng-repeat="answer in answer" class="answer">
+    <header>
+      <p class="user">{{answer.username}}</p>
+    </header>
+
+    <div class="content">
+      <p class="content">{{answer.content}}</p>
+    </div>
+  </div>
+
+</div>
+</section>
