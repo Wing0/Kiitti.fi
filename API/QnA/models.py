@@ -66,7 +66,7 @@ class User(AbstractUser):
         if not len(self.username) <= 255:
             valid = False
             messages.append({"type":"alert","content":"Username has to be a shorter than 256 characters.","identifier":"username"})
-        if not len(self.username) >= 3):
+        if not len(self.username) >= 3:
             valid = False
             messages.append({"type":"alert","content":"Username has to be a longer than 2 characters.","identifier":"username"})
 
@@ -83,7 +83,7 @@ class User(AbstractUser):
         if not len(self.first_name) <= 255:
             valid = False
             messages.append({"type":"alert","content":"First name has to be a shorter than 256 characters.","identifier":"first_name"})
-        if not len(self.first_name) >= 1):
+        if not len(self.first_name) >= 1:
             valid = False
             messages.append({"type":"alert","content":"First name has to be at least 1 character.","identifier":"first_name"})
 
@@ -93,7 +93,7 @@ class User(AbstractUser):
         if not len(self.last_name) <= 255:
             valid = False
             messages.append({"type":"alert","content":"Last name has to be a shorter than 256 characters.","identifier":"last_name"})
-        if not len(self.last_name) >= 1):
+        if not len(self.last_name) >= 1:
             valid = False
             messages.append({"type":"alert","content":"Last name has to be at least 1 character.","identifier":"last_name"})
 

@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from QnA.models import User, Vote, AbstractMessage, Comment, Answer
 import json
+import re
 
 # Create your views here...
 
@@ -49,15 +50,12 @@ class UserAPI(APIView):
     #VALIDATE
     def post(self, request):
         data = json.loads(request.body)
-        username = data['username']
-        user_id = data['userId']
-        reputation = data['reputation']
-        user = User()
-        user.username = username
-        user.user_id = user_id
-        user.reputation = reputation
-        user.save()
-        return Response(200)
+
+        user = User(username=data["username"], email=data["email"], first_name=data["first_name"], last_name=data["last_name"])
+        valid, messages = user.validate()
+        if valid:
+            user.save()
+        return Response({"messages":messages, "valid":valid},200)
 
 class VoteAPI(APIView):
 
