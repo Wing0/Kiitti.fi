@@ -164,6 +164,7 @@ class User(AbstractUser):
 
         return valid, messages
 
+
 class AbstractMessage(models.Model):
     '''
     This is the Abstract message class for all the message classes. The other message classes
@@ -215,6 +216,7 @@ class Answer(AbstractMessage):
     Represents an Answer for Question.
 
     '''
+    answer_id = models.PositiveIntegerField()
     question_id = models.PositiveIntegerField() #this is the message_id of the question this answer is response to
     accepted = models.BooleanField(default=False)
 
@@ -235,11 +237,24 @@ class Answer(AbstractMessage):
             messages.append({"type": "alert", "content": "Accepted value must be a boolean.", "identifier": "accepted"})
         return valid, messages
 
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_objects = Answer.objects.all()
+            largest_id = max([0] + [obj.answer_id for obj in all_objects])
+            self.answer_id = largest_id + 1
+        # Just save
+        super(Answer, self).save(*args, **kwargs)
+
 
 class Question(AbstractMessage):
     '''
 
     '''
+    question_id = models.PositiveIntegerField()
     topic = models.CharField(max_length=250)
     def serialize(self):
         jsondict = super(Question, self).serialize()
@@ -257,10 +272,24 @@ class Question(AbstractMessage):
             messages.append({"type": "alert", "content": "Topic must be atleast five characters long.", "identifier": "topic"})
         return valid, messages
 
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_objects = Question.objects.all()
+            largest_id = max([0] + [obj.question_id for obj in all_objects])
+            self.question_id = largest_id + 1
+        # Just save
+        super(Question, self).save(*args, **kwargs)
+
+
 class Comment(AbstractMessage):
     '''
 
     '''
+    comment_id = models.PositiveIntegerField()
     parent_id = models.PositiveIntegerField() #this is the message_id of the message to which this comment is for
     def serialize(self):
         jsondict = super(Comment, self).serialize()
@@ -274,42 +303,23 @@ class Comment(AbstractMessage):
             messages.append({"type": "alert", "content": "Parent id has to be a integer.", "identifier": "parent_id"})
         return valid, messages
 
-'''
-class Tag(models.Model):
-
-    ####
-    This is the tag model for questions. Each Question may have 0-5 tags.
-    Courses are also tags, but for those, the course_flag is set to True.
-
-    created: Date when the object was created
-    creator: ForeignKey, The user who created the tag
-    customer: ForeignKey to the corresponding customer
-    name: String, name of the topic, for example "Integrating"
-    follow_counter: Integer, counter that easily expresses the number of followers in the tag
-    question_counter: Integer, counter that easily expresses the number of questions in this category
-    course_flag: Boolean, this is set to True if the tag represents a course, otherwise it is False
-
-    ToDo: Tags are customer-specific. How can we make a distinction between the tags of different customers? ForeignKey or separate table?
-    ####
-
-    created = models.DateField(auto_now_add=True)
-    last_use = models.DateField(auto_now=True)
-    creator = models.ForeignKey('User')
-    customer = models.ForeignKey(Customer, to_field="")
-
-    name = models.CharField(max_length=30)
-    follow_counter = models.IntegerField()
-    question_counter = models.IntegerField()
-    course_flag = models.BooleanField(default=False)
-
-'''
-
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_objects = Comment.objects.all()
+            largest_id = max([0] + [obj.comment_id for obj in all_objects])
+            self.comment_id = largest_id + 1
+        # Just save
+        super(Comment, self).save(*args, **kwargs)
 
 class Vote(models.Model):
 
     rate = models.SmallIntegerField(default=0)
     user_id = models.ForeignKey(User, to_field="user_id")
-    message_id = models.IntegerField(default=0)
+    message_id = models.PositiveIntegerField(default=0)
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
 
@@ -340,31 +350,74 @@ class Vote(models.Model):
         return valid, messages
 
 class Tag(models.Model):
-
+    tag_id = models.PositiveIntegerField()
+    creator = models.ForeignKey(User)
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
-    creator = models.ForeignKey(User, to_field="user_id")
-    organization_id = models.ForeignKey(Organization, to_field="organization_id")
+    organization = models.ForeignKey(Organization)
 
-    name = models.CharField(max_length=30)
-    follow_counter = models.IntegerField()
-    question_counter = models.IntegerField()
+    name = CharField(max_length=63)
     course_flag = models.BooleanField(default=False)
 
     def serialize(self):
         jsondict = {
+            'tagId':self.tag_id,
             'creator': self.creator,
-            'userId': self.user_id,
-            'messageId': self.message_id,
             'created': self.created,
             'modified': self.modified,
-            'organizationId': self.organization_id,
-            'followCounter': self.follow_counter,
-            'questionCounter': self.question_counter,
-            'courseFlag': self.course_flag
+            'organizationId':self.organization.organization_id,
+            'name':name,
+            'courseFlag':course_flag
         }
 
         return jsondict
+
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate tag_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_objects = Tag.objects.all()
+            largest_id = max([0] + [obj.tag_id for obj in all_objects])
+            self.tag_id = largest_id +1
+        # Just save
+        super(Tag, self).save(*args, **kwargs)
+
+
+class TagEntry(models.Model):
+    tag_entry_id = models.PositiveIntegerField()
+    tag = ForeignKey(Tag, to_field="tag_id")
+    message_id = models.PositiveIntegerField(default=0)
+
+    creator = models.ForeignKey(User)
+    created = models.DateField(auto_now_add=True)
+    modified = models.DateField(auto_now=True)
+
+    def serialize(self):
+        jsondict = {
+            'tagEntryId':self.tag_entry_id,
+            'tagId':self.tag.tag_id,
+            'messageId': self.message_id,
+            'creator': self.creator,
+            'created': self.created,
+            'modified': self.modified,
+        }
+
+        return jsondict
+
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_objects = TagEntry.objects.all()
+            largest_id = max([0] + [obj.tag_entry_id for obj in all_objects])
+            self.tag_entry_id = largest_id +1
+        # Just save
+        super(TagEntry, self).save(*args, **kwargs)
+
 
     def validate(self):
         valid = True
