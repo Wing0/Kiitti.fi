@@ -226,8 +226,7 @@ class Answer(AbstractMessage):
         return jsondict
 
     def validate(self):
-        valid = True
-        messages = []
+        valid, messages = super(Answer, self).validate()
         if not isinstance(self.question_id, int) or self.question_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "Question id must be a positive integer.", "identifier": "question_id"})
@@ -248,8 +247,7 @@ class Question(AbstractMessage):
         return jsondict
 
     def validate(self):
-        valid = True
-        messages = []
+        valid, messages = super(Answer, self).validate()
         if not isinstance(self.topic, basetext):
             valid = False
             messages.append({"type": "alert", "content": "Topic has to be a string.", "identifier": "topic"})
@@ -269,8 +267,7 @@ class Comment(AbstractMessage):
         return jsondict
 
     def validate(self):
-        valid = True
-        messages = []
+        valid, messages = super(Answer, self).validate()
         if not isinstance(self.parent_id, basetext) or self.parent_id < 0 :
             valid = False
             messages.append({"type": "alert", "content": "Parent id has to be a integer.", "identifier": "parent_id"})

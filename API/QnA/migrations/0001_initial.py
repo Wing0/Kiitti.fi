@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import datetime
+from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
@@ -106,8 +106,8 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('created', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
             ('modified', self.gf('django.db.models.fields.DateField')(auto_now=True, blank=True)),
-            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.User'])),
-            ('organization_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.Organization'])),
+            ('creator', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.User'], to_field='user_id')),
+            ('organization_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.Organization'], to_field='organization_id')),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=30)),
             ('follow_counter', self.gf('django.db.models.fields.IntegerField')()),
             ('question_counter', self.gf('django.db.models.fields.IntegerField')()),
@@ -188,12 +188,12 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Tag'},
             'course_flag': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'created': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'creator': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.User']"}),
+            'creator': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.User']", 'to_field': "'user_id'"}),
             'follow_counter': ('django.db.models.fields.IntegerField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'modified': ('django.db.models.fields.DateField', [], {'auto_now': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
-            'organization_id': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.Organization']"}),
+            'organization_id': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.Organization']", 'to_field': "'organization_id'"}),
             'question_counter': ('django.db.models.fields.IntegerField', [], {})
         },
         u'QnA.user': {
