@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 class Organization(models.Model):
 
@@ -21,29 +22,23 @@ class Organization(models.Model):
 
         return jsondict
 
-# dummy
-class User(models.Model):
+class User(AbstractUser):
 
     user_id = models.PositiveIntegerField(unique=True)
-    username = models.CharField(max_length=255)
     reputation = models.IntegerField()
-    firstname = models.CharField(max_length=255)
-    lastname = models.CharField(max_length=255)
-    password = models.CharField(max_length=255)
-    created = models.DateField(auto_now_add=True)
-    modified = models.DateField(auto_now=True)
     organization_id = models.ForeignKey(Organization)
 
     def serialize(self):
         jsondict = {
             'username': self.username,
-            'user_id': self.user_id,
+            'userId': self.user_id,
             'reputation': self.reputation,
-            'firstname': self.firstname,
-            'lastname': self.lastname,
-            'created': self.created,
-            'modified': self.modified,
-            'organization_id': organization_id
+            'firstName': self.first_name,
+            'lastName': self.last_name,
+            'email': self.email,
+            'created': self.date_joined,
+            'lastLogin': self.last_login,
+            'organizationId': organization_id
         }
 
         return jsondict
