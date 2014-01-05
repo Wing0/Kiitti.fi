@@ -350,13 +350,13 @@ class Vote(models.Model):
         return valid, messages
 
 class Tag(models.Model):
-    tag_id = models.PositiveIntegerField()
+    tag_id = models.PositiveIntegerField(unique=True)
     creator = models.ForeignKey(User)
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
     organization = models.ForeignKey(Organization)
 
-    name = CharField(max_length=63)
+    name = models.CharField(max_length=63, unique=True)
     course_flag = models.BooleanField(default=False)
 
     def serialize(self):
@@ -386,8 +386,8 @@ class Tag(models.Model):
 
 
 class TagEntry(models.Model):
-    tag_entry_id = models.PositiveIntegerField()
-    tag = ForeignKey(Tag, to_field="tag_id")
+    tag_entry_id = models.PositiveIntegerField(unique=True)
+    tag = models.ForeignKey(Tag, to_field="tag_id")
     message_id = models.PositiveIntegerField(default=0)
 
     creator = models.ForeignKey(User)
