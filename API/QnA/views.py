@@ -86,6 +86,7 @@ class VoteAPI(APIView):
         vote.user_id = user_id
         vote.message_id = message_id
         vote.rate = rate
+        vote.save()
         return Response(200)
 
 class AnswerAPI(APIView):
@@ -99,21 +100,24 @@ class AnswerAPI(APIView):
 
     def post(self, request):
         data = json.loads(request.body)
-        abs_data = (Answer)create_message(Answer(), data)
+        abs_data = post_abstract_message(Answer(), data)
 
         accepted = data["accepted"]
         question_id = data["questionId"]
         abs_data.accepted = accepted
         abs_data.question_id = question_id
+        abs_data.save()
+
         return Response(200)
 
 class CommentAPI(APIView):
 
     def post(self, request):
         data = json.loads(request.body)
-        abs_data = create_message(Answer(), data)
+        abs_data = post_abstract_message(Comment(), data)
         parent_id = data["parentId"]
-        abs_data.parent_id
+        abs_data.parent_id = parent_id
+        abs_data.save()
         return Response(200)
 
     def get(self, request):
@@ -122,3 +126,14 @@ class CommentAPI(APIView):
         for comment in comment_data:
             data.append(comment.serialize())
         return Response({"comments": data}, 200)
+
+class QuestionAPI(APIView):
+
+    def post(self, request):
+        data = json.loads(request.body)
+        abs_data = post_abstract_message(Question(), data)
+        topic = data['topic']
+        abs_data.topic = topic
+        abs_data.save()
+        return Response(200)
+
