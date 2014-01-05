@@ -25,20 +25,20 @@ class Organization(models.Model):
 class User(AbstractUser):
 
     user_id = models.PositiveIntegerField(unique=True)
-    reputation = models.IntegerField()
+    reputation = models.IntegerField(default=0)
     organization_id = models.ForeignKey(Organization)
 
     def serialize(self):
         jsondict = {
             'username': self.username,
-            'user_id': self.user_id,
+            'userId': self.user_id,
             'reputation': self.reputation,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
+            'firstName': self.first_name,
+            'lastName': self.last_name,
             'email': self.email,
             'created': self.date_joined,
-            'modified': self.last_login,
-            'organization_id': organization_id
+            'lastLogin': self.last_login,
+            'organizationId': organization_id
         }
 
         return jsondict
