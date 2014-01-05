@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from QnA.models import User, Vote, AbstractMessage, Comment, Answer
+from QnA.models import User, Vote, AbstractMessage, Comment, Answer, Question
 import json
 
 # Create your views here...
@@ -27,6 +27,8 @@ def post_abstract_message(abstractmessage, data):
     abstractmessage must be an instance of class that subclasses AbstractMessage.
     data is array that contains all json data.
     '''
+
+
     if 'content' in data.keys():
         abstractmessage.content = data["content"]
     else:
@@ -38,14 +40,20 @@ def post_abstract_message(abstractmessage, data):
         abstractmessage.version = 0
 
     if 'userId' in data.keys():
-        abstractmessage.user_id = data["userId"]
+        print "oli se siel"
+        abstractmessage.user_id = data['userId']
+        print "ja viel toimii"
     else:
         abstractmessage.user_id = None
+
+    print "something"
 
     if 'messageId' in data.keys():
         abstractmessage.message_id = data["messageId"]
     else:
         abstractmessage.message_id = None
+
+
 
     return abstractmessage
 
@@ -151,9 +159,17 @@ class CommentAPI(APIView):
 
 class QuestionAPI(APIView):
 
+    def get(self, request):
+
+
+        return Response(200)
+
     def post(self, request):
+        print "jotain"
         data = json.loads(request.body)
+
         abs_data = post_abstract_message(Question(), data)
+        print "katotaan"
         topic = data['topic']
         abs_data.topic = topic
         abs_data.save()

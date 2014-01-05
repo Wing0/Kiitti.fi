@@ -150,7 +150,8 @@ class AbstractMessage(models.Model):
     '''
     content = models.TextField()
     version = models.PositiveIntegerField()
-    user_id = models.ForeignKey(User, to_field='user_id')
+    user_id = models.PositiveIntegerField() #this is the userId of the user making the message
+    #user_id = models.ForeignKey(User, to_field="user_id")
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     message_id = models.PositiveIntegerField()
