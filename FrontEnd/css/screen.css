@@ -63,24 +63,25 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   display: block;
 }
 
-/* line 25, ../config/sass/screen.scss */
+/* line 26, ../config/sass/screen.scss */
 body {
   font-family: "Arial", sans-serif;
+  min-width: 480px;
 }
-/* line 28, ../config/sass/screen.scss */
+/* line 30, ../config/sass/screen.scss */
 body #wrapper {
   width: 100%;
 }
 
 /* GENERAL BLOCKS */
-/* line 35, ../config/sass/screen.scss */
+/* line 37, ../config/sass/screen.scss */
 .block {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   padding: 20px 20px;
 }
-/* line 39, ../config/sass/screen.scss */
+/* line 41, ../config/sass/screen.scss */
 .block .container {
   width: 100%;
   max-width: 900px;
@@ -89,13 +90,13 @@ body #wrapper {
 }
 
 /* TYPOGRAPHY */
-/* line 49, ../config/sass/screen.scss */
+/* line 51, ../config/sass/screen.scss */
 h1, h2, h3, h4, h5, h6 {
   font-family: "Arial", sans-serif;
   font-weight: 400;
 }
 
-/* line 55, ../config/sass/screen.scss */
+/* line 57, ../config/sass/screen.scss */
 h3, h4, h5 {
   font-family: "Arial", sans-serif;
   text-transform: none;
@@ -103,62 +104,83 @@ h3, h4, h5 {
   margin-top: 25px;
 }
 
-/* line 62, ../config/sass/screen.scss */
+/* line 64, ../config/sass/screen.scss */
 h1 {
   font-size: 300%;
 }
 
-/* line 63, ../config/sass/screen.scss */
+/* line 65, ../config/sass/screen.scss */
 h2 {
   font-size: 250%;
 }
 
-/* line 64, ../config/sass/screen.scss */
+/* line 66, ../config/sass/screen.scss */
 h3 {
   font-size: 150%;
 }
 
-/* line 65, ../config/sass/screen.scss */
+/* line 67, ../config/sass/screen.scss */
 h4 {
   font-size: 130%;
 }
 
-/* line 66, ../config/sass/screen.scss */
+/* line 68, ../config/sass/screen.scss */
 h5 {
   font-size: 110%;
 }
 
-/* line 67, ../config/sass/screen.scss */
+/* line 69, ../config/sass/screen.scss */
 h6 {
   font-size: 100%;
 }
 
-/* line 69, ../config/sass/screen.scss */
+/* line 71, ../config/sass/screen.scss */
 p {
   font-family: "Arial", sans-serif;
   margin-top: 10px;
 }
 
-/* line 74, ../config/sass/screen.scss */
+/* line 76, ../config/sass/screen.scss */
 em, i {
   font-style: italic;
 }
 
-/* line 78, ../config/sass/screen.scss */
+/* line 80, ../config/sass/screen.scss */
 strong, b {
   font-style: 400;
 }
 
 /* HEADER */
-/* line 84, ../config/sass/screen.scss */
+/* line 86, ../config/sass/screen.scss */
 header.main {
+  height: 50px;
   background-color: #506e8c;
 }
-/* line 86, ../config/sass/screen.scss */
+/* line 89, ../config/sass/screen.scss */
+header.main .container {
+  text-align: justify;
+  -ms-text-justify: distribute-all-lines;
+  text-justify: distribute-all-lines;
+}
+/* line 94, ../config/sass/screen.scss */
+header.main .container:after {
+  display: -moz-inline-stack;
+  display: inline-block;
+  vertical-align: middle;
+  *vertical-align: auto;
+  zoom: 1;
+  *display: inline;
+  width: 100%;
+  content: '';
+  height: 0;
+  font-size: 0;
+  line-height: 0;
+}
+/* line 106, ../config/sass/screen.scss */
 header.main.block {
   padding: 0 20px;
 }
-/* line 91, ../config/sass/screen.scss */
+/* line 110, ../config/sass/screen.scss */
 header.main .app-header {
   display: -moz-inline-stack;
   display: inline-block;
@@ -167,41 +189,45 @@ header.main .app-header {
   zoom: 1;
   *display: inline;
 }
-/* line 94, ../config/sass/screen.scss */
+/* line 113, ../config/sass/screen.scss */
 header.main .app-header .app-name {
-  display: table-cell;
-  vertical-align: center;
-  height: 100%;
-  background-color: red;
   font-weight: 700;
   color: white;
   font-size: 140%;
   text-transform: uppercase;
-  margin: auto 0;
 }
-/* line 107, ../config/sass/screen.scss */
+/* line 121, ../config/sass/screen.scss */
 header.main #user-panel {
-  display: inline;
-  float: right;
-  text-align: right;
+  display: -moz-inline-stack;
+  display: inline-block;
+  vertical-align: middle;
+  *vertical-align: auto;
+  zoom: 1;
+  *display: inline;
   background-color: #2b3b4b;
 }
-/* line 113, ../config/sass/screen.scss */
+@media (max-width: 900px) {
+  /* line 121, ../config/sass/screen.scss */
+  header.main #user-panel {
+    margin-right: -20px;
+  }
+}
+/* line 130, ../config/sass/screen.scss */
 header.main #user-panel .avatar {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   background-color: white;
   border: 0;
 }
-/* line 120, ../config/sass/screen.scss */
+/* line 137, ../config/sass/screen.scss */
 header.main #user-panel .username {
   padding: 0 20px;
 }
-/* line 124, ../config/sass/screen.scss */
+/* line 141, ../config/sass/screen.scss */
 header.main #user-panel .activity {
   padding: 0 20px;
 }
-/* line 128, ../config/sass/screen.scss */
+/* line 145, ../config/sass/screen.scss */
 header.main #user-panel .avatar, header.main #user-panel .username, header.main #user-panel .activity {
   display: -moz-inline-stack;
   display: inline-block;
@@ -210,14 +236,22 @@ header.main #user-panel .avatar, header.main #user-panel .username, header.main 
   zoom: 1;
   *display: inline;
 }
+/* line 150, ../config/sass/screen.scss */
+header.main p {
+  margin: 0;
+}
+/* line 151, ../config/sass/screen.scss */
+header.main a, header.main a:link {
+  text-decoration: none;
+}
 
 /* NAV */
-/* line 136, ../config/sass/screen.scss */
+/* line 156, ../config/sass/screen.scss */
 nav {
   background-color: #0a0a0a;
   padding: 0 20px 0 20px !important;
 }
-/* line 140, ../config/sass/screen.scss */
+/* line 160, ../config/sass/screen.scss */
 nav li {
   display: -moz-inline-stack;
   display: inline-block;
@@ -226,7 +260,7 @@ nav li {
   zoom: 1;
   *display: inline;
 }
-/* line 143, ../config/sass/screen.scss */
+/* line 163, ../config/sass/screen.scss */
 nav li a {
   display: block;
   padding: 15px 20px;
@@ -240,13 +274,41 @@ nav li a {
   transition: background-color 0.2s ease-in-out;
   text-decoration: none;
 }
-/* line 149, ../config/sass/screen.scss */
+/* line 169, ../config/sass/screen.scss */
 nav li a:link, nav li a:visited {
   background-color: #0a0a0a;
   color: #8a8a8a;
 }
-/* line 154, ../config/sass/screen.scss */
+/* line 174, ../config/sass/screen.scss */
 nav li a:hover, nav li a.active {
   background-color: #303030;
   color: #d6d6d6;
+}
+
+/* line 186, ../config/sass/screen.scss */
+.wrapper {
+  width: 550px;
+  text-align: justify;
+  background: firebrick;
+  font-size: 0;
+  font-size: 12px\9;
+  /* IE6-9 only hack */
+}
+
+/* line 194, ../config/sass/screen.scss */
+.wrapper div {
+  background: white;
+  display: inline-block;
+  font-size: 12px;
+  zoom: 1;
+  *display: inline;
+}
+
+/* line 203, ../config/sass/screen.scss */
+.wrapper:after {
+  content: "";
+  width: 100%;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
 }

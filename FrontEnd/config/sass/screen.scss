@@ -7,6 +7,7 @@ $break-narrow: 540px;
 $break-full: 1060px;
 
 $page-max-width: 900px;
+$page-min-width: 480px;
 
 $color-main-emphasis: rgb(80,110,140);
 $color-text: rgb(30,30,30);
@@ -20,10 +21,11 @@ $font-stack: 'Arial', sans-serif;
 $font-header: $font-stack;
 $font-paragraph: $font-stack;
 
-$header-height: 40px;
+$header-height: 50px;
 
 body {
   font-family: $font-stack;
+  min-width: 480px;
 
   #wrapper {
     width: 100%;
@@ -82,33 +84,48 @@ strong, b {
 /* HEADER */
 
 header.main {
+  height: $header-height;
+
+  .container {
+    text-align: justify;
+    -ms-text-justify: distribute-all-lines;
+    text-justify: distribute-all-lines;
+
+    &:after {
+      @include inline-block;
+      width: 100%;
+      content: '';
+      height: 0;
+      font-size:0;
+      line-height:0;
+    }
+  }
+
+  background-color: $color-main-emphasis;
 
   &.block {
     padding: 0 $block-padding-horizontal;
   }
-  background-color: $color-main-emphasis;
 
   .app-header {
     @include inline-block;
 
     .app-name {
-      display:table-cell;
-      vertical-align: center;
-      height: 100%;
-      background-color: red;
       font-weight: 700;
       color: $color-light-text;
       font-size: 140%;
       text-transform: uppercase;
-      margin: auto 0;
     }
   }
 
   #user-panel {
-    display: inline;
-    float: right;
-    text-align: right;
+    @include inline-block;
     background-color: darken($color-main-emphasis, 20);
+
+    // remove padding
+    @media (max-width: $page-max-width) {
+      margin-right: -$block-padding-horizontal;
+    }
 
     .avatar {
       width: $header-height;
@@ -129,6 +146,9 @@ header.main {
       @include inline-block;
     }
   }
+
+  p { margin: 0; }
+  a, a:link { text-decoration: none; }
 }
 
 /* NAV */
@@ -161,4 +181,30 @@ nav {
   ul {
     //margin-left: -20px;
   }
+}
+
+.wrapper{
+  width: 550px;
+  text-align: justify;
+  background: firebrick;
+  font-size: 0;
+  font-size: 12px\9; /* IE6-9 only hack */
+}
+
+.wrapper div{
+  background: white;
+  display: inline-block;
+  font-size: 12px;
+
+  zoom: 1;
+  *display: inline;
+}
+
+.wrapper:after{
+  content: "";
+  width: 100%;
+  display: inline-block;
+
+  zoom: 1;
+  *display: inline;
 }
