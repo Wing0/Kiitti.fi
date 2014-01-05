@@ -58,7 +58,7 @@ class UserAPI(APIView):
     def post(self, request):
         data = json.loads(request.body)
 
-        user = User(username=data["username"], email=data["email"], first_name=data["first_name"], last_name=data["last_name"])
+        user = User(username=data["username"], email=data["email"], first_name=data["firstName"], last_name=data["lastName"], organization_id=data["organizationId"])
         valid, messages = user.validate()
         if valid:
             user.save()

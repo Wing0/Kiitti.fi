@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 
 class Organization(models.Model):
 
+    organization_id = models.PositiveIntegerField(unique=True)
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
     name = models.CharField(max_length=255)
@@ -22,11 +23,23 @@ class Organization(models.Model):
 
         return jsondict
 
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate organization_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # Create user actions
+            orgobjects = Organization.objects.all()
+            largest_id = max([0] + [org.organization_id for org in orgobjects])
+            self.organization_id = largest_id
+        # Just save
+        super(Organization, self).save(*args, **kwargs)
+
 class User(AbstractUser):
 
     user_id = models.PositiveIntegerField(unique=True)
     reputation = models.IntegerField(default=0)
-    organization_id = models.ForeignKey(Organization, blank=True, null=True)
+    organization_id = models.ForeignKey(Organization, to_field=organization_id, blank=True, null=True)
 
     def serialize(self):
         jsondict = {
@@ -96,6 +109,12 @@ class User(AbstractUser):
         if not len(self.last_name) >= 1:
             valid = False
             messages.append({"type":"alert","content":"Last name has to be at least 1 character.","identifier":"last_name"})
+
+        if not isinstance(self.organization_id, int):
+            valid = False
+            messages.append({"type":"alert","content":"Organization id has to be a integer.","identifier":"organization_id"})
+        else:
+            Organization.objects.get()
 
         return valid, messages
 
