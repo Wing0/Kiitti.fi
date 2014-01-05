@@ -3,26 +3,6 @@
 @import "compass/typography/text/nowrap";
 @import "_base";
 
-$break-narrow: 540px;
-$break-full: 1060px;
-
-$page-max-width: 900px;
-$page-min-width: 480px;
-
-$color-main-emphasis: rgb(80,110,140);
-$color-text: rgb(30,30,30);
-$color-light-text: rgb(255,255,255);
-$color-nav: rgb(10,10,10);
-
-$block-padding-vertical: 20px;
-$block-padding-horizontal: 20px;
-
-$font-stack: 'Arial', sans-serif;
-$font-header: $font-stack;
-$font-paragraph: $font-stack;
-
-$header-height: 50px;
-
 body {
   font-family: $font-stack;
   min-width: 480px;
@@ -162,7 +142,7 @@ nav {
 
     a {
       display: block;
-      padding: 15px 20px;
+      padding: 12px 20px;
 
       @include transition(color 0.2s ease-in-out);
       @include transition(background-color 0.2s ease-in-out);
@@ -191,7 +171,7 @@ nav {
   font-size: 12px\9; /* IE6-9 only hack */
 }
 
-.wrapper div{
+.wrapper div {
   background: white;
   display: inline-block;
   font-size: 12px;
@@ -208,3 +188,5 @@ nav {
   zoom: 1;
   *display: inline;
 }
+
+@import "messages"

@@ -1,0 +1,192 @@
+/* line 9, ../config/sass/messages.scss */
+.question:not(:last-child) {
+  margin-bottom: 30px;
+}
+
+/* line 14, ../config/sass/messages.scss */
+.votes {
+  margin-top: 10px;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+/* line 21, ../config/sass/messages.scss */
+.votes .vote {
+  width: 48px;
+  text-align: center;
+  vertical-align: middle;
+  display: -moz-inline-stack;
+  display: inline-block;
+  vertical-align: middle;
+  *vertical-align: auto;
+  zoom: 1;
+  *display: inline;
+}
+/* line 29, ../config/sass/messages.scss */
+.votes .vote .amount {
+  font-size: 100%;
+  font-weight: 700;
+  color: #6b6b6b;
+  margin-top: 6px;
+}
+
+/* line 38, ../config/sass/messages.scss */
+.comments {
+  background-color: #f7f7f7;
+  margin-top: 20px;
+  padding: 15px;
+  font-size: 90%;
+}
+/* line 46, ../config/sass/messages.scss */
+.comments h4 {
+  font-size: 120%;
+  font-weight: 700;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* line 55, ../config/sass/messages.scss */
+.answers h3 {
+  font-size: 120%;
+  font-weight: bold;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #a0a0a0;
+}
+
+/* line 63, ../config/sass/messages.scss */
+.thumb {
+  width: 40px;
+  height: 40px;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  -ms-border-radius: 20px;
+  -o-border-radius: 20px;
+  border-radius: 20px;
+  background-color: #fafafa;
+  border: 1px solid #e6e6e6;
+}
+
+/* line 71, ../config/sass/messages.scss */
+.message {
+  position: relative;
+  padding-left: 120px;
+}
+/* line 75, ../config/sass/messages.scss */
+.message .topic {
+  font-size: 180%;
+  font-weight: 700;
+  color: #1e1e1e;
+}
+/* line 87, ../config/sass/messages.scss */
+.message .content {
+  margin-top: 20px;
+}
+/* line 91, ../config/sass/messages.scss */
+.message footer {
+  margin-top: 20px;
+  padding: 10px 0;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+  text-align: right;
+  font-size: 80%;
+  color: #a0a0a0;
+  overflow: hidden;
+  *zoom: 1;
+}
+/* line 100, ../config/sass/messages.scss */
+.message footer a, .message footer a:visited {
+  -webkit-transition: color 0.1s ease-in-out;
+  -moz-transition: color 0.1s ease-in-out;
+  -o-transition: color 0.1s ease-in-out;
+  transition: color 0.1s ease-in-out;
+  color: #a0a0a0;
+  text-decoration: none;
+  font-weight: bold;
+}
+/* line 106, ../config/sass/messages.scss */
+.message footer a:hover {
+  color: #606060;
+}
+/* line 109, ../config/sass/messages.scss */
+.message footer .buttons {
+  display: -moz-inline-stack;
+  display: inline-block;
+  vertical-align: middle;
+  *vertical-align: auto;
+  zoom: 1;
+  *display: inline;
+  float: left;
+}
+/* line 113, ../config/sass/messages.scss */
+.message footer .asked {
+  display: -moz-inline-stack;
+  display: inline-block;
+  vertical-align: middle;
+  *vertical-align: auto;
+  zoom: 1;
+  *display: inline;
+  float: right;
+}
+/* line 118, ../config/sass/messages.scss */
+.message footer li {
+  display: -moz-inline-stack;
+  display: inline-block;
+  vertical-align: middle;
+  *vertical-align: auto;
+  zoom: 1;
+  *display: inline;
+}
+/* line 120, ../config/sass/messages.scss */
+.message footer li:not(:first-child) {
+  margin-left: 10px;
+}
+
+/* line 127, ../config/sass/messages.scss */
+.tags {
+  margin-top: 3px;
+  margin-bottom: 3px;
+}
+
+/* line 132, ../config/sass/messages.scss */
+.tags li, .tag {
+  -webkit-transition: color 0.1s ease-in-out;
+  -moz-transition: color 0.1s ease-in-out;
+  -o-transition: color 0.1s ease-in-out;
+  transition: color 0.1s ease-in-out;
+  -webkit-transition: border 0.1s ease-in-out;
+  -moz-transition: border 0.1s ease-in-out;
+  -o-transition: border 0.1s ease-in-out;
+  transition: border 0.1s ease-in-out;
+  -webkit-transition: background-color 0.1s ease-in-out;
+  -moz-transition: background-color 0.1s ease-in-out;
+  -o-transition: background-color 0.1s ease-in-out;
+  transition: background-color 0.1s ease-in-out;
+  color: #547392;
+  background-color: #eff3f6;
+  border: 1px solid #cfd9e3;
+  font-size: 75%;
+  font-weight: 700;
+  padding: 4px 7px;
+  margin: 3px 3px;
+  display: inline-block;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+}
+/* line 147, ../config/sass/messages.scss */
+.tags li:before, .tag:before {
+  content: "# ";
+}
+/* line 149, ../config/sass/messages.scss */
+.tags li:first-child, .tag:first-child {
+  margin-left: 0;
+}
+/* line 153, ../config/sass/messages.scss */
+.tags li:hover, .tag:hover {
+  cursor: pointer;
+  background-color: #d9e1e9;
+  color: #415a72;
+  border: 1px solid #aec0d1;
+}

@@ -10,23 +10,23 @@ app.config(function($routeProvider, $locationProvider) {
 
   $routeProvider
     .when('/', {
-      templateUrl: '../templates/tab.html',
+      templateUrl: '../templates/question.html',
       controller: 'BrowsePopularController'
     })
     .when('/popular', {
-      templateUrl: '../templates/tab.html',
+      templateUrl: '../templates/question.html',
       controller: 'BrowsePopularController'
     })
     .when('/new', {
-      templateUrl: '../templates/tab.html',
+      templateUrl: '../templates/question.html',
       controller: 'BrowsePopularController'
     })
     .when('/interesting', {
-      templateUrl: '../templates/tab.html',
+      templateUrl: '../templates/question.html',
       controller: 'BrowsePopularController'
     })
     .when('/browse', {
-      templateUrl: '../templates/tab.html',
+      templateUrl: '../templates/question.html',
       controller: 'BrowsePopularController'
     })
     .otherwise({redirectTo : '/'});
@@ -36,7 +36,7 @@ app.config(function($routeProvider, $locationProvider) {
 /* RESOURCES */
 
 app.factory('QuestionFactory', function($resource) {
-  return $resource('/testdata/questions.json', {},
+  return $resource('/testdata/single_question.json', {},
     { 'get': {method: 'GET', isArray: false} });
 });
 
@@ -44,8 +44,15 @@ app.factory('QuestionFactory', function($resource) {
 
 app.controller('BrowsePopularController', function($scope, QuestionFactory) {
 
-  var questions = QuestionFactory.get(function(data) {
+  /*var questions = QuestionFactory.get(function(data) {
     $scope.questions = data.questions;
+  });*/
+
+  $scope.question = QuestionFactory.get();
+
+  var questions = QuestionFactory.get(function(data) {
+    console.log(data);
   });
+
 
 });

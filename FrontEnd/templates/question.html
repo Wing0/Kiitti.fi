@@ -1,5 +1,5 @@
 <section class="block">
-<div class="question container" ng-repeat="question in questions">
+<div class="question container">
 
   <div class="votes">
     <div class="vote up left">
@@ -33,18 +33,6 @@
       </div>
     </div>
 
-    <div class="answers">
-      <h3>Vastaukset</h3>
-      <div ng-repeat="answer in question.answers" class="answer">
-        <header>
-          <p class="user">{{answer.username}}</p>
-        </header>
-        <div class="content">
-          <p class="content">{{answer.content}}</p>
-        </div>
-      </div><!--/answer-->
-    </div>
-
     <footer>
       <div class="buttons">
         <ul>
@@ -56,5 +44,20 @@
     </footer>
   </div><!--/message-->
 
+  <div class="answers">
+    <h3>Vastaukset</h3>
+    <div ng-repeat="answer in question.answers" class="answer">
+      <header>
+        <p class="user">{{answer.username}}</p>
+      </header>
+      <div class="content">
+        <p class="content">{{answer.content}}</p>
+      </div>
+    </div><!--/answer-->
+  </div>
+
 </div>
+
+
+
 </section>
