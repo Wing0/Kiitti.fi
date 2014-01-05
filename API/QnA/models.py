@@ -100,10 +100,10 @@ class User(AbstractUser):
                 try:
                     retrieved_user = User.objects.get(email=self.email)
                 except:
-                    pass
-                if not retrieved_user:
+                    retrieved_user = False
+                if retrieved_user:
                     valid = False
-                    messages.append({"type":"alert","content":"Email already in user.","identifier":"email"})
+                    messages.append({"type":"alert","content":"Email already in use.","identifier":"email"})
 
         if not isinstance(self.first_name, basestring):
             valid = False
