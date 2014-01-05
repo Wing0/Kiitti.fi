@@ -76,7 +76,7 @@ class Answer(AbstractMessage):
 
     def serialize(self):
         jsondict = super(Answer, self).serialize()
-        jsondict['question_id'] = self.question_id
+        jsondict['questionId'] = self.question_id
         return jsondict
 
 
@@ -97,7 +97,7 @@ class Comment(AbstractMessage):
     parent_id = models.PositiveIntegerField() #this is the message_id of the message to which this comment is for
     def serialize(self):
         jsondict = super(Comment, self).serialize()
-        jsondict['parent_id'] = self.parent_id
+        jsondict['parentId'] = self.parent_id
         return jsondict
 
 
