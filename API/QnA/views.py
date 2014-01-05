@@ -177,13 +177,6 @@ class CommentAPI(APIView):
 
 class QuestionAPI(APIView):
 
-    def get(self, request):
-        data = []
-        question_data = Question.objects.all()
-        for question in question_data:
-            data.append(question.serialize())
-        return Response({"questions": data}, 200)
-
     def post(self, request):
         data = json.loads(request.body)
         messages = {}
