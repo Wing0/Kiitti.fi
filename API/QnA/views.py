@@ -35,7 +35,7 @@ def post_abstract_message(abstractmessage, data):
     if 'version' in data.keys():
         abstractmessage.version = data["version"]
     else:
-        abstractmessage.version = 0
+        abstractmessage.version = -1
 
     if 'userId' in data.keys():
 
@@ -186,13 +186,87 @@ class QuestionAPI(APIView):
 
     def post(self, request):
         data = json.loads(request.body)
-
         messages = {}
         try:
             abs_data = post_abstract_message(Question(), data)
         except Exception, e:
-            return Response({"messages": {"type": "alert", "content": str(e), "identifier": ""}}, 200)
-        topic = data['topic']
-        abs_data.topic = topic
-        abs_data.save()
-        return Response(200)
+            messages = {"type": "alert", "content": str(e), "identifier": ""}
+            return Response({"messages": messages}, 200)
+        title = data['title']
+        abs_data.title = title
+        valid, messages = abs_data.validate()
+        if valid:
+            abs_data.save()
+
+        return Response({"messages":messages},200)
+
+    def get(self, request, style="hottest"):
+        # Helping methods for the tag search
+        def unique(a):
+            """ return the list with duplicate elements removed """
+            return list(set(a))
+
+        def intersect(a, b):
+            """ return the intersection of two lists """
+            return list(set(a) & set(b))
+
+        def union(a, b):
+            """ return the union of two lists """
+            return list(set(a) | set(b))
+
+        amount = request.GET.get("amount")
+        if not amount:
+            amount = 10
+        tags = request.GET.get("tags")
+        if not tags:
+            tags = []
+
+        if len(tags):
+            search_method = "or"
+            # Filter tags of invalid form
+            tags = [tag for tag in tags if tag and isinstance(tag, int) and tag >= 0] #tag is an id (positive integer)
+
+            questions = []
+            question_sets = [[] for tag in tags]    # Lists of questions corresponding each tag in the same order
+            for ind, tag in enumerate(tags):
+                # Get all tag entries for the tag
+                try:
+                    tag_entries = Tag.objects.get(tag_id=tag).tagentry_set.all()
+                except:
+                    tag_entries = []
+                # Fetch all questions corresponding the tag entries
+                for tag_entry in tag_entries:
+                    try:
+                        question = Question.objects.filter(message_id=tag_entry.message_id).order_by('-version')[0]
+                        if question:
+                            question_sets[ind].append(question)
+                    except:
+                        pass
+
+            if search_method == "or":
+                questions = unique([q for subset in questions_set for q in subset])
+            elif search_method == "and":
+                if len(question_sets) == 1:
+                    questions = question_sets[0]
+                else:
+                    questions = question_sets[0]
+                    for ind, subset in question_sets:
+                        if ind == 0:
+                            continue
+                        questions = intersect(questions, subset)
+        else:
+            questions = Question.objects.all()
+
+        data = []
+        questions = [q for q in questions]
+        if style == "latest":
+            questions.sort(key = lambda a,b: (a.created - b.created).seconds)
+        elif style == "hottest":
+            questions.sort(key = lambda a,b: sum([vote.rate for vote in Vote.objects.filter(message_id=a.message_id)]) - sum([vote.rate for vote in Vote.objects.filter(message_id=b.message_id)]))
+
+        if len(questions) > amount:
+            questions = questions[:amount]
+        for question in questions:
+            data.append(question.serialize())
+
+        return Response({"questions": data}, 200)

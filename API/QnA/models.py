@@ -192,21 +192,22 @@ class AbstractMessage(models.Model):
     def validate(self):
         valid = True
         messages = []
-        if not isinstance(self.content, basetext):
+        if not isinstance(self.content, basestring):
             valid = False
             messages.append({"type": "alert", "content": "Content must be a string.", "identifier": "content"})
         if len(self.content) < 1:
             valid = False
-            messages.append({"type": "alert", "content": "Content must be a string.", "identifier": "content"})
+            messages.append({"type": "alert", "content": "Content is missing or its length is zero.", "identifier": "content"})
         if not isinstance(self.version, int) or self.version < 0:
             valid = False
-            messages.append({"type": "alert", "content": "Version must be a positive integer.", "identifier": "version"})
-        if not isinstance(user_id, int) or self.user_id < 0:
+            messages.append({"type": "alert", "content": "Version is missing, or you have put version number under zero which is not allowed.", "identifier": "version"})
+        if not isinstance(self.user_id, User):
             valid = False
-            messages.append({"type": "alert", "content": "User id must be a positive integer.", "identifier": "user_id"})
-        if not isinstance(message_id, int) or self.message_id < 0:
+            messages.append({"type": "alert", "content": "User id must be an user object.", "identifier": "user_id"})
+        if not isinstance(self.message_id, int) or self.message_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "Message id must be a positive number.", "identifier": "message_id"})
+
         return valid, messages
 
 
@@ -252,15 +253,20 @@ class Question(AbstractMessage):
     '''
 
     '''
+<<<<<<< HEAD
     topic = models.CharField(max_length=250)
+=======
+    title = models.CharField(max_length=250)
+>>>>>>> 1e13c718531f7d9393529bfcce82d5859ec2ae10
     def serialize(self):
         jsondict = super(Question, self).serialize()
-        jsondict['topic'] = self.topic
+        jsondict['title'] = self.topic
         return jsondict
 
     def validate(self):
-        valid, messages = super(Answer, self).validate()
-        if not isinstance(self.topic, basetext):
+
+        valid, messages = super(Question, self).validate()
+        if not isinstance(self.topic, basestring):
             valid = False
             messages.append({"type": "alert", "content": "Topic has to be a string.", "identifier": "topic"})
         if len(self.topic) < 5:
@@ -293,7 +299,7 @@ class Comment(AbstractMessage):
         return jsondict
 
     def validate(self):
-        valid, messages = super(Answer, self).validate()
+        valid, messages = super(Question, self).validate()
         if not isinstance(self.parent_id, basetext) or self.parent_id < 0 :
             valid = False
             messages.append({"type": "alert", "content": "Parent id has to be a integer.", "identifier": "parent_id"})
@@ -347,12 +353,20 @@ class Vote(models.Model):
 
 class Tag(models.Model):
     tag_id = models.PositiveIntegerField(unique=True)
+<<<<<<< HEAD
     creator = models.ForeignKey(User, to_field="user_id")
+=======
+    creator = models.ForeignKey(User)
+>>>>>>> 1e13c718531f7d9393529bfcce82d5859ec2ae10
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
     organization = models.ForeignKey(Organization)
 
+<<<<<<< HEAD
     name = models.CharField(max_length=63)
+=======
+    name = models.CharField(max_length=63, unique=True)
+>>>>>>> 1e13c718531f7d9393529bfcce82d5859ec2ae10
     course_flag = models.BooleanField(default=False)
 
     def serialize(self):
@@ -382,7 +396,11 @@ class Tag(models.Model):
 
 
 class TagEntry(models.Model):
+<<<<<<< HEAD
     tag_entry_id = models.PositiveIntegerField()
+=======
+    tag_entry_id = models.PositiveIntegerField(unique=True)
+>>>>>>> 1e13c718531f7d9393529bfcce82d5859ec2ae10
     tag = models.ForeignKey(Tag, to_field="tag_id")
     message_id = models.PositiveIntegerField(default=0)
 
