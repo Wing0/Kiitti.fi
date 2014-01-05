@@ -42,7 +42,6 @@ class User(AbstractUser):
     user_id = models.PositiveIntegerField(unique=True)
     reputation = models.IntegerField(default=0)
     organization = models.ForeignKey(Organization, to_field='organization_id', blank=True, null=True)
-    email = models.EmailField(unique=True)
 
     def serialize(self):
         jsondict = {
@@ -104,7 +103,7 @@ class User(AbstractUser):
                     pass
                 if not retrieved_user:
                     valid = False
-                    messages.append({"type":"alert","content":"Username has to be a longer than 2 characters.","identifier":"username"})
+                    messages.append({"type":"alert","content":"Email already in user.","identifier":"email"})
 
         if not isinstance(self.first_name, basestring):
             valid = False
