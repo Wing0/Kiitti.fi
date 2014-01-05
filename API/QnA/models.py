@@ -43,6 +43,19 @@ class User(AbstractUser):
 
         return jsondict
 
+    def save(self):
+        '''
+            The default save method is overridden to be able to generate appropriate user_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # Create user actions
+            userobjects = User.objects.all()
+            largest_id = max([0] + [user.user_id for user in userobjects])
+            self.user_id = largest_id
+            self.reputation = 0
+        # Just save
+        super(User, self).save()
+
 class AbstractMessage(models.Model):
     '''
     This is the Abstract message class for all the message classes. The other message classes
