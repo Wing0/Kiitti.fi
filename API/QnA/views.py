@@ -27,8 +27,6 @@ def post_abstract_message(abstractmessage, data):
     abstractmessage must be an instance of class that subclasses AbstractMessage.
     data is array that contains all json data.
     '''
-
-
     if 'content' in data.keys():
         abstractmessage.content = data["content"]
     else:
@@ -40,9 +38,8 @@ def post_abstract_message(abstractmessage, data):
         abstractmessage.version = 0
 
     if 'userId' in data.keys():
-        print "oli se siel"
-        abstractmessage.user_id = data['userId']
-        print "ja viel toimii"
+
+        abstractmessage.user_id = User.objects.get(user_id=data["userId"])
     else:
         abstractmessage.user_id = None
 
