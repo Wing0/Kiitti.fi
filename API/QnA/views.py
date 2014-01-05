@@ -35,10 +35,10 @@ def post_abstract_message(self, abstractmessage, data):
     '''
     content = data["content"]
     version = data["version"]
-    user_id = data["user_id"]
+    user_id = data["userId"]
     created = data["created"]
     modified = data["modified"]
-    message_id = data["message_id"]
+    message_id = data["messageId"]
 
     abstractmessage.content = content
     abstractmessage.version = version
@@ -57,7 +57,7 @@ class UserAPI(APIView):
     def post(self, request):
         data = json.loads(request.body)
         username = data['username']
-        user_id = data['user_id']
+        user_id = data['userId']
         reputation = data['reputation']
         user = User()
         user.username = username
@@ -78,8 +78,8 @@ class VoteAPI(APIView):
     def post(self, request):
         data = json.loads(request.body)
         vote_value = data['vote']
-        user_id = data['user_id']
-        message_id = data['message_id']
+        user_id = data['userId']
+        message_id = data['messageId']
         vote = Vote()
         vote.type = vote_value
         vote.user_id = user_id
@@ -100,7 +100,7 @@ class AnswerAPI(APIView):
         absdata = (Answer)create_message(Answer(), data)
 
         accepted = data["accepted"]
-        question_id = data["question_id"]
+        question_id = data["questionId"]
         absdata.accepted = accepted
         absdata.question_id = question_id
         return Response(200)
