@@ -5,7 +5,6 @@ from rest_framework.views import APIView
 from QnA.models import *
 import json
 
-# Create your views here...
 
 
 def get_user_data():
@@ -40,14 +39,16 @@ def post_abstract_message(abstractmessage, data):
 
     if 'userId' in data.keys():
 
-        abstractmessage.user_id = User.objects.get(user_id=data["userId"])
+        abstractmessage.user = User.objects.get(user_id=data["userId"])
     else:
         raise Exception("You must provide valid user id.")
-
+    '''
     if 'messageId' in data.keys():
         abstractmessage.message_id = data["messageId"]
     else:
         raise Exception("You must provide valid message id.")
+    '''
+
 
     return abstractmessage
 
@@ -138,6 +139,7 @@ class AnswerAPI(APIView):
             abs_data = post_abstract_message(Answer(), data)
         except Exception, e:
             return Response({"messages": {"type": "alert", "content": str(e), "identifier": ""}}, 200)
+
         if 'accepted' in data:
             abs_data.accepted = data["accepted"]
         else:
@@ -160,6 +162,7 @@ class CommentAPI(APIView):
             abs_data = post_abstract_message(Comment(), data)
         except Exception, e:
             return Response({"messages": {"type": "alert", "content": str(e), "identifier": ""}}, 200)
+
         parent_id = data["parentId"]
         abs_data.parent_id = parent_id
         abs_data.save()
@@ -188,6 +191,7 @@ class QuestionAPI(APIView):
         valid, messages = abs_data.validate()
         if valid:
             abs_data.save()
+
         return Response({"messages":messages},200)
 
     def get(self, request, style="hottest"):

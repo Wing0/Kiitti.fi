@@ -198,15 +198,19 @@ class AbstractMessage(models.Model):
         if len(self.content) < 1:
             valid = False
             messages.append({"type": "alert", "content": "Content is missing or its length is zero.", "identifier": "content"})
+        '''
         if not isinstance(self.version, int) or self.version < 0:
             valid = False
             messages.append({"type": "alert", "content": "Version is missing, or you have put version number under zero which is not allowed.", "identifier": "version"})
-        if not isinstance(self.user_id, User):
+        '''
+        if not isinstance(self.user, User):
             valid = False
             messages.append({"type": "alert", "content": "User id must be an user object.", "identifier": "user_id"})
+        '''
         if not isinstance(self.message_id, int) or self.message_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "Message id must be a positive number.", "identifier": "message_id"})
+        '''
 
         return valid, messages
 
@@ -338,10 +342,10 @@ class Vote(models.Model):
         if not isinstance(self.rate, int):
             valid = False
             messages.append({"type": "alert", "content": "Rate has to be a integer.", "identifier": "rate"})
-        if not isinstance(self.user_id, int) or self.user_id < 0:
+        if not isinstance(self.user.user_id, int) or self.user_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "User id has to be a positive integer.", "identifier": "user_id"})
-        if not isinstance(self.user_id, int) or self.message_id < 0:
+        if not isinstance(self.user.user_id, int) or self.message_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "Message id has to be a positive integer.", "identifier": "message_id"})
 
@@ -423,24 +427,23 @@ class TagEntry(models.Model):
         if not isinstance(self.creator.user_id, int) or self.creator.user_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "Creator must be a positive integer.", "identifier": "creator"})
+        '''
         if not isinstance(self.organization_id, int) or self.organization_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "Organization id has to be a positive integer.", "identifier": "organization_id"})
+
         if not isinstance(self.name, int):
             valid = False
             messages.append({"type": "alert", "content": "Name has to be a string.", "identifier": "name"})
+        '''
         if not len(self.name) > 0:
             valid = False
             messages.append({"type": "alert", "content": "Name has to be atleast 1 character long.", "identifier": "name"})
-        if not isinstance(self.follow_counter, int) or self.follow_counter < 0:
-            valid = False
-            messages.append({"type": "alert", "content": "Follow counter must be a positive integer.", "identifier": "follow_counter"})
-        if not isinstance(self.question_counter, int) or self.question_counter < 0:
-            valid = False
-            messages.append({"type": "alert", "content": "Question counter must be a positive integer.", "identifier": "question_counter"})
+        '''
         if not isinstance(self.course_flag, bool):
             valid = False
             messages.append({"type": "alert", "content": "Course flag must be a boolean.", "identifier": "course_flag"})
+        '''
         return valid, messages
 
 '''
