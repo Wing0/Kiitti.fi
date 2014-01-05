@@ -1,4 +1,147 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+import re
+
+class Organization(models.Model):
+
+    organization_id = models.PositiveIntegerField(unique=True)
+    created = models.DateField(auto_now_add=True)
+    modified = models.DateField(auto_now=True)
+    name = models.CharField(max_length=255)
+    address = models.TextField()
+    #image = models.ImageField()
+
+    def get_image():
+        return null
+
+    def serialize(self):
+        jsondict = {
+            'name': self.name,
+            'address': self.address,
+            'created': self.created,
+            'modified': self.modified,
+            'organizationId':self.organization_id
+        }
+
+        return jsondict
+
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate organization_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # Create user actions
+            orgobjects = Organization.objects.all()
+            largest_id = max([0] + [org.organization_id for org in orgobjects])
+            self.organization_id = largest_id
+        # Just save
+        super(Organization, self).save(*args, **kwargs)
+
+class User(AbstractUser):
+
+    user_id = models.PositiveIntegerField(unique=True)
+    reputation = models.IntegerField(default=0)
+    organization = models.ForeignKey(Organization, to_field='organization_id', blank=True, null=True)
+
+    def serialize(self):
+        jsondict = {
+            'username': self.username,
+            'userId': self.user_id,
+            'reputation': self.reputation,
+            'firstName': self.first_name,
+            'lastName': self.last_name,
+            'email': self.email,
+            'created': self.date_joined,
+            'lastLogin': self.last_login
+        }
+        try:
+            if self.organization.organization_id:
+                jsondict["organizationId"] = self.organization.organization_id
+        except:
+            pass
+        return jsondict
+
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate user_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # Create user actions
+            userobjects = User.objects.all()
+            largest_id = max([0] + [user.user_id for user in userobjects])
+            self.user_id = largest_id +1
+            self.reputation = 0
+        # Just save
+        super(User, self).save(*args, **kwargs)
+
+    def validate(self):
+        valid = True
+        messages = []
+
+        if not isinstance(self.username, basestring):
+            valid = False
+            messages.append({"type":"alert","content":"Username has to be a string.","identifier":"username"})
+        if not len(self.username) <= 255:
+            valid = False
+            messages.append({"type":"alert","content":"Username has to be a shorter than 256 characters.","identifier":"username"})
+        if not len(self.username) >= 3:
+            valid = False
+            messages.append({"type":"alert","content":"Username has to be a longer than 2 characters.","identifier":"username"})
+
+        if not isinstance(self.email, basestring):
+            valid = False
+            messages.append({"type":"alert","content":"Email has to be a string.","identifier":"email"})
+        else:
+            if not re.match("[^@]+@[^@]+\.[^@]+",self.email):
+                valid = False
+                messages.append({"type":"alert","content":"Give a valid email address.","identifier":"email"})
+            else:
+                retrieved_user = False
+                try:
+                    retrieved_user = User.objects.get(email=self.email)
+                except:
+                    retrieved_user = False
+                if retrieved_user:
+                    valid = False
+                    messages.append({"type":"alert","content":"Email already in use.","identifier":"email"})
+
+        if not isinstance(self.first_name, basestring):
+            valid = False
+            messages.append({"type":"alert","content":"First name has to be a string.","identifier":"first_name"})
+        if not len(self.first_name) <= 255:
+            valid = False
+            messages.append({"type":"alert","content":"First name has to be a shorter than 256 characters.","identifier":"first_name"})
+        if not len(self.first_name) >= 1:
+            valid = False
+            messages.append({"type":"alert","content":"First name has to be at least 1 character.","identifier":"first_name"})
+
+        if not isinstance(self.last_name, basestring):
+            valid = False
+            messages.append({"type":"alert","content":"Last name has to be a string.","identifier":"last_name"})
+        if not len(self.last_name) <= 255:
+            valid = False
+            messages.append({"type":"alert","content":"Last name has to be a shorter than 256 characters.","identifier":"last_name"})
+        if not len(self.last_name) >= 1:
+            valid = False
+            messages.append({"type":"alert","content":"Last name has to be at least 1 character.","identifier":"last_name"})
+
+        if not isinstance(self.password, basestring):
+            valid = False
+            messages.append({"type":"alert","content":"Pasword has to be a string.","identifier":"password"})
+        if not len(self.password) <= 255:
+            valid = False
+            messages.append({"type":"alert","content":"Password has to be a shorter than 256 characters.","identifier":"password"})
+        if not len(self.password) >= 4:
+            valid = False
+            messages.append({"type":"alert","content":"Password has to be at least 4 character.","identifier":"password"})
+
+        if not isinstance(self.organization_id, int):
+            valid = False
+            messages.append({"type":"alert","content":"Organization id has to be a integer.","identifier":"organization_id"})
+        else:
+            Organization.objects.get()
+
+        return valid, messages
 
 class AbstractMessage(models.Model):
     '''
@@ -9,17 +152,17 @@ class AbstractMessage(models.Model):
     version = models.PositiveIntegerField()
     user_id = models.ForeignKey(User, to_field='user_id')
     created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField()
+    modified = models.DateTimeField(auto_now=True)
     message_id = models.PositiveIntegerField()
 
     def serialize(self):
         jsondict = {
             'content': self.content,
             'version': self.version,
-            'user_id': self.user_id,
+            'userId': self.user_id,
             'created': self.created,
             'modified': self.modified,
-            'message_id': self.message_id
+            'messageId': self.message_id
         }
 
         return jsondict
@@ -30,10 +173,13 @@ class Answer(AbstractMessage):
 
     '''
     question_id = models.PositiveIntegerField() #this is the message_id of the question this answer is response to
+    accepted = models.BooleanField(default=False)
 
     def serialize(self):
         jsondict = super(Answer, self).serialize()
-        jsondict['question_id'] = self.question_id
+        jsondict['questionId'] = self.question_id
+        jsondict['accepted'] = self.accepted
+
         return jsondict
 
 
@@ -54,7 +200,7 @@ class Comment(AbstractMessage):
     parent_id = models.PositiveIntegerField() #this is the message_id of the message to which this comment is for
     def serialize(self):
         jsondict = super(Comment, self).serialize()
-        jsondict['parent_id'] = self.parent_id
+        jsondict['parentId'] = self.parent_id
         return jsondict
 
 
@@ -88,68 +234,20 @@ class Tag(models.Model):
 
 '''
 
-class Organization(models.Model):
-
-    created = models.DateField(auto_now_add=True)
-    modified = models.DateField(auto_now=True)
-    name = models.CharField(max_length=255)
-    address = models.TextField()
-    image = models.ImageField()
-
-    def get_image():
-        return null
-
-    def serialize(self):
-        jsondict = {
-            'name': self.name,
-            'address': self.address,
-            'created': self.created,
-            'modified': self.modified
-        }
-
-        return jsondict
-
-# dummy
-class User(models.Model):
-
-    user_id = models.PositiveIntegerField(unique=True)
-    username = models.CharField(max_length=255)
-    reputation = models.IntegerField()
-    firstname = models.CharField(max_length=255)
-    lastname = models.CharField(max_length=255)
-    password = models.CharField(max_length=255)
-    created = models.DateField(auto_now_add=True)
-    modified = models.DateField(auto_now=True)
-    organization_id = models.ForeignKey(Organization)
-
-    def serialize(self):
-        jsondict = {
-            'username': self.username,
-            'user_id': self.user_id,
-            'reputation': self.reputation,
-            'firstname': self.firstname,
-            'lastname': self.lastname,
-            'created': self.created,
-            'modified': self.modified,
-            'organization_id': organization_id
-        }
-
-        return jsondict
-
 
 class Vote(models.Model):
 
-    type = models.SmallIntegerField(default=0)
-    user_id = models.ForeignKey(User)
-    message_id = models.ForeignKey(User)
+    rate = models.SmallIntegerField(default=0)
+    user_id = models.ForeignKey(User, to_field="user_id")
+    message_id = models.IntegerField(default=0)
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
 
     def serialize(self):
         jsondict = {
-            'type': self.type,
-            'user_id': self.user_id,
-            'message_id': self.message_id,
+            'rate': self.rate,
+            'userId': self.user_id,
+            'messageId': self.message_id,
             'created': self.created,
             'modified': self.modified
         }
@@ -171,14 +269,14 @@ class Tag(models.Model):
     def serialize(self):
         jsondict = {
             'creator': self.creator,
-            'user_id': self.user_id,
-            'message_id': self.message_id,
+            'userId': self.user_id,
+            'messageId': self.message_id,
             'created': self.created,
             'modified': self.modified,
-            'organization_id': self.organization_id,
-            'follow_counter': self.follow_counter,
-            'question_counter': self.question_counter,
-            'course_flag': self.course_flag
+            'organizationId': self.organization_id,
+            'followCounter': self.follow_counter,
+            'questionCounter': self.question_counter,
+            'courseFlag': self.course_flag
         }
 
         return jsondict

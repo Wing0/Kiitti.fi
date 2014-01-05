@@ -1,0 +1,16 @@
+Jos tietokantaa ei vielä ole:
+
+1. manage.py schemamigration <app:n nimi> --initial #tekee alustavan migraten
+
+2. manage.py syncdb
+
+3. manage.py migrate <app:n nimi> #applyaa tehdyn migraten
+
+
+Jos tietokannassa on jo tavaraaa ja ensimmäinen migraatio on tehty:
+
+1. manage.py schemamigration <app:n nimi> --auto #tekee uuden migraten
+
+2. manage.py migrate <app:n nimi> #applyaa tehdyn migraten
+
+
