@@ -254,7 +254,6 @@ class Question(AbstractMessage):
     '''
 
     '''
-    question_id = models.PositiveIntegerField()
     topic = models.CharField(max_length=250)
     def serialize(self):
         jsondict = super(Question, self).serialize()
@@ -276,6 +275,7 @@ class Question(AbstractMessage):
         '''
             The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
         '''
+
         if self.pk is None:
             # When created
             all_objects = Question.objects.all()
@@ -350,13 +350,13 @@ class Vote(models.Model):
         return valid, messages
 
 class Tag(models.Model):
-    tag_id = models.PositiveIntegerField()
+    tag_id = models.PositiveIntegerField(unique=True)
     creator = models.ForeignKey(User)
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
     organization = models.ForeignKey(Organization)
 
-    name = CharField(max_length=63)
+    name = models.CharField(max_length=63)
     course_flag = models.BooleanField(default=False)
 
     def serialize(self):
@@ -387,7 +387,7 @@ class Tag(models.Model):
 
 class TagEntry(models.Model):
     tag_entry_id = models.PositiveIntegerField()
-    tag = ForeignKey(Tag, to_field="tag_id")
+    tag = models.ForeignKey(Tag, to_field="tag_id")
     message_id = models.PositiveIntegerField(default=0)
 
     creator = models.ForeignKey(User)

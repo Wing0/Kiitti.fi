@@ -27,6 +27,7 @@ def post_abstract_message(abstractmessage, data):
     abstractmessage must be an instance of class that subclasses AbstractMessage.
     data is array that contains all json data.
     '''
+
     if 'content' in data.keys():
         abstractmessage.content = data["content"]
     else:
@@ -47,8 +48,6 @@ def post_abstract_message(abstractmessage, data):
         abstractmessage.message_id = data["messageId"]
     else:
         raise Exception("You must provide valid message id.")
-
-
 
     return abstractmessage
 
@@ -101,16 +100,22 @@ class VoteAPI(APIView):
 
     def post(self, request):
         data = json.loads(request.body)
-        vote_value = data['vote']
-        user_id = data['userId']
-        message_id = data['messageId']
-        rate = data['rate']
-        vote = Vote()
-        vote.type = vote_value
-        vote.user_id = user_id
-        vote.message_id = message_id
-        vote.rate = rate
-        vote.save()
+        if ("rate" in data
+            and "userId" in data
+            and "messageId" in data
+            and "created" in data
+            and "modified" in data):
+
+            vote_value = data['vote']
+            user_id = data['userId']
+            message_id = data['messageId']
+            rate = data['rate']
+            vote = Vote()
+            vote.type = vote_value
+            vote.user_id = user_id
+            vote.message_id = message_id
+            vote.rate = rate
+            vote.save()
         return Response(200)
 
 class AnswerAPI(APIView):
@@ -129,7 +134,7 @@ class AnswerAPI(APIView):
             abs_data = post_abstract_message(Answer(), data)
         except Exception, e:
             messages = {"type": "alert", "content": str(e), "identifier": ""}
-
+            return Response({"messages":messages},200)
         if 'accepted' in data:
             abs_data.accepted = data["accepted"]
         else:
@@ -152,7 +157,7 @@ class CommentAPI(APIView):
             abs_data = post_abstract_message(Answer(), data)
         except Exception, e:
             messages = {"type": "alert", "content": str(e), "identifier": ""}
-
+            return Response({"messages":messages},200)
         parent_id = data["parentId"]
         abs_data.parent_id = parent_id
         abs_data.save()
@@ -176,15 +181,17 @@ class QuestionAPI(APIView):
         data = json.loads(request.body)
         messages = {}
         try:
-            abs_data = post_abstract_message(Answer(), data)
+            abs_data = post_abstract_message(Question(), data)
+
         except Exception, e:
             messages = {"type": "alert", "content": str(e), "identifier": ""}
+            return Response({"messages":messages},200)
+
         topic = data['topic']
         abs_data.topic = topic
 
         valid, messages = abs_data.validate()
         if valid:
             abs_data.save()
-
         return Response({"messages":messages},200)
 
