@@ -100,22 +100,26 @@ class VoteAPI(APIView):
 
     def post(self, request):
         data = json.loads(request.body)
-        if ("rate" in data
-            and "userId" in data
-            and "messageId" in data
-            and "created" in data
-            and "modified" in data):
-
-            vote_value = data['vote']
-            user_id = data['userId']
-            message_id = data['messageId']
-            rate = data['rate']
-            vote = Vote()
-            vote.type = vote_value
-            vote.user_id = user_id
-            vote.message_id = message_id
-            vote.rate = rate
-            vote.save()
+        vote = Vote()
+        if 'rate' in data:
+            vote.rate = data["rate"]
+        else:
+            rate = 0
+        if 'userId' in data:
+            vote.user_id = data["userId"]
+        else:
+            return Response({"messages": {
+                "type": "alert",
+                "content": "User id has to be a positive integer",
+                "identifier": "user_id"}}, 200)
+        if 'messageId' in data:
+            vote.message_id = data["messageId"]
+        else:
+            return Response({"messages": {
+                "type": "alert",
+                "content": "Message id has to be a positive integer",
+                "identifier": "message_id"}}, 200)
+        vote.save()
         return Response(200)
 
 class AnswerAPI(APIView):
@@ -133,8 +137,7 @@ class AnswerAPI(APIView):
         try:
             abs_data = post_abstract_message(Answer(), data)
         except Exception, e:
-            messages = {"type": "alert", "content": str(e), "identifier": ""}
-            return Response({"messages":messages},200)
+            return Response({"messages": {"type": "alert", "content": str(e), "identifier": ""}}, 200)
         if 'accepted' in data:
             abs_data.accepted = data["accepted"]
         else:
@@ -154,10 +157,9 @@ class CommentAPI(APIView):
         data = json.loads(request.body)
         messages = {}
         try:
-            abs_data = post_abstract_message(Answer(), data)
+            abs_data = post_abstract_message(Comment(), data)
         except Exception, e:
-            messages = {"type": "alert", "content": str(e), "identifier": ""}
-            return Response({"messages":messages},200)
+            return Response({"messages": {"type": "alert", "content": str(e), "identifier": ""}}, 200)
         parent_id = data["parentId"]
         abs_data.parent_id = parent_id
         abs_data.save()
@@ -173,25 +175,95 @@ class CommentAPI(APIView):
 class QuestionAPI(APIView):
 
     def get(self, request):
-
-
-        return Response(200)
+        data = []
+        question_data = Question.objects.all()
+        for question in question_data:
+            data.append(question.serialize())
+        return Response({"questions": data}, 200)
 
     def post(self, request):
         data = json.loads(request.body)
         messages = {}
         try:
             abs_data = post_abstract_message(Question(), data)
-
         except Exception, e:
             messages = {"type": "alert", "content": str(e), "identifier": ""}
-            return Response({"messages":messages},200)
-
-        topic = data['topic']
-        abs_data.topic = topic
+            return Response({"messages": messages}, 200)
+        title = data['title']
+        abs_data.title = title
 
         valid, messages = abs_data.validate()
         if valid:
             abs_data.save()
         return Response({"messages":messages},200)
 
+    def get(self, request, style="hottest"):
+        # Helping methods for the tag search
+        def unique(a):
+            """ return the list with duplicate elements removed """
+            return list(set(a))
+
+        def intersect(a, b):
+            """ return the intersection of two lists """
+            return list(set(a) & set(b))
+
+        def union(a, b):
+            """ return the union of two lists """
+            return list(set(a) | set(b))
+
+        amount = request.GET.get("amount")
+        if not amount:
+            amount = 10
+        tags = request.GET.get("tags")
+        if not tags:
+            tags = []
+
+        if len(tags):
+            search_method = "or"
+            # Filter tags of invalid form
+            tags = [tag for tag in tags if tag and isinstance(tag, int) and tag >= 0] #tag is an id (positive integer)
+
+            questions = []
+            question_sets = [[] for tag in tags]    # Lists of questions corresponding each tag in the same order
+            for ind, tag in enumerate(tags):
+                # Get all tag entries for the tag
+                try:
+                    tag_entries = Tag.objects.get(tag_id=tag).tagentry_set.all()
+                except:
+                    tag_entries = []
+                # Fetch all questions corresponding the tag entries
+                for tag_entry in tag_entries:
+                    try:
+                        question = Question.objects.filter(message_id=tag_entry.message_id).order_by('-version')[0]
+                        if question:
+                            question_sets[ind].append(question)
+                    except:
+                        pass
+
+            if search_method == "or":
+                questions = unique([q for subset in questions_set for q in subset])
+            elif search_method == "and":
+                if len(question_sets) == 1:
+                    questions = question_sets[0]
+                else:
+                    questions = question_sets[0]
+                    for ind, subset in question_sets:
+                        if ind == 0:
+                            continue
+                        questions = intersect(questions, subset)
+        else:
+            questions = Question.objects.all()
+
+        data = []
+        questions = [q for q in questions]
+        if style == "latest":
+            questions.sort(key = lambda a: a.created)# - b.created).seconds)
+        elif style == "hottest":
+            questions.sort(key = lambda a: sum([vote.rate for vote in Vote.objects.filter(message_id=a.message_id)]))# - sum([vote.rate for vote in Vote.objects.filter(message_id=b.message_id)]))
+
+        if len(questions) > amount:
+            questions = questions[:amount]
+        for question in questions:
+            data.append(question.serialize())
+
+        return Response({"questions": data}, 200)

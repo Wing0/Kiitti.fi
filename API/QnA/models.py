@@ -172,7 +172,7 @@ class AbstractMessage(models.Model):
     '''
     content = models.TextField()
     version = models.PositiveIntegerField()
-    user_id = models.ForeignKey(User, to_field="user_id")
+    user = models.ForeignKey(User, to_field="user_id")
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     message_id = models.PositiveIntegerField()
@@ -181,7 +181,7 @@ class AbstractMessage(models.Model):
         jsondict = {
             'content': self.content,
             'version': self.version,
-            'userId': self.user_id,
+            'userId': self.user.user_id,
             'created': self.created,
             'modified': self.modified,
             'messageId': self.message_id
@@ -216,7 +216,6 @@ class Answer(AbstractMessage):
     Represents an Answer for Question.
 
     '''
-    answer_id = models.PositiveIntegerField()
     question_id = models.PositiveIntegerField() #this is the message_id of the question this answer is response to
     accepted = models.BooleanField(default=False)
 
@@ -244,8 +243,8 @@ class Answer(AbstractMessage):
         if self.pk is None:
             # When created
             all_objects = Answer.objects.all()
-            largest_id = max([0] + [obj.answer_id for obj in all_objects])
-            self.answer_id = largest_id + 1
+            largest_id = max([0] + [obj.message_id for obj in all_objects])
+            self.message_id = largest_id + 1
         # Just save
         super(Answer, self).save(*args, **kwargs)
 
@@ -254,21 +253,28 @@ class Question(AbstractMessage):
     '''
 
     '''
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 7648e44bbda3943f471105ba24e762ea30426bad
     topic = models.CharField(max_length=250)
+=======
+    title = models.CharField(max_length=250)
+>>>>>>> 1e13c718531f7d9393529bfcce82d5859ec2ae10
     def serialize(self):
         jsondict = super(Question, self).serialize()
-        jsondict['topic'] = self.topic
+        jsondict['title'] = self.title
         return jsondict
 
     def validate(self):
 
         valid, messages = super(Question, self).validate()
-        if not isinstance(self.topic, basestring):
+        if not isinstance(self.title, basestring):
             valid = False
-            messages.append({"type": "alert", "content": "Topic has to be a string.", "identifier": "topic"})
-        if len(self.topic) < 5:
+            messages.append({"type": "alert", "content": "Title has to be a string.", "identifier": "title"})
+        if len(self.title) < 5:
             valid = False
-            messages.append({"type": "alert", "content": "Topic must be atleast five characters long.", "identifier": "topic"})
+            messages.append({"type": "alert", "content": "Title must be atleast five characters long.", "identifier": "title"})
         return valid, messages
 
     def save(self, *args, **kwargs):
@@ -279,8 +285,8 @@ class Question(AbstractMessage):
         if self.pk is None:
             # When created
             all_objects = Question.objects.all()
-            largest_id = max([0] + [obj.question_id for obj in all_objects])
-            self.question_id = largest_id + 1
+            largest_id = max([0] + [obj.message_id for obj in all_objects])
+            self.message_id = largest_id + 1
         # Just save
         super(Question, self).save(*args, **kwargs)
 
@@ -289,7 +295,7 @@ class Comment(AbstractMessage):
     '''
 
     '''
-    comment_id = models.PositiveIntegerField()
+    is_question_comment = models.BooleanField(default=False)
     parent_id = models.PositiveIntegerField() #this is the message_id of the message to which this comment is for
     def serialize(self):
         jsondict = super(Comment, self).serialize()
@@ -310,15 +316,15 @@ class Comment(AbstractMessage):
         if self.pk is None:
             # When created
             all_objects = Comment.objects.all()
-            largest_id = max([0] + [obj.comment_id for obj in all_objects])
-            self.comment_id = largest_id + 1
+            largest_id = max([0] + [obj.message_id for obj in all_objects])
+            self.message_id = largest_id + 1
         # Just save
         super(Comment, self).save(*args, **kwargs)
 
 class Vote(models.Model):
 
     rate = models.SmallIntegerField(default=0)
-    user_id = models.ForeignKey(User, to_field="user_id")
+    user = models.ForeignKey(User, to_field="user_id")
     message_id = models.PositiveIntegerField(default=0)
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
@@ -326,7 +332,7 @@ class Vote(models.Model):
     def serialize(self):
         jsondict = {
             'rate': self.rate,
-            'userId': self.user_id,
+            'userId': self.user.user_id,
             'messageId': self.message_id,
             'created': self.created,
             'modified': self.modified
@@ -351,18 +357,33 @@ class Vote(models.Model):
 
 class Tag(models.Model):
     tag_id = models.PositiveIntegerField(unique=True)
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    creator = models.ForeignKey(User, to_field="user_id")
+=======
+>>>>>>> 7648e44bbda3943f471105ba24e762ea30426bad
     creator = models.ForeignKey(User)
+>>>>>>> 1e13c718531f7d9393529bfcce82d5859ec2ae10
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
     organization = models.ForeignKey(Organization)
 
+<<<<<<< HEAD
     name = models.CharField(max_length=63)
+=======
+<<<<<<< HEAD
+    name = models.CharField(max_length=63)
+=======
+    name = models.CharField(max_length=63, unique=True)
+>>>>>>> 1e13c718531f7d9393529bfcce82d5859ec2ae10
+>>>>>>> 7648e44bbda3943f471105ba24e762ea30426bad
     course_flag = models.BooleanField(default=False)
 
     def serialize(self):
         jsondict = {
             'tagId':self.tag_id,
-            'creator': self.creator,
+            'creator': self.creator.user_id,
             'created': self.created,
             'modified': self.modified,
             'organizationId':self.organization.organization_id,
@@ -386,11 +407,18 @@ class Tag(models.Model):
 
 
 class TagEntry(models.Model):
+<<<<<<< HEAD
     tag_entry_id = models.PositiveIntegerField()
+<<<<<<< HEAD
+=======
+=======
+    tag_entry_id = models.PositiveIntegerField(unique=True)
+>>>>>>> 1e13c718531f7d9393529bfcce82d5859ec2ae10
+>>>>>>> 7648e44bbda3943f471105ba24e762ea30426bad
     tag = models.ForeignKey(Tag, to_field="tag_id")
     message_id = models.PositiveIntegerField(default=0)
 
-    creator = models.ForeignKey(User)
+    creator = models.ForeignKey(User, to_field="user_id")
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
 
@@ -399,7 +427,7 @@ class TagEntry(models.Model):
             'tagEntryId':self.tag_entry_id,
             'tagId':self.tag.tag_id,
             'messageId': self.message_id,
-            'creator': self.creator,
+            'creator': self.creator.user_id,
             'created': self.created,
             'modified': self.modified,
         }
@@ -422,7 +450,7 @@ class TagEntry(models.Model):
     def validate(self):
         valid = True
         messages = []
-        if not isinstance(self.creator, int) or self.creator < 0:
+        if not isinstance(self.creator.user_id, int) or self.creator.user_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "Creator must be a positive integer.", "identifier": "creator"})
         if not isinstance(self.organization_id, int) or self.organization_id < 0:
