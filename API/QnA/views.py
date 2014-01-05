@@ -179,8 +179,8 @@ class QuestionAPI(APIView):
             abs_data = post_abstract_message(Answer(), data)
         except Exception, e:
             messages = {"type": "alert", "content": str(e), "identifier": ""}
-        topic = data['topic']
-        abs_data.topic = topic
+        title = data['title']
+        abs_data.title = title
 
         valid, messages = abs_data.validate()
         if valid:

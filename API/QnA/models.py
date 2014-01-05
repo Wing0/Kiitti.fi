@@ -254,11 +254,10 @@ class Question(AbstractMessage):
     '''
 
     '''
-    question_id = models.PositiveIntegerField()
-    topic = models.CharField(max_length=250)
+    title = models.CharField(max_length=250)
     def serialize(self):
         jsondict = super(Question, self).serialize()
-        jsondict['topic'] = self.topic
+        jsondict['title'] = self.topic
         return jsondict
 
     def validate(self):
