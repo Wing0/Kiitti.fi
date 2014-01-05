@@ -128,13 +128,18 @@ class AnswerAPI(APIView):
         data = json.loads(request.body)
 
         abs_data = post_abstract_message(Answer(), data)
-        accepted = data["accepted"]
-        question_id = data["questionId"]
-        abs_data.accepted = accepted
-        abs_data.question_id = question_id
-        abs_data.save()
-
-        return Response(200)
+        if 'accepted' in data:
+            abs_data.accepted = data["accepted"]
+        else:
+            abs_data.accepted = False
+        if 'questionId' in data:
+            abs_data.question_id = data["questionId"]
+        else:
+            abs_data.question_id = None
+        valid, messages = abs_data.validate()
+        if valid:
+            abs_data.save()
+        return Response({"messages": messages}, 200)
 
 class CommentAPI(APIView):
 
