@@ -253,11 +253,7 @@ class Question(AbstractMessage):
     '''
 
     '''
-<<<<<<< HEAD
-    topic = models.CharField(max_length=250)
-=======
     title = models.CharField(max_length=250)
->>>>>>> 1e13c718531f7d9393529bfcce82d5859ec2ae10
     def serialize(self):
         jsondict = super(Question, self).serialize()
         jsondict['title'] = self.title
