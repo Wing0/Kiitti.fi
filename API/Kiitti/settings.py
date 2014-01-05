@@ -43,14 +43,16 @@ INSTALLED_APPS = (
 
 AUTH_USER_MODEL = "QnA.User"
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
+
+if not DEBUG:
+    MIDDLEWARE_CLASSES.append('django.middleware.csrf.CsrfViewMiddleware')
 
 ROOT_URLCONF = 'Kiitti.urls'
 
