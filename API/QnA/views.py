@@ -92,28 +92,33 @@ class AnswerAPI(APIView):
 
     def get(self, request):
         data = []
-        answerata = Answer.objects.all()
-        for answer in answerdata:
+        answer_data = Answer.objects.all()
+        for answer in answer_data:
             data.append(answer.serialize())
         return Response({"answers": data}, 200)
 
     def post(self, request):
         data = json.loads(request.body)
-        absdata = (Answer)create_message(Answer(), data)
+        abs_data = (Answer)create_message(Answer(), data)
 
         accepted = data["accepted"]
         question_id = data["questionId"]
-        absdata.accepted = accepted
-        absdata.question_id = question_id
+        abs_data.accepted = accepted
+        abs_data.question_id = question_id
         return Response(200)
 
 class CommentAPI(APIView):
 
     def post(self, request):
         data = json.loads(request.body)
-        absdata = create_message(Answer(), data)
+        abs_data = create_message(Answer(), data)
         parent_id = data["parentId"]
-        absdata.parent_id
+        abs_data.parent_id
         return Response(200)
 
-
+    def get(self, request):
+        data = []
+        comment_data = Comment.objects.all()
+        for comment in comment_data:
+            data.append(comment.serialize())
+        return Response({"comments": data}, 200)

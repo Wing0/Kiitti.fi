@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from models import Customer, Topic, Tag, Question, Answer, Comment, User
+from models import Organization, Topic, Tag, Question, Answer, Comment, User
 
 class CustomerAdmin(admin.ModelAdmin):
 	list_display = ("name",)
