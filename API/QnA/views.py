@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from QnA.models import User, Vote, AbstractMessage, Comment
+from QnA.models import User, Vote, AbstractMessage, Comment, Answer
 import json
 
 # Create your views here...
@@ -92,11 +92,7 @@ class AnswerAPI(APIView):
 
     def post(self, request):
         data = json.loads(request.body)
-<<<<<<< HEAD
-        absdata = create_message(Answer(), data)
-=======
-        abs_data = (Answer)create_message(Answer(), data)
->>>>>>> d87f7a21f8cdfa112faebc797c6924dd34a857f3
+        abs_data = create_message(Answer(), data)
 
         accepted = data["accepted"]
         question_id = data["questionId"]
@@ -108,7 +104,7 @@ class CommentAPI(APIView):
 
     def post(self, request):
         data = json.loads(request.body)
-        abs_data = create_message(Answer(), data)
+        abs_data = create_message(Comment(), data)
         parent_id = data["parentId"]
         abs_data.parent_id
         return Response(200)
