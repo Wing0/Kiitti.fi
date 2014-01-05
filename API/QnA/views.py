@@ -260,9 +260,9 @@ class QuestionAPI(APIView):
         data = []
         questions = [q for q in questions]
         if style == "latest":
-            questions.sort(key = lambda a,b: (a.created - b.created).seconds)
+            questions.sort(key = lambda a: a.created)# - b.created).seconds)
         elif style == "hottest":
-            questions.sort(key = lambda a,b: sum([vote.rate for vote in Vote.objects.filter(message_id=a.message_id)]) - sum([vote.rate for vote in Vote.objects.filter(message_id=b.message_id)]))
+            questions.sort(key = lambda a: sum([vote.rate for vote in Vote.objects.filter(message_id=a.message_id)]))# - sum([vote.rate for vote in Vote.objects.filter(message_id=b.message_id)]))
 
         if len(questions) > amount:
             questions = questions[:amount]
