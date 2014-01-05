@@ -172,7 +172,7 @@ class AbstractMessage(models.Model):
     '''
     content = models.TextField()
     version = models.PositiveIntegerField()
-    user_id = models.ForeignKey(User, to_field="user_id")
+    user = models.ForeignKey(User, to_field="user_id")
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     message_id = models.PositiveIntegerField()
@@ -181,7 +181,7 @@ class AbstractMessage(models.Model):
         jsondict = {
             'content': self.content,
             'version': self.version,
-            'userId': self.user_id,
+            'userId': self.user.user_id,
             'created': self.created,
             'modified': self.modified,
             'messageId': self.message_id
@@ -260,18 +260,18 @@ class Question(AbstractMessage):
 >>>>>>> 1e13c718531f7d9393529bfcce82d5859ec2ae10
     def serialize(self):
         jsondict = super(Question, self).serialize()
-        jsondict['title'] = self.topic
+        jsondict['title'] = self.title
         return jsondict
 
     def validate(self):
 
         valid, messages = super(Question, self).validate()
-        if not isinstance(self.topic, basestring):
+        if not isinstance(self.title, basestring):
             valid = False
-            messages.append({"type": "alert", "content": "Topic has to be a string.", "identifier": "topic"})
-        if len(self.topic) < 5:
+            messages.append({"type": "alert", "content": "Title has to be a string.", "identifier": "title"})
+        if len(self.title) < 5:
             valid = False
-            messages.append({"type": "alert", "content": "Topic must be atleast five characters long.", "identifier": "topic"})
+            messages.append({"type": "alert", "content": "Title must be atleast five characters long.", "identifier": "title"})
         return valid, messages
 
     def save(self, *args, **kwargs):
@@ -320,7 +320,7 @@ class Comment(AbstractMessage):
 class Vote(models.Model):
 
     rate = models.SmallIntegerField(default=0)
-    user_id = models.ForeignKey(User, to_field="user_id")
+    user = models.ForeignKey(User, to_field="user_id")
     message_id = models.PositiveIntegerField(default=0)
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
@@ -328,7 +328,7 @@ class Vote(models.Model):
     def serialize(self):
         jsondict = {
             'rate': self.rate,
-            'userId': self.user_id,
+            'userId': self.user.user_id,
             'messageId': self.message_id,
             'created': self.created,
             'modified': self.modified
@@ -372,7 +372,7 @@ class Tag(models.Model):
     def serialize(self):
         jsondict = {
             'tagId':self.tag_id,
-            'creator': self.creator,
+            'creator': self.creator.user_id,
             'created': self.created,
             'modified': self.modified,
             'organizationId':self.organization.organization_id,
@@ -413,7 +413,7 @@ class TagEntry(models.Model):
             'tagEntryId':self.tag_entry_id,
             'tagId':self.tag.tag_id,
             'messageId': self.message_id,
-            'creator': self.creator,
+            'creator': self.creator.user_id,
             'created': self.created,
             'modified': self.modified,
         }
@@ -436,7 +436,7 @@ class TagEntry(models.Model):
     def validate(self):
         valid = True
         messages = []
-        if not isinstance(self.creator, int) or self.creator < 0:
+        if not isinstance(self.creator.user_id, int) or self.creator.user_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "Creator must be a positive integer.", "identifier": "creator"})
         if not isinstance(self.organization_id, int) or self.organization_id < 0:
