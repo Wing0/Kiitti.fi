@@ -8,7 +8,7 @@ class CustomerAdmin(admin.ModelAdmin):
 
 
 class QuestionAdmin(admin.ModelAdmin):
-	list_display = ("topic",)
+	list_display = ("title",)
 
 admin.site.register(Vote)
 admin.site.register(Tag)
