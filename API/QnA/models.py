@@ -25,7 +25,7 @@ class Organization(models.Model):
 class User(AbstractUser):
 
     user_id = models.PositiveIntegerField(unique=True)
-    reputation = models.IntegerField()
+    reputation = models.IntegerField(default=0)
     organization_id = models.ForeignKey(Organization)
 
     def serialize(self):
