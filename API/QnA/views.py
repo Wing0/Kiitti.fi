@@ -18,30 +18,27 @@ def get_user_data(self):
     data = []
     userdata = User.objects.all()
     for user in userdata:
-        data.append(user.serialize.())
+        data.append(user.serialize())
     return data
 
 def get_question(self, time):
     data = []
     questiondata = Question.objects.filter(date__gte=time)
     for question in questiondata:
-        data.append(question.serialize.())
+        data.append(question.serialize())
     return data
 
-def get_abstract_message(self, parameters):
-
-
-def create_message(self, abstractmessage, data):
+def post_abstract_message(self, abstractmessage, data):
     '''
     abstractmessage must be an instance of class that subclasses AbstractMessage.
     data is array that contains all json data.
     '''
     content = data["content"]
     version = data["version"]
-    user_id = data["user_id"]
+    user_id = data["userId"]
     created = data["created"]
     modified = data["modified"]
-    message_id = data["message_id"]
+    message_id = data["messageId"]
 
     abstractmessage.content = content
     abstractmessage.version = version
@@ -60,7 +57,7 @@ class UserAPI(APIView):
     def post(self, request):
         data = json.loads(request.body)
         username = data['username']
-        user_id = data['user_id']
+        user_id = data['userId']
         reputation = data['reputation']
         user = User()
         user.username = username
@@ -81,23 +78,42 @@ class VoteAPI(APIView):
     def post(self, request):
         data = json.loads(request.body)
         vote_value = data['vote']
-        user_id = data['user_id']
-        message_id = data['message_id']
+        user_id = data['userId']
+        message_id = data['messageId']
+        rate = data['rate']
         vote = Vote()
         vote.type = vote_value
         vote.user_id = user_id
         vote.message_id = message_id
+        vote.rate = rate
         return Response(200)
 
 class AnswerAPI(APIView):
 
-    def post(APIView):
+    def get(self, request):
+        data = []
+        answerata = Answer.objects.all()
+        for answer in answerdata:
+            data.append(answer.serialize())
+        return Response({"answers": data}, 200)
+
+    def post(self, request):
         data = json.loads(request.body)
-        absdata = create_message(Answer(), data)
+        absdata = (Answer)create_message(Answer(), data)
 
         accepted = data["accepted"]
-        question_id = data["question_id"]
+        question_id = data["questionId"]
         absdata.accepted = accepted
         absdata.question_id = question_id
         return Response(200)
+
+class CommentAPI(APIView):
+
+    def post(self, request):
+        data = json.loads(request.body)
+        absdata = create_message(Answer(), data)
+        parent_id = data["parentId"]
+        absdata.parent_id
+        return Response(200)
+
 
