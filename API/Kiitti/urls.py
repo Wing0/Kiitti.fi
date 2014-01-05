@@ -11,5 +11,6 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
     url(r'^answers/', AnswerAPI.as_view()),
     url(r'^comments/', CommentAPI.as_view()),
+    url(r'^questions/', QuestionAPI.as_view()),
     url(r'^admin/', include(admin.site.urls)),
 )

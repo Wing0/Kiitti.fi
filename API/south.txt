@@ -1,4 +1,4 @@
-Jos tietokanta on tyhjä/luotu juuri:
+Jos tietokantaa ei vielä ole:
 
 1. manage.py schemamigration <app:n nimi> --initial #tekee alustavan migraten
 
