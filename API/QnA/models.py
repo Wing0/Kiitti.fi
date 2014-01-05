@@ -215,7 +215,6 @@ class Answer(AbstractMessage):
     Represents an Answer for Question.
 
     '''
-    answer_id = models.PositiveIntegerField()
     question_id = models.PositiveIntegerField() #this is the message_id of the question this answer is response to
     accepted = models.BooleanField(default=False)
 
@@ -243,8 +242,8 @@ class Answer(AbstractMessage):
         if self.pk is None:
             # When created
             all_objects = Answer.objects.all()
-            largest_id = max([0] + [obj.answer_id for obj in all_objects])
-            self.answer_id = largest_id + 1
+            largest_id = max([0] + [obj.message_id for obj in all_objects])
+            self.message_id = largest_id + 1
         # Just save
         super(Answer, self).save(*args, **kwargs)
 
@@ -253,7 +252,6 @@ class Question(AbstractMessage):
     '''
 
     '''
-    question_id = models.PositiveIntegerField()
     topic = models.CharField(max_length=250)
     def serialize(self):
         jsondict = super(Question, self).serialize()
@@ -277,8 +275,8 @@ class Question(AbstractMessage):
         if self.pk is None:
             # When created
             all_objects = Question.objects.all()
-            largest_id = max([0] + [obj.question_id for obj in all_objects])
-            self.question_id = largest_id + 1
+            largest_id = max([0] + [obj.message_id for obj in all_objects])
+            self.message_id = largest_id + 1
         # Just save
         super(Question, self).save(*args, **kwargs)
 
@@ -287,7 +285,7 @@ class Comment(AbstractMessage):
     '''
 
     '''
-    comment_id = models.PositiveIntegerField()
+    is_question_comment = models.BooleanField(default=False)
     parent_id = models.PositiveIntegerField() #this is the message_id of the message to which this comment is for
     def serialize(self):
         jsondict = super(Comment, self).serialize()
@@ -308,8 +306,8 @@ class Comment(AbstractMessage):
         if self.pk is None:
             # When created
             all_objects = Comment.objects.all()
-            largest_id = max([0] + [obj.comment_id for obj in all_objects])
-            self.comment_id = largest_id + 1
+            largest_id = max([0] + [obj.message_id for obj in all_objects])
+            self.message_id = largest_id + 1
         # Just save
         super(Comment, self).save(*args, **kwargs)
 
@@ -348,13 +346,13 @@ class Vote(models.Model):
         return valid, messages
 
 class Tag(models.Model):
-    tag_id = models.PositiveIntegerField()
-    creator = models.ForeignKey(User)
+    tag_id = models.PositiveIntegerField(unique=True)
+    creator = models.ForeignKey(User, to_field="user_id")
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
     organization = models.ForeignKey(Organization)
 
-    name = CharField(max_length=63)
+    name = models.CharField(max_length=63)
     course_flag = models.BooleanField(default=False)
 
     def serialize(self):
@@ -385,10 +383,10 @@ class Tag(models.Model):
 
 class TagEntry(models.Model):
     tag_entry_id = models.PositiveIntegerField()
-    tag = ForeignKey(Tag, to_field="tag_id")
+    tag = models.ForeignKey(Tag, to_field="tag_id")
     message_id = models.PositiveIntegerField(default=0)
 
-    creator = models.ForeignKey(User)
+    creator = models.ForeignKey(User, to_field="user_id")
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
 

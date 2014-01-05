@@ -101,15 +101,25 @@ class VoteAPI(APIView):
 
     def post(self, request):
         data = json.loads(request.body)
-        vote_value = data['vote']
-        user_id = data['userId']
-        message_id = data['messageId']
-        rate = data['rate']
         vote = Vote()
-        vote.type = vote_value
-        vote.user_id = user_id
-        vote.message_id = message_id
-        vote.rate = rate
+        if 'rate' in data:
+            vote.rate = data["rate"]
+        else:
+            rate = 0
+        if 'userId' in data:
+            vote.user_id = data["userId"]
+        else:
+            return Response({"messages": {
+                "type": "alert",
+                "content": "User id has to be a positive integer",
+                "identifier": "user_id"}}, 200)
+        if 'messageId' in data:
+            vote.message_id = data["messageId"]
+        else:
+            return Response({"messages": {
+                "type": "alert",
+                "content": "Message id has to be a positive integer",
+                "identifier": "message_id"}}, 200)
         vote.save()
         return Response(200)
 
@@ -128,7 +138,7 @@ class AnswerAPI(APIView):
         try:
             abs_data = post_abstract_message(Answer(), data)
         except Exception, e:
-            messages = {"type": "alert", "content": str(e), "identifier": ""}
+            return Response({"messages": {"type": "alert", "content": str(e), "identifier": ""}}, 200)
 
         if 'accepted' in data:
             abs_data.accepted = data["accepted"]
@@ -149,9 +159,9 @@ class CommentAPI(APIView):
         data = json.loads(request.body)
         messages = {}
         try:
-            abs_data = post_abstract_message(Answer(), data)
+            abs_data = post_abstract_message(Comment(), data)
         except Exception, e:
-            messages = {"type": "alert", "content": str(e), "identifier": ""}
+            return Response({"messages": {"type": "alert", "content": str(e), "identifier": ""}}, 200)
 
         parent_id = data["parentId"]
         abs_data.parent_id = parent_id
@@ -168,20 +178,21 @@ class CommentAPI(APIView):
 class QuestionAPI(APIView):
 
     def get(self, request):
-
-
-        return Response(200)
+        data = []
+        question_data = Question.objects.all()
+        for question in question_data:
+            data.append(question.serialize())
+        return Response({"questions": data}, 200)
 
     def post(self, request):
         data = json.loads(request.body)
 
         messages = {}
         try:
-            abs_data = post_abstract_message(Answer(), data)
+            abs_data = post_abstract_message(Question(), data)
         except Exception, e:
-            messages = {"type": "alert", "content": str(e), "identifier": ""}
+            return Response({"messages": {"type": "alert", "content": str(e), "identifier": ""}}, 200)
         topic = data['topic']
         abs_data.topic = topic
         abs_data.save()
         return Response(200)
-

@@ -13,5 +13,5 @@ urlpatterns = patterns('',
     url(r'^comments/?$', CommentAPI.as_view()),
     url(r'^questions/(?P<type>latest|hottest)/?$', QuestionAPI.as_view()),
     url(r'^questions/?$', QuestionAPI.as_view()),
-    url(r'^admin/?$', include(admin.site.urls)),
+    url(r'^admin/', include(admin.site.urls)),
 )
