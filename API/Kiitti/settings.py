@@ -26,7 +26,6 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -41,6 +40,8 @@ INSTALLED_APPS = (
     'south',
     'rest_framework',
 )
+
+AUTH_USER_MODEL = "QnA.User"
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',

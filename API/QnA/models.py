@@ -26,7 +26,7 @@ class User(AbstractUser):
 
     user_id = models.PositiveIntegerField(unique=True)
     reputation = models.IntegerField(default=0)
-    organization_id = models.ForeignKey(Organization)
+    organization_id = models.ForeignKey(Organization, blank=True, null=True)
 
     def serialize(self):
         jsondict = {
@@ -43,7 +43,7 @@ class User(AbstractUser):
 
         return jsondict
 
-    def save(self):
+    def save(self, *args, **kwargs):
         '''
             The default save method is overridden to be able to generate appropriate user_id that is unique and ascending.
         '''
@@ -54,7 +54,50 @@ class User(AbstractUser):
             self.user_id = largest_id
             self.reputation = 0
         # Just save
-        super(User, self).save()
+        super(User, self).save(*args, **kwargs)
+
+    def validate(self):
+        valid = True
+        messages = []
+
+        if not isinstance(self.username, basetext):
+            valid = False
+            messages.append({"type":"alert","content":"Username has to be a string.","identifier":"username"})
+        if not len(self.username) <= 255:
+            valid = False
+            messages.append({"type":"alert","content":"Username has to be a shorter than 256 characters.","identifier":"username"})
+        if not len(self.username) >= 3):
+            valid = False
+            messages.append({"type":"alert","content":"Username has to be a longer than 2 characters.","identifier":"username"})
+
+        if not isinstance(self.email, basetext):
+            valid = False
+            messages.append({"type":"alert","content":"Email has to be a string.","identifier":"email"})
+        if not re.match("[^@]+@[^@]+\.[^@]+",self.email):
+            valid = False
+            messages.append({"type":"alert","content":"Give a valid email address.","identifier":"email"})
+
+        if not isinstance(self.first_name, basetext):
+            valid = False
+            messages.append({"type":"alert","content":"First name has to be a string.","identifier":"first_name"})
+        if not len(self.first_name) <= 255:
+            valid = False
+            messages.append({"type":"alert","content":"First name has to be a shorter than 256 characters.","identifier":"first_name"})
+        if not len(self.first_name) >= 1):
+            valid = False
+            messages.append({"type":"alert","content":"First name has to be at least 1 character.","identifier":"first_name"})
+
+        if not isinstance(self.last_name, basetext):
+            valid = False
+            messages.append({"type":"alert","content":"Last name has to be a string.","identifier":"last_name"})
+        if not len(self.last_name) <= 255:
+            valid = False
+            messages.append({"type":"alert","content":"Last name has to be a shorter than 256 characters.","identifier":"last_name"})
+        if not len(self.last_name) >= 1):
+            valid = False
+            messages.append({"type":"alert","content":"Last name has to be at least 1 character.","identifier":"last_name"})
+
+        return valid, messages
 
 class AbstractMessage(models.Model):
     '''
