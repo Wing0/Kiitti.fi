@@ -61,7 +61,7 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('content', self.gf('django.db.models.fields.TextField')()),
             ('version', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('user_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
+            ('user_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.User'], to_field='user_id')),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
             ('message_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
@@ -156,7 +156,7 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'message_id': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'user_id': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'user_id': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.User']", 'to_field': "'user_id'"}),
             'version': ('django.db.models.fields.PositiveIntegerField', [], {})
         },
         u'QnA.answer': {
