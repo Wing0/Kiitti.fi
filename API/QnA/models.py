@@ -59,10 +59,10 @@ class AbstractMessage(models.Model):
         jsondict = {
             'content': self.content,
             'version': self.version,
-            'user_id': self.user_id,
+            'userId': self.user_id,
             'created': self.created,
             'modified': self.modified,
-            'message_id': self.message_id
+            'messageId': self.message_id
         }
 
         return jsondict
@@ -143,8 +143,8 @@ class Vote(models.Model):
     def serialize(self):
         jsondict = {
             'type': self.type,
-            'user_id': self.user_id,
-            'message_id': self.message_id,
+            'userId': self.user_id,
+            'messageId': self.message_id,
             'created': self.created,
             'modified': self.modified
         }
@@ -166,14 +166,14 @@ class Tag(models.Model):
     def serialize(self):
         jsondict = {
             'creator': self.creator,
-            'user_id': self.user_id,
-            'message_id': self.message_id,
+            'userId': self.user_id,
+            'messageId': self.message_id,
             'created': self.created,
             'modified': self.modified,
-            'organization_id': self.organization_id,
-            'follow_counter': self.follow_counter,
-            'question_counter': self.question_counter,
-            'course_flag': self.course_flag
+            'organizationId': self.organization_id,
+            'followCounter': self.follow_counter,
+            'questionCounter': self.question_counter,
+            'courseFlag': self.course_flag
         }
 
         return jsondict

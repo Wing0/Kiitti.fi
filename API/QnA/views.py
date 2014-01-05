@@ -101,3 +101,7 @@ class AnswerAPI(APIView):
         absdata.question_id = question_id
         return Response(200)
 
+class CommentAPI(APIView):
+
+    def post(self, request):
+        data = json.loads(request.body)
