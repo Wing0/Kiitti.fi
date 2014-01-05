@@ -134,7 +134,7 @@ class Tag(models.Model):
 
 class Vote(models.Model):
 
-    type = models.SmallIntegerField(default=0)
+    rate = models.SmallIntegerField(default=0)
     user_id = models.ForeignKey(User, to_field="user_id")
     message_id = models.IntegerField(default=0)
     created = models.DateField(auto_now_add=True)
@@ -142,7 +142,7 @@ class Vote(models.Model):
 
     def serialize(self):
         jsondict = {
-            'type': self.type,
+            'rate': self.rate,
             'userId': self.user_id,
             'messageId': self.message_id,
             'created': self.created,
