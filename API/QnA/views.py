@@ -1,9 +1,9 @@
 from django.shortcuts import render
+from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from QnA.models import *
 import json
-import re
 
 # Create your views here...
 
@@ -27,6 +27,8 @@ def post_abstract_message(abstractmessage, data):
     abstractmessage must be an instance of class that subclasses AbstractMessage.
     data is array that contains all json data.
     '''
+
+
     if 'content' in data.keys():
         abstractmessage.content = data["content"]
     else:
@@ -38,14 +40,20 @@ def post_abstract_message(abstractmessage, data):
         abstractmessage.version = 0
 
     if 'userId' in data.keys():
-        abstractmessage.user_id = data["userId"]
+        print "oli se siel"
+        abstractmessage.user_id = data['userId']
+        print "ja viel toimii"
     else:
         abstractmessage.user_id = None
+
+    print "something"
 
     if 'messageId' in data.keys():
         abstractmessage.message_id = data["messageId"]
     else:
         abstractmessage.message_id = None
+
+
 
     return abstractmessage
 
@@ -57,12 +65,35 @@ class UserAPI(APIView):
     #VALIDATE
     def post(self, request):
         data = json.loads(request.body)
+        if ("username" in data
+            and "email" in data
+            and "firstName" in data
+            and "lastName" in data
+            and "organizationId" in data
+            and "password" in data):
 
-        user = User(username=data["username"], email=data["email"], first_name=data["firstName"], last_name=data["lastName"], organization_id=data["organizationId"])
-        valid, messages = user.validate()
-        if valid:
-            user.save()
-        return Response({"messages":messages, "valid":valid},200)
+            user = User(username=data["username"],
+                        email=data["email"],
+                        first_name=data["firstName"],
+                        last_name=data["lastName"],
+                        organization_id=data["organizationId"],
+                        password=data["password"])
+
+            valid, messages = user.validate()
+            if valid:
+                user.set_password(user.password)
+                try :
+                    user.save()
+                except IntegrityError, e:
+                    valid = False
+                    if e.message == "column username is not unique":
+                        messages.append({"type":"alert", "content": "Username already in use.", "identifier":"username"})
+                    else:
+                        messages.append({"type":"alert", "content": e.message, "identifier":""})
+        else:
+            messages = [{"type":"Alert","content":"Something is missing","identifier":""}]
+            valid = False
+        return Response({"messages":messages},200)
 
 class VoteAPI(APIView):
 
@@ -128,9 +159,17 @@ class CommentAPI(APIView):
 
 class QuestionAPI(APIView):
 
+    def get(self, request):
+
+
+        return Response(200)
+
     def post(self, request):
+        print "jotain"
         data = json.loads(request.body)
+
         abs_data = post_abstract_message(Question(), data)
+        print "katotaan"
         topic = data['topic']
         abs_data.topic = topic
         abs_data.save()

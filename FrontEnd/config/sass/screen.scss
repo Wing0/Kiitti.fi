@@ -1,192 +1,192 @@
 @import "compass/reset";
-@import "compass/css3/opacity";
-@import "compass/css3/box-shadow";
-@import "compass/css3/transition";
+@import "compass/css3";
+@import "compass/typography/text/nowrap";
+@import "_base";
 
+body {
+  font-family: $font-stack;
+  min-width: 480px;
 
-$color-background: white;
-
-
-h2 {
-   color: Black;    
-
-   &.joku {
-    color: blue;
-   }
-
-text-align: center;}
-h2:hover {
-    background-color: lighten(black, 20);
+  #wrapper {
+    width: 100%;
+  }
 }
 
-h4{
-    clolor: Black;
+/* GENERAL BLOCKS */
 
+.block {
+  @include box-sizing(border-box);
+  padding: $block-padding-vertical $block-padding-horizontal;
+
+  .container {
+    width: 100%;
+    max-width: $page-max-width;
+    position: relative;
+    margin: 0 auto;
+  }
+}
+
+/* TYPOGRAPHY */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-header;
+  font-weight: 400;
+  //text-shadow: 3px 3px 0 darken($color-emphasis, 50);
+}
+
+h3, h4, h5 {
+  font-family: $font-paragraph;
+  text-transform: none;
+  margin-bottom: 10px;
+  margin-top: 25px;
+}
+
+h1 { font-size: 300%; }
+h2 { font-size: 250%; }
+h3 { font-size: 150%; }
+h4 { font-size: 130%; }
+h5 { font-size: 110%; }
+h6 { font-size: 100%; }
+
+p {
+  font-family: $font-paragraph;
+  margin-top: 10px;
+}
+
+em, i {
+  font-style: italic;
+}
+
+strong, b {
+  font-style: 400;
+}
+
+/* HEADER */
+
+header.main {
+  height: $header-height;
+
+  .container {
+    text-align: justify;
+    -ms-text-justify: distribute-all-lines;
+    text-justify: distribute-all-lines;
+
+    &:after {
+      @include inline-block;
+      width: 100%;
+      content: '';
+      height: 0;
+      font-size:0;
+      line-height:0;
+    }
   }
 
-h4:hover {
-  color: lighten(black, 50);
+  background-color: $color-main-emphasis;
 
+  &.block {
+    padding: 0 $block-padding-horizontal;
+  }
+
+  .app-header {
+    @include inline-block;
+
+    .app-name {
+      font-weight: 700;
+      color: $color-light-text;
+      font-size: 140%;
+      text-transform: uppercase;
+    }
+  }
+
+  #user-panel {
+    @include inline-block;
+    background-color: darken($color-main-emphasis, 20);
+
+    // remove padding
+    @media (max-width: $page-max-width) {
+      margin-right: -$block-padding-horizontal;
+    }
+
+    .avatar {
+      width: $header-height;
+      height: $header-height;
+      background-color: white;
+      border: 0;
+    }
+
+    .username {
+      padding: 0 20px;
+    }
+
+    .activity {
+      padding: 0 20px;
+    }
+
+    .avatar, .username, .activity {
+      @include inline-block;
+    }
+  }
+
+  p { margin: 0; }
+  a, a:link { text-decoration: none; }
 }
 
-img.ikoni1
-{
-width:64px;
-height:64px;
-background:url(img_navsprites.gif) 0 0;
+/* NAV */
+
+nav {
+  background-color: $color-nav;
+  padding: 0 $block-padding-horizontal 0 $block-padding-horizontal !important;
+
+  li {
+    @include inline-block; // needs line-break-hack to avoid invisible margin
+
+    a {
+      display: block;
+      padding: 12px 20px;
+
+      @include transition(color 0.2s ease-in-out);
+      @include transition(background-color 0.2s ease-in-out);
+      &:link, &:visited {
+        background-color: $color-nav;
+        color: lighten($color-nav, 50);
+      }
+      text-decoration: none;
+      &:hover, &.active {
+        background-color: lighten($color-nav, 15);
+        color: lighten($color-nav, 80);
+      }
+    }
+  }
+
+  ul {
+    //margin-left: -20px;
+  }
 }
 
-img.ikoni2
-{
-width:64px;
-height:64px;
-background:url(img_navsprites.gif) 0 0;
+.wrapper{
+  width: 550px;
+  text-align: justify;
+  background: firebrick;
+  font-size: 0;
+  font-size: 12px\9; /* IE6-9 only hack */
 }
 
-img.ikoni3
-{
-width:64px;
-height:64px;
-background:url(img_navsprites.gif) 0 0;
-}
-
-#searchBoxOne {
-    font-size: 16px;
-    color: #999;
-    padding: 6px;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    -moz-box-shadow:inset 2px 2px 5px #ccc;
-    box-shadow:inset 2px 2px 5px #ccc;
-    border: 5px solid #b8b8b8;
-
-}
-
-#searchBoxTwo {
-    font-size: 16px;
-    color: #999;
-    padding: 6px;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    -moz-box-shadow:inset 2px 2px 5px #ccc;
-    box-shadow:inset 2px 2px 5px #ccc;
-    border: 5px solid #b8b8b8;
-
-}
-
-
-.tabs {
-  position: absolute;   
-  min-height: 200px; /* This part sucks */
-  clear: both;
-  margin: 25px 0;
-
-
-}
-.tab {
-  float: left;
-}
-.tab label {
-  background: white; 
-  padding: 10px; 
-  border: solid #6495ED; 
-  margin-left: auto; 
-  position: relative;
-  left: auto;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-}
-
-.tab label:hover {
-  color: lighten(black, 50);
-}
-
-.tab label:active {
-background: grey;
-}
-.tab [type=radio] {
-  display: none;
-  //margin: 0px;   
-}
-.content {
-  position: absolute;
-  top: 20px;
-  left: 0;
+.wrapper div {
   background: white;
-  right: 0;
-  bottom: 0;
-  padding: 13px;
-  border: 5px solid #6495ED;
-  //clear: both;
-      width: 329px;
-    //margin: 5px;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-   // padding: 5px;
-    background: white;
-    font-size: 25px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    border-color: #6495ED;
-}
-[type=radio]:checked ~ label {
-  background: white;
-  border-bottom: 0px solid white;
-  z-index: 0;
-}
-[type=radio]:checked ~ label ~ .content {
-  z-index: 1;
+  display: inline-block;
+  font-size: 12px;
+
+  zoom: 1;
+  *display: inline;
 }
 
-#container {
-    width:480px;
-    height: 3px;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
+.wrapper:after{
+  content: "";
+  width: 100%;
+  display: inline-block;
+
+  zoom: 1;
+  *display: inline;
 }
 
-#leftinnercolumn { 
-    width: 100px;
-    height: auto; 
-    float: none;
-    margin: 5px;
-    margin-left: auto;
-    padding: 5px;
-    background: #F0F8FF;
-    font-size: 25px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-}
-
-.clear { clear: both;}
-//:h2.joku {
-//    background-color: $color-background;
-//    color: blue;
-//}
-
-//.juttu {
-//    @include opacity(0.5);
-//    @include box-shadow(1px 1px 1px black);
-//}
-//
-//.animation {
-//    @include transition(opacity 0.5s ease-in-out);
-//    opacity: 0.5;
-//}
-//.animation:hover {
-//    opacity: 1.0;
-//}
-//#container {
-//    width:480px;
-//    text-align: center;
-//    margin-left: auto;
-//    margin-right: auto;
-//}
-
+@import "messages"

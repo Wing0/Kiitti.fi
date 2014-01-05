@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import re
 
 class Organization(models.Model):
 
@@ -18,7 +19,8 @@ class Organization(models.Model):
             'name': self.name,
             'address': self.address,
             'created': self.created,
-            'modified': self.modified
+            'modified': self.modified,
+            'organizationId':self.organization_id
         }
 
         return jsondict
@@ -60,7 +62,7 @@ class User(AbstractUser):
 
     user_id = models.PositiveIntegerField(unique=True)
     reputation = models.IntegerField(default=0)
-    organization_id = models.ForeignKey(Organization, to_field='organization_id', blank=True, null=True)
+    organization = models.ForeignKey(Organization, to_field='organization_id', blank=True, null=True)
 
     def serialize(self):
         jsondict = {
@@ -71,10 +73,13 @@ class User(AbstractUser):
             'lastName': self.last_name,
             'email': self.email,
             'created': self.date_joined,
-            'lastLogin': self.last_login,
-            'organizationId': self.organization_id
+            'lastLogin': self.last_login
         }
-
+        try:
+            if self.organization.organization_id:
+                jsondict["organizationId"] = self.organization.organization_id
+        except:
+            pass
         return jsondict
 
     def save(self, *args, **kwargs):
@@ -85,7 +90,7 @@ class User(AbstractUser):
             # Create user actions
             userobjects = User.objects.all()
             largest_id = max([0] + [user.user_id for user in userobjects])
-            self.user_id = largest_id
+            self.user_id = largest_id +1
             self.reputation = 0
         # Just save
         super(User, self).save(*args, **kwargs)
@@ -94,7 +99,7 @@ class User(AbstractUser):
         valid = True
         messages = []
 
-        if not isinstance(self.username, basetext):
+        if not isinstance(self.username, basestring):
             valid = False
             messages.append({"type":"alert","content":"Username has to be a string.","identifier":"username"})
         if not len(self.username) <= 255:
@@ -104,14 +109,24 @@ class User(AbstractUser):
             valid = False
             messages.append({"type":"alert","content":"Username has to be a longer than 2 characters.","identifier":"username"})
 
-        if not isinstance(self.email, basetext):
+        if not isinstance(self.email, basestring):
             valid = False
             messages.append({"type":"alert","content":"Email has to be a string.","identifier":"email"})
-        if not re.match("[^@]+@[^@]+\.[^@]+",self.email):
-            valid = False
-            messages.append({"type":"alert","content":"Give a valid email address.","identifier":"email"})
+        else:
+            if not re.match("[^@]+@[^@]+\.[^@]+",self.email):
+                valid = False
+                messages.append({"type":"alert","content":"Give a valid email address.","identifier":"email"})
+            else:
+                retrieved_user = False
+                try:
+                    retrieved_user = User.objects.get(email=self.email)
+                except:
+                    retrieved_user = False
+                if retrieved_user:
+                    valid = False
+                    messages.append({"type":"alert","content":"Email already in use.","identifier":"email"})
 
-        if not isinstance(self.first_name, basetext):
+        if not isinstance(self.first_name, basestring):
             valid = False
             messages.append({"type":"alert","content":"First name has to be a string.","identifier":"first_name"})
         if not len(self.first_name) <= 255:
@@ -121,7 +136,7 @@ class User(AbstractUser):
             valid = False
             messages.append({"type":"alert","content":"First name has to be at least 1 character.","identifier":"first_name"})
 
-        if not isinstance(self.last_name, basetext):
+        if not isinstance(self.last_name, basestring):
             valid = False
             messages.append({"type":"alert","content":"Last name has to be a string.","identifier":"last_name"})
         if not len(self.last_name) <= 255:
@@ -130,6 +145,16 @@ class User(AbstractUser):
         if not len(self.last_name) >= 1:
             valid = False
             messages.append({"type":"alert","content":"Last name has to be at least 1 character.","identifier":"last_name"})
+
+        if not isinstance(self.password, basestring):
+            valid = False
+            messages.append({"type":"alert","content":"Pasword has to be a string.","identifier":"password"})
+        if not len(self.password) <= 255:
+            valid = False
+            messages.append({"type":"alert","content":"Password has to be a shorter than 256 characters.","identifier":"password"})
+        if not len(self.password) >= 4:
+            valid = False
+            messages.append({"type":"alert","content":"Password has to be at least 4 character.","identifier":"password"})
 
         if not isinstance(self.organization_id, int):
             valid = False
@@ -146,9 +171,10 @@ class AbstractMessage(models.Model):
     '''
     content = models.TextField()
     version = models.PositiveIntegerField()
-    user_id = models.ForeignKey(User, to_field='user_id')
+    user_id = models.PositiveIntegerField() #this is the userId of the user making the message
+    #user_id = models.ForeignKey(User, to_field="user_id")
     created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField()
+    modified = models.DateTimeField(auto_now=True)
     message_id = models.PositiveIntegerField()
 
     def serialize(self):

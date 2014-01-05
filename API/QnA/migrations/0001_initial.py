@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from south.utils import datetime_utils as datetime
+import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
@@ -11,6 +11,7 @@ class Migration(SchemaMigration):
         # Adding model 'Organization'
         db.create_table(u'QnA_organization', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('organization_id', self.gf('django.db.models.fields.PositiveIntegerField')(unique=True)),
             ('created', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
             ('modified', self.gf('django.db.models.fields.DateField')(auto_now=True, blank=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
@@ -33,7 +34,7 @@ class Migration(SchemaMigration):
             ('date_joined', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
             ('user_id', self.gf('django.db.models.fields.PositiveIntegerField')(unique=True)),
             ('reputation', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('organization_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.Organization'], null=True, blank=True)),
+            ('organization', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.Organization'], to_field='organization_id', null=True, blank=True)),
         ))
         db.send_create_signal(u'QnA', ['User'])
 
@@ -60,9 +61,9 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('content', self.gf('django.db.models.fields.TextField')()),
             ('version', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('user_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.User'], to_field='user_id')),
+            ('user_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('modified', self.gf('django.db.models.fields.DateTimeField')()),
+            ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
             ('message_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
         ))
         db.send_create_signal(u'QnA', ['AbstractMessage'])
@@ -154,8 +155,8 @@ class Migration(SchemaMigration):
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'message_id': ('django.db.models.fields.PositiveIntegerField', [], {}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {}),
-            'user_id': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.User']", 'to_field': "'user_id'"}),
+            'modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'user_id': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'version': ('django.db.models.fields.PositiveIntegerField', [], {})
         },
         u'QnA.answer': {
@@ -175,7 +176,8 @@ class Migration(SchemaMigration):
             'created': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'modified': ('django.db.models.fields.DateField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'organization_id': ('django.db.models.fields.PositiveIntegerField', [], {'unique': 'True'})
         },
         u'QnA.question': {
             'Meta': {'object_name': 'Question', '_ormbases': [u'QnA.AbstractMessage']},
@@ -206,7 +208,7 @@ class Migration(SchemaMigration):
             'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'organization_id': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.Organization']", 'null': 'True', 'blank': 'True'}),
+            'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.Organization']", 'to_field': "'organization_id'", 'null': 'True', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'reputation': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'user_id': ('django.db.models.fields.PositiveIntegerField', [], {'unique': 'True'}),
