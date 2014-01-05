@@ -341,18 +341,18 @@ nav li a:hover, nav li a.active {
 
 /* line 16, ../config/sass/messages.scss */
 .answers {
-  margin-top: 40px;
+  margin-top: 20px;
 }
 /* line 18, ../config/sass/messages.scss */
 .answers h3 {
   font-size: 120%;
   font-weight: bold;
   padding-bottom: 7px;
+  margin: 0;
   border-bottom: 1px solid #c8c8c8;
 }
-/* line 25, ../config/sass/messages.scss */
+/* line 26, ../config/sass/messages.scss */
 .answers .answer {
-  padding-bottom: 30px;
   border-bottom: 1px solid #c8c8c8;
 }
 
@@ -360,7 +360,7 @@ nav li a:hover, nav li a.active {
 .votes {
   position: absolute;
   left: 0;
-  top: 0;
+  top: 30px;
 }
 /* line 36, ../config/sass/messages.scss */
 .votes .vote {
@@ -407,69 +407,86 @@ nav li a:hover, nav li a.active {
 
 /* line 70, ../config/sass/messages.scss */
 .message-block {
-  margin: 30px 0;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  min-height: 130px;
+  padding: 30px 0;
   position: relative;
   padding-left: 120px;
 }
-/* line 73, ../config/sass/messages.scss */
-.message-block:first-child, .message-block.question {
+/* line 76, ../config/sass/messages.scss */
+.message-block.question {
   margin-top: 0;
 }
-/* line 74, ../config/sass/messages.scss */
-.message-block:last-child, .message-block.answers {
-  margin-bottom: 0;
-}
-/* line 79, ../config/sass/messages.scss */
+/* line 81, ../config/sass/messages.scss */
 .message-block .topic {
   font-size: 180%;
   font-weight: 700;
   color: #1e1e1e;
 }
-/* line 86, ../config/sass/messages.scss */
+/* line 88, ../config/sass/messages.scss */
 .message-block header h1, .message-block header h2, .message-block header h3, .message-block header .topic, .message-block .question-header h1, .message-block .question-header h2, .message-block .question-header h3, .message-block .question-header .topic {
   margin-bottom: 5px;
 }
-/* line 91, ../config/sass/messages.scss */
+/* line 93, ../config/sass/messages.scss */
 .message-block .comments {
   background-color: #f7f7f7;
   margin-top: 20px;
   padding: 15px;
   font-size: 90%;
 }
-/* line 99, ../config/sass/messages.scss */
+/* line 101, ../config/sass/messages.scss */
 .message-block .comments h4 {
   font-size: 120%;
   font-weight: 700;
   margin-top: 0;
   padding-top: 0;
 }
-/* line 106, ../config/sass/messages.scss */
+/* line 108, ../config/sass/messages.scss */
 .message-block .comments .comment {
   padding-top: 10px;
 }
-/* line 108, ../config/sass/messages.scss */
+/* line 110, ../config/sass/messages.scss */
 .message-block .comments .comment:not(:last-child) {
   padding-bottom: 10px;
   border-bottom: 1px dotted #c8c8c8;
 }
-/* line 113, ../config/sass/messages.scss */
+/* line 115, ../config/sass/messages.scss */
 .message-block .comments .comment p {
   display: inline;
 }
-/* line 117, ../config/sass/messages.scss */
+/* line 119, ../config/sass/messages.scss */
 .message-block .comments .comment .username {
   margin-left: 5px;
 }
-/* line 119, ../config/sass/messages.scss */
+/* line 121, ../config/sass/messages.scss */
 .message-block .comments .comment .username:before {
   content: "– ";
 }
-/* line 123, ../config/sass/messages.scss */
+/* line 125, ../config/sass/messages.scss */
 .message-block .comments .comment .date {
   margin-left: 5px;
   color: #a0a0a0;
 }
-/* line 130, ../config/sass/messages.scss */
+/* line 132, ../config/sass/messages.scss */
+.message-block.answer {
+  -webkit-transition: opacity 0.5s ease-in-out;
+  -moz-transition: opacity 0.5s ease-in-out;
+  -o-transition: opacity 0.5s ease-in-out;
+  transition: opacity 0.5s ease-in-out;
+}
+/* line 135, ../config/sass/messages.scss */
+.message-block.answer.ng-enter {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  opacity: 0;
+}
+/* line 138, ../config/sass/messages.scss */
+.message-block.answer.ng-leave {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+  opacity: 1;
+}
+/* line 143, ../config/sass/messages.scss */
 .message-block footer {
   margin-top: 20px;
   padding: 10px 0;
@@ -481,7 +498,7 @@ nav li a:hover, nav li a.active {
   overflow: hidden;
   *zoom: 1;
 }
-/* line 139, ../config/sass/messages.scss */
+/* line 152, ../config/sass/messages.scss */
 .message-block footer a, .message-block footer a:visited {
   -webkit-transition: color 0.1s ease-in-out;
   -moz-transition: color 0.1s ease-in-out;
@@ -491,11 +508,11 @@ nav li a:hover, nav li a.active {
   text-decoration: none;
   font-weight: bold;
 }
-/* line 145, ../config/sass/messages.scss */
+/* line 158, ../config/sass/messages.scss */
 .message-block footer a:hover {
   color: #606060;
 }
-/* line 148, ../config/sass/messages.scss */
+/* line 161, ../config/sass/messages.scss */
 .message-block footer .buttons {
   display: -moz-inline-stack;
   display: inline-block;
@@ -505,7 +522,7 @@ nav li a:hover, nav li a.active {
   *display: inline;
   float: left;
 }
-/* line 152, ../config/sass/messages.scss */
+/* line 165, ../config/sass/messages.scss */
 .message-block footer .asked {
   display: -moz-inline-stack;
   display: inline-block;
@@ -515,7 +532,7 @@ nav li a:hover, nav li a.active {
   *display: inline;
   float: right;
 }
-/* line 157, ../config/sass/messages.scss */
+/* line 170, ../config/sass/messages.scss */
 .message-block footer li {
   display: -moz-inline-stack;
   display: inline-block;
@@ -524,18 +541,18 @@ nav li a:hover, nav li a.active {
   zoom: 1;
   *display: inline;
 }
-/* line 159, ../config/sass/messages.scss */
+/* line 172, ../config/sass/messages.scss */
 .message-block footer li:not(:first-child) {
   margin-left: 10px;
 }
 
-/* line 166, ../config/sass/messages.scss */
+/* line 179, ../config/sass/messages.scss */
 .tags {
   margin-top: 3px;
   margin-bottom: 3px;
 }
 
-/* line 171, ../config/sass/messages.scss */
+/* line 184, ../config/sass/messages.scss */
 .tags li, .tag {
   -webkit-transition: color 0.1s ease-in-out;
   -moz-transition: color 0.1s ease-in-out;
@@ -563,18 +580,51 @@ nav li a:hover, nav li a.active {
   -o-border-radius: 5px;
   border-radius: 5px;
 }
-/* line 186, ../config/sass/messages.scss */
+/* line 199, ../config/sass/messages.scss */
 .tags li:before, .tag:before {
   content: "#";
 }
-/* line 188, ../config/sass/messages.scss */
+/* line 201, ../config/sass/messages.scss */
 .tags li:first-child, .tag:first-child {
   margin-left: 0;
 }
-/* line 192, ../config/sass/messages.scss */
+/* line 205, ../config/sass/messages.scss */
 .tags li:hover, .tag:hover {
   cursor: pointer;
   background-color: #d9e1e9;
   color: #415a72;
   border: 1px solid #aec0d1;
+}
+
+/* line 213, ../config/sass/messages.scss */
+form {
+  margin: 30px 0;
+  width: 600px;
+}
+/* line 216, ../config/sass/messages.scss */
+form input, form textarea, form select, form button {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* line 219, ../config/sass/messages.scss */
+form input, form textarea {
+  width: 100%;
+  padding: 7px;
+  border: 1px solid #cccccc;
+  margin-bottom: 10px;
+}
+/* line 226, ../config/sass/messages.scss */
+form #message {
+  height: 150px;
+}
+/* line 230, ../config/sass/messages.scss */
+form button {
+  background-color: white;
+  color: #1e1e1e;
+  font-weight: bold;
+  font-size: 75%;
+  padding: 5px 15px;
+  text-transform: uppercase;
+  border: 1px solid #cccccc;
 }

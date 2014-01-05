@@ -16,7 +16,7 @@
         <p>{{question.content}}</p>
       </div>
 
-      <div class="comments">
+      <div class="comments" ng-show="question.comments">
         <h4>Kommentit</h4>
         <div qna-comment comment="comment" ng-repeat="comment in question.comments"></div>
       </div>
@@ -46,12 +46,25 @@
         <p class="content">{{answer.content}}</p>
       </div>
 
-      <div class="comments">
+      <div class="comments" ng-show="answer.comments">
         <h4>Kommentit</h4>
         <div qna-comment comment="comment" ng-repeat="comment in answer.comments"></div>
       </div>
     </div><!--/message-block-->
   </div><!--/answers-->
+
+  <div class="new-answer">
+    <h3>Lisää vastaus</h3>
+    <form ng-controller="SubmitAnswerController">
+      <div id="from">
+        <label for="username">Käyttäjänimi:</label>
+        <input type="text" id="username" name="username" ng-model="user.username" />
+      </div>
+      <label for="message">Viesti:</label>
+      <textarea id="message" name="message" ng-model="message"></textarea>
+      <button type="submit" ng-click="send()">Lähetä</button>
+    </form>
+  </div>
 
 </div>
 </section>
