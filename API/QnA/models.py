@@ -266,6 +266,7 @@ class Question(AbstractMessage):
     def serialize(self):
         jsondict = super(Question, self).serialize()
         jsondict['title'] = self.title
+        jsondict['tags'] = [tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=self.message_id)]
         return jsondict
 
     def validate(self):
