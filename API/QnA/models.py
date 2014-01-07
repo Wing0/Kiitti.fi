@@ -40,21 +40,23 @@ class Organization(models.Model):
     def validate(self):
         valid = True
         messages = []
+        '''
         if not isinstance(self.organization_id, int) or self.organization_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "Organization id must be a positive integer.", "identifier": "organization_id"})
-        if not isinstance(self.name, basetext):
+        '''
+        if not isinstance(self.name, basestring):
             valid = False
             messages.append({"type": "alert", "content": "Name has to be a string.", "identifier": "name"})
-        if not len(self.name) < 3:
+        if len(self.name) < 3:
             valid = False
-            messages.append({"type": "alert", "content": "Name has to be atleast 3 character long.", "identifier": "name"})
-        if not isinstance(self.address, basetext):
+            messages.append({"type": "alert", "content": "Name has to be at least 3 character long.", "identifier": "name"})
+        if not isinstance(self.address, basestring):
             valid = False
             messages.append({"type": "alert", "content": "Address has to be a string.", "identifier": "address"})
-        if not len(self.address) < 3:
+        if len(self.address) < 3:
             valid = False
-            messages.append({"type": "alert", "content": "Address has to be atleast 3 character long.", "identifier": "address"})
+            messages.append({"type": "alert", "content": "Address has to be at least 3 character long.", "identifier": "address"})
 
         return valid, messages
 
@@ -300,7 +302,7 @@ class Comment(AbstractMessage):
 
     def validate(self):
         valid, messages = super(Question, self).validate()
-        if not isinstance(self.parent_id, basetext) or self.parent_id < 0 :
+        if not isinstance(self.parent_id, basestring) or self.parent_id < 0 :
             valid = False
             messages.append({"type": "alert", "content": "Parent id has to be a integer.", "identifier": "parent_id"})
         return valid, messages
@@ -344,10 +346,10 @@ class Vote(models.Model):
             messages.append({"type": "alert", "content": "Rate has to be a integer.", "identifier": "rate"})
         if not isinstance(self.user.user_id, int) or self.user_id < 0:
             valid = False
-            messages.append({"type": "alert", "content": "User id has to be a positive integer.", "identifier": "user_id"})
+            messages.append({"type": "alert", "content": "User id has to be a positive integer.", "identifier": "userId"})
         if not isinstance(self.user.user_id, int) or self.message_id < 0:
             valid = False
-            messages.append({"type": "alert", "content": "Message id has to be a positive integer.", "identifier": "message_id"})
+            messages.append({"type": "alert", "content": "Message id has to be a positive integer.", "identifier": "messageId"})
 
         return valid, messages
 

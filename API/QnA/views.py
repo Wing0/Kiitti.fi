@@ -52,6 +52,7 @@ def post_abstract_message(abstractmessage, data):
 
     return abstractmessage
 
+
 class UserAPI(APIView):
 
     def get(self, request):
@@ -179,6 +180,9 @@ class QuestionAPI(APIView):
 
     def post(self, request):
         data = json.loads(request.body)
+
+        if not "userId" in data and request.user.is_authenticated():
+            data["userId"] = request.user.user_id
         messages = {}
         try:
             abs_data = post_abstract_message(Question(), data)
@@ -251,7 +255,7 @@ class QuestionAPI(APIView):
         else:
             questions = Question.objects.all()
 
-        data = []
+        question_data = []
         questions = [q for q in questions]
         if style == "latest":
             questions.sort(key = lambda a: a.created)# - b.created).seconds)
@@ -261,7 +265,10 @@ class QuestionAPI(APIView):
         if len(questions) > amount:
             questions = questions[:amount]
         for question in questions:
-            data.append(question.serialize())
+            question_data.append(question.serialize())
+
+        return Response({"questions": question_data}, 200)
+
 class TagAPI(APIView):
 
     def post(self, request):
@@ -369,6 +376,7 @@ class TagAPI(APIView):
                     tags = sorted(tags, key = lambda tag: len(TagEntry.objects.filter(tag=tag)))[:amount]
                 data = [tag.serialize() for tag in tags]
         return Response({"tags": data, "messages":messages}, 200)
+
 class OrganizationAPI(APIView):
 
     def get(self, request):
@@ -396,4 +404,3 @@ class OrganizationAPI(APIView):
         return Response({"messages":messages, "success":success}, 200)
 
 
-        return Response({"questions": data}, 200)
