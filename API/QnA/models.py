@@ -275,7 +275,7 @@ class Question(AbstractMessage):
         if not isinstance(self.title, basestring):
             valid = False
             messages.append({"type": "alert", "content": "Title has to be a string.", "identifier": "title"})
-        if len(self.title) < 5:
+        if self.title and len(self.title) < 5:
             valid = False
             messages.append({"type": "alert", "content": "Title must be atleast five characters long.", "identifier": "title"})
         return valid, messages
@@ -457,11 +457,11 @@ class TagEntry(models.Model):
         if not isinstance(self.name, int):
             valid = False
             messages.append({"type": "alert", "content": "Name has to be a string.", "identifier": "name"})
-        '''
+
         if not len(self.name) > 0:
             valid = False
             messages.append({"type": "alert", "content": "Name has to be atleast 1 character long.", "identifier": "name"})
-        '''
+
         if not isinstance(self.course_flag, bool):
             valid = False
             messages.append({"type": "alert", "content": "Course flag must be a boolean.", "identifier": "course_flag"})
