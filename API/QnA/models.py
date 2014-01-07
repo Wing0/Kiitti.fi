@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import re
 
+def format_date(date):
+    return date.strftime('%Y-%m-%dT%H:%M:%S')
+
 class Organization(models.Model):
 
     organization_id = models.PositiveIntegerField(unique=True)
@@ -18,8 +21,8 @@ class Organization(models.Model):
         jsondict = {
             'name': self.name,
             'address': self.address,
-            'created': self.created,
-            'modified': self.modified,
+            'created': format_date(self.created),
+            'modified': format_date(self.modified),
             'organizationId':self.organization_id
         }
 
@@ -184,8 +187,8 @@ class AbstractMessage(models.Model):
             'content': self.content,
             'version': self.version,
             'userId': self.user.user_id,
-            'created': self.created,
-            'modified': self.modified,
+            'created': format_date(self.created),
+            'modified': format_date(self.modified),
             'messageId': self.message_id
         }
 
@@ -332,8 +335,8 @@ class Vote(models.Model):
             'rate': self.rate,
             'userId': self.user.user_id,
             'messageId': self.message_id,
-            'created': self.created,
-            'modified': self.modified
+            'created': format_date(self.created),
+            'modified': format_date(self.modified)
         }
 
         return jsondict
@@ -367,8 +370,8 @@ class Tag(models.Model):
         jsondict = {
             'tagId':self.tag_id,
             'creator': self.creator.user_id,
-            'created': self.created,
-            'modified': self.modified,
+            'created': format_date(self.created),
+            'modified': format_date(self.modified),
             'organizationId':self.organization.organization_id,
             'name':self.name,
             'courseFlag':self.course_flag
@@ -420,8 +423,8 @@ class TagEntry(models.Model):
             'tagId':self.tag.tag_id,
             'messageId': self.message_id,
             'creator': self.creator.user_id,
-            'created': self.created,
-            'modified': self.modified,
+            'created': format_date(self.created),
+            'modified': format_date(self.modified),
         }
 
         return jsondict
