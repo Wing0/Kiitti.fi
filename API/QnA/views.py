@@ -295,7 +295,7 @@ class TagAPI(APIView):
             valid_input = False
             messages.append({"type": "alert", "content": "Tag name is missing.", "identifier": "name"})
         course_flag =  data.get("courseFlag")
-        if not course_flag:
+        if not course_flag in [True, False]:
             valid_input = False
             messages.append({"type": "alert", "content": "Coursee flag information is missing.", "identifier": "courseFlag"})
         user_id = data.get("userId")
