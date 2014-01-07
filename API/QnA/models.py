@@ -388,6 +388,22 @@ class Tag(models.Model):
         # Just save
         super(Tag, self).save(*args, **kwargs)
 
+    def validate(self, messages):
+        valid = True
+        if not isinstance(self.name, basestring):
+            valid = False
+            messages.append({"type": "alert", "content": "Tag name has to be a string.", "identifier": "name"})
+        elif len(self.name) < 3:
+            valid = False
+            messages.append({"type": "alert", "content": "Tag name has to be longer than 3 characters.", "identifier": "name"})
+        elif len(self.name) > 255:
+            valid = False
+            messages.append({"type": "alert", "content": "Tag name has to be shorter than 255 characters.", "identifier": "name"})
+        if self.course_flag not in [True, False]:
+            valid = True
+            messages.append({"type": "alert", "content": "Course flag has to be a boolean value.", "identifier": "courseFlag"})
+        return valid, messages
+
 
 class TagEntry(models.Model):
     tag_entry_id = models.PositiveIntegerField(unique=True)

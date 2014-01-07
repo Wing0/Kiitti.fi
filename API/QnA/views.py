@@ -279,7 +279,7 @@ class TagAPI(APIView):
         valid_input = True
         messages = []
         organization_id = data.get("organizationId")
-        if not organization_id:
+        if organization_id == None:
             valid_input = False
             messages.append({"type": "alert", "content": "Organization id is missing.", "identifier": "organizationId"})
         else:
@@ -299,18 +299,25 @@ class TagAPI(APIView):
             valid_input = False
             messages.append({"type": "alert", "content": "Coursee flag information is missing.", "identifier": "courseFlag"})
         user_id = data.get("userId")
-        if not user_id:
+        if user_id == None:
             if request.user.is_authenticated():
-                user_id = request.user.user_id
+                user = request.user
             else:
                 valid_input = False
                 messages.append({"type": "alert", "content": "Please log in or provide user id.", "identifier": "userId"})
+        else:
+            try:
+                user = User.objects.get(user_id=user_id)
+            except:
+                valid_input = False
+                messages.append({"type": "alert", "content": "Provided user id does not match any user.", "identifier": "userId"})
+
         # Model creation
         if valid_input:
-            tag = Tag(organization=organization)
+            tag = Tag(organization=organization, course_flag=course_flag, name = name, creator=user)
 
             # Model data validation
-            valid, messages = tag.validate()
+            valid, messages = tag.validate(messages)
             if valid:
                 tag.save()
                 success = True
