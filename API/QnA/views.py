@@ -189,12 +189,23 @@ class QuestionAPI(APIView):
         except Exception, e:
             messages = {"type": "alert", "content": str(e), "identifier": ""}
             return Response({"messages": messages}, 200)
-        title = data['title']
+        title = data.get('title')
         abs_data.title = title
 
         valid, messages = abs_data.validate()
         if valid:
             abs_data.save()
+            # Save tags
+            taglist = data.get("tags")
+            if taglist and isinstance(taglist,list):
+                for tagname in list(set(taglist)):
+                    try:
+                        tag = Tag.objects.get(name=tagname)
+                        entry = TagEntry(tag=tag, message_id=abs_data.message_id, creator=abs_data.user)
+                        entry.save()
+                    except:
+                        messages.append({"type": "alert", "content": "Tag %s was not found." % tag, "identifier": "tags"})
+                        # Create tag?
 
         return Response({"messages":messages},200)
 
@@ -218,18 +229,20 @@ class QuestionAPI(APIView):
         tags = request.GET.get("tags")
         if not tags:
             tags = []
-
+        else:
+            tags = json.loads(tags)
+        print tags
         if len(tags):
             search_method = "or"
             # Filter tags of invalid form
-            tags = [tag for tag in tags if tag and isinstance(tag, int) and tag >= 0] #tag is an id (positive integer)
+            tags = [tag for tag in tags if tag and isinstance(tag, basestring)]
 
             questions = []
             question_sets = [[] for tag in tags]    # Lists of questions corresponding each tag in the same order
             for ind, tag in enumerate(tags):
                 # Get all tag entries for the tag
                 try:
-                    tag_entries = Tag.objects.get(tag_id=tag).tagentry_set.all()
+                    tag_entries = Tag.objects.get(name=tag).tagentry_set.all()
                 except:
                     tag_entries = []
                 # Fetch all questions corresponding the tag entries
@@ -242,7 +255,7 @@ class QuestionAPI(APIView):
                         pass
 
             if search_method == "or":
-                questions = unique([q for subset in questions_set for q in subset])
+                questions = unique([q for subset in question_sets for q in subset])
             elif search_method == "and":
                 if len(question_sets) == 1:
                     questions = question_sets[0]
@@ -261,9 +274,8 @@ class QuestionAPI(APIView):
             questions.sort(key = lambda a: a.created)# - b.created).seconds)
         elif style == "hottest":
             questions.sort(key = lambda a: sum([vote.rate for vote in Vote.objects.filter(message_id=a.message_id)]))# - sum([vote.rate for vote in Vote.objects.filter(message_id=b.message_id)]))
-
-        if len(questions) > amount:
-            questions = questions[:amount]
+        print questions, amount
+        questions = questions[:int(amount)]
         for question in questions:
             question_data.append(question.serialize())
 
