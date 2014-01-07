@@ -12,6 +12,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 admin.site.register(Vote)
 admin.site.register(Tag)
+admin.site.register(TagEntry)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Answer)
 admin.site.register(Comment)
