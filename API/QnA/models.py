@@ -370,8 +370,8 @@ class Tag(models.Model):
             'created': self.created,
             'modified': self.modified,
             'organizationId':self.organization.organization_id,
-            'name':name,
-            'courseFlag':course_flag
+            'name':self.name,
+            'courseFlag':self.course_flag
         }
 
         return jsondict
