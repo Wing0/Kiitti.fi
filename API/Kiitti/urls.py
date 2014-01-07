@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     url(r'^comments/?$', CommentAPI.as_view()),
     url(r'^questions/(?P<style>latest|hottest)/?$', QuestionAPI.as_view()),
     url(r'^questions/?$', QuestionAPI.as_view()),
+    url(r'^tags/?$', TagAPI.as_view()),
     url(r'^organizations/?$', OrganizationAPI.as_view()),
     url(r'^admin/', include(admin.site.urls)),
 )
