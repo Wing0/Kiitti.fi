@@ -194,7 +194,9 @@ class QuestionAPI(APIView):
             # Save tags
             taglist = data.get("tags")
             if taglist and isinstance(taglist,list):
-                for tagname in list(set(taglist)):
+                existing_tags = [tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=abs_data.message_id)]
+
+                for tagname in [tag for tag in list(set(taglist)) if tag not in existing_tags]:
                     try:
                         tag = Tag.objects.get(name=tagname)
                         entry = TagEntry(tag=tag, message_id=abs_data.message_id, creator=abs_data.user)
@@ -205,7 +207,7 @@ class QuestionAPI(APIView):
 
         return Response({"messages":messages},200)
 
-    def get(self, request, style="hottest"):
+    def get(self, request, style="latest"):
         # Helping methods for the tag search
         def unique(a):
             """ return the list with duplicate elements removed """
@@ -227,7 +229,6 @@ class QuestionAPI(APIView):
             tags = []
         else:
             tags = json.loads(tags)
-        print tags
         if len(tags):
             search_method = "or"
             # Filter tags of invalid form
