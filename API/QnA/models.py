@@ -203,21 +203,28 @@ class AbstractMessage(models.Model):
         if len(self.content) < 1:
             valid = False
             messages.append({"type": "alert", "content": "Content is missing or its length is zero.", "identifier": "content"})
-        '''
-        if not isinstance(self.version, int) or self.version < 0:
-            valid = False
-            messages.append({"type": "alert", "content": "Version is missing, or you have put version number under zero which is not allowed.", "identifier": "version"})
-        '''
+
         if not isinstance(self.user, User):
             valid = False
             messages.append({"type": "alert", "content": "User id must be an user object.", "identifier": "user_id"})
-        '''
-        if not isinstance(self.message_id, int) or self.message_id < 0:
+
+        if self.message_id != None and (not isinstance(self.message_id, int) or self.message_id < 0):
+            print "MessageId:", self.message_id, self.message_id != None
             valid = False
             messages.append({"type": "alert", "content": "Message id must be a positive number.", "identifier": "message_id"})
-        '''
 
         return valid, messages
+
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate message_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            if not isinstance(self.version , int):
+                self.version = 0
+        # Just save
+        super(AbstractMessage, self).save(*args, **kwargs)
 
 
 class Answer(AbstractMessage):
@@ -263,6 +270,10 @@ class Question(AbstractMessage):
 
     '''
     title = models.CharField(max_length=250)
+
+    def __unicode__(self):
+        return self.title
+
     def serialize(self):
         jsondict = super(Question, self).serialize()
         jsondict['title'] = self.title
@@ -282,13 +293,25 @@ class Question(AbstractMessage):
 
     def save(self, *args, **kwargs):
         '''
-            The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
+            The default save method is overridden to be able to generate appropriate message_id that is unique and ascending.
         '''
         if self.pk is None:
             # When created
             all_objects = Question.objects.all()
             largest_id = max([0] + [obj.message_id for obj in all_objects])
             self.message_id = largest_id + 1
+        # Just save
+        super(Question, self).save(*args, **kwargs)
+
+    def save_changes(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate version number that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_versions = Question.objects.filter(message_id=self.message_id)
+            largest_version = max([0] + [obj.version for obj in all_versions])
+            self.version = largest_version + 1
         # Just save
         super(Question, self).save(*args, **kwargs)
 
@@ -367,6 +390,9 @@ class Tag(models.Model):
     name = models.CharField(max_length=63, unique=True)
     course_flag = models.BooleanField(default=False)
 
+    def __unicode__(self):
+        return self.name
+
     def serialize(self):
         jsondict = {
             'tagId':self.tag_id,
@@ -417,6 +443,9 @@ class TagEntry(models.Model):
     creator = models.ForeignKey(User, to_field="user_id")
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
+
+    def __unicode__(self):
+        return self.tag.name
 
     def serialize(self):
         jsondict = {

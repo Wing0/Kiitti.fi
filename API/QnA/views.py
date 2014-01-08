@@ -27,27 +27,20 @@ def post_abstract_message(abstractmessage, data):
     data is array that contains all json data.
     '''
 
+
+    if 'messageId' in data.keys():
+        abstractmessage.message_id = data["messageId"]
+
     if 'content' in data.keys():
         abstractmessage.content = data["content"]
     else:
         abstractmessage.content = ""
 
-    if 'version' in data.keys():
-        abstractmessage.version = data["version"]
-    else:
-        abstractmessage.version = -1
-
     if 'userId' in data.keys():
-
         abstractmessage.user = User.objects.get(user_id=data["userId"])
     else:
         raise Exception("You must provide valid user id.")
-    '''
-    if 'messageId' in data.keys():
-        abstractmessage.message_id = data["messageId"]
-    else:
-        raise Exception("You must provide valid message id.")
-    '''
+
 
 
     return abstractmessage
@@ -194,7 +187,10 @@ class QuestionAPI(APIView):
 
         valid, messages = abs_data.validate()
         if valid:
-            abs_data.save()
+            if abs_data.message_id:
+                abs_data.save_changes()
+            else:
+                abs_data.save()
             # Save tags
             taglist = data.get("tags")
             if taglist and isinstance(taglist,list):
