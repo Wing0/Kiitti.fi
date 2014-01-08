@@ -262,15 +262,24 @@ class QuestionAPI(APIView):
                             continue
                         questions = intersect(questions, subset)
         else:
-            questions = Question.objects.all()
+            # Get all questions sorted by version
+            tmp_questions = list(Question.objects.all())
+            tmp_questions.sort(key=lambda q: -q.version)
+
+            used = []
+            questions = []
+            # Append first occurrence of message id to questions
+            for q in tmp_questions:
+                if q.message_id not in used:
+                    questions.append(q)
+                    used.append(q.message_id)
 
         question_data = []
         questions = [q for q in questions]
         if style == "latest":
-            questions.sort(key = lambda a: a.created)# - b.created).seconds)
+            questions.sort(key = lambda a: a.created, reverse=True)# - b.created).seconds)
         elif style == "hottest":
             questions.sort(key = lambda a: sum([vote.rate for vote in Vote.objects.filter(message_id=a.message_id)]))# - sum([vote.rate for vote in Vote.objects.filter(message_id=b.message_id)]))
-        print questions, amount
         questions = questions[:int(amount)]
         for question in questions:
             question_data.append(question.serialize())
