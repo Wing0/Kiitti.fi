@@ -179,7 +179,7 @@ class AbstractMessage(models.Model):
     version = models.PositiveIntegerField()
     user = models.ForeignKey(User, to_field="user_id")
     created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
+    #modified = models.DateTimeField(auto_now=True)
     message_id = models.PositiveIntegerField()
 
     def serialize(self):
