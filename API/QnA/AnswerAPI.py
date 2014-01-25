@@ -187,7 +187,7 @@ class AnswerAPI(APIView):
                                         "accepted":false
                                         }]
                         }
-            204: No content found
+            404: No content found
                 list of appropriate error messages
                 example: {
                             "messages":[{"content":"An example error message.","identifier":"example"}]
@@ -231,12 +231,12 @@ class AnswerAPI(APIView):
                         usr = User.objects.get(user_id=author_id)
                     except:
                         messages.append({"content":"The author was not found.","identifier":"questionId"})
-                        return Response({"messages":messages}, 204)
+                        return Response({"messages":messages}, 404)
 
                     answers = list(Answer.objects.filter(user=usr))
                     if len(answers) == 0:
                         messages.append({"content":"The user has not written any answers.","identifier":""})
-                        return Response({"messages":messages}, 204)
+                        return Response({"messages":messages}, 404)
 
                     answers = exclude_old_versions(answers)
                     if order == "latest":
