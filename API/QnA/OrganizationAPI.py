@@ -42,16 +42,34 @@ def get_by_id(orgid):
     except:
         return Response({"messages":[{"content":"No organization with given id.","identifier":"orgid"}]}, 204)
 
+def get_all():
+    data = []
+    orgdata = Organization.objects.all();
+    for org in orgdata:
+        data.append(org.serialize())
+    return Response({"organizations": data}, 200)
+
+
 class OrganizationAPI(APIView):
 
     def get(self, request):
         '''
         Get Organization. Heigher permissions returns more content to user.
         '''
-        try:
-            return get_by_id(int(request.GET.get("organizationId")))
-        except ValueError:
-            return Response({"messages":[{"content":"Organization id is not integer.","identifier":"organizationId"}]}, 400)
+        order = request.GET.get("order")
+        return get_message_by_id(Question, 1)
+        if order is None or order == "id":
+            try:
+                orgId = request.GET.get("organizationId")
+                if orgId is None:
+                    return Response({"messages":[{"content":"No organization id provided.","identifier":"organizationId"}]}, 400)
+                if orgId < 0:
+                    raise ValueError()
+                return get_by_id(int(orgId))
+            except ValueError:
+                return Response({"messages":[{"content":"Organization id is not positive integer.","identifier":"organizationId"}]}, 400)
+        elif order == "all":
+            return get_all()
 
     def post(self, request):
         success = False

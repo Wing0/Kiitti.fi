@@ -5,8 +5,6 @@ from rest_framework.views import APIView
 from QnA.models import *
 import json
 
-
-
 def get_user_data():
     data = []
     userdata = User.objects.all()
@@ -21,12 +19,12 @@ def get_question(time):
         data.append(question.serialize())
     return data
 
-def get_message_by_id(msgtype, msgid):
+def get_message_by_id(model, msgid):
     '''
     Get message by id.
 
     @params
-        msgtype: Name of abstractmessage class as string. Example: "Question".
+        model: Subclass of abstractmessage class as string. Example: "Question".
         msgid, int: Organization id which should be returned.
     @example
         /questions/?messageId=223
@@ -62,25 +60,17 @@ def get_message_by_id(msgtype, msgid):
     '''
     if not isinstance(msgid, int):
         return Response({"messages":[{"content":"Message id must be integer.","identifier":"msgid"}]}, 400)
-    if not isinstance(msgtype, basestring):
-        return Response({"messages":[{"content":"Model must be exact classname.","identifier":"msgtype"}]}, 400)
-    if msgtype == "Comment":
-        try:
-            return Response({"comments": Comment.objects.get(message_id=msgid).serialize()}, 200)
-        except:
-            return Response({"messages":[{"content":"No comments with given id.","identifier":"msgid"}]}, 204)
-    elif msgtype == "Answer":
-        try:
-            return Response({"answers": Answer.objects.get(message_id=msgid).serialize()}, 200)
-        except:
-            return Response({"messages":[{"content":"No answers with given id.","identifier":"msgid"}]}, 204)
-    elif msgtype == "Question":
-        try:
-            return Response({"questions": Question.objects.get(message_id=msgid).serialize()}, 200)
-        except:
-            return Response({"messages":[{"content":"No questions with given id.","identifier":"msgid"}]}, 204)
-    else:
-        return Response({"messages":[{"content":"Invalid message classname.","identifier":"msgtype"}]}, 400)
+    #if not isinstance(model, AbstractMessage):
+    #   return Response({"messages":[{"content":"Model must be class that subclasses abstractmessage.","identifier":"model"}]}, 400)
+    name = "%ss" %model.__name__.lower()
+    try:
+        data = []
+        messagedata = model.objects.filter(message_id=msgid)
+        for message in messagedata:
+            data.append(message.serialize())
+        return Response({name: data}, 200)
+    except:
+        return Response({"messages":[{"content":"No " + name + " with given id.","identifier":"msgid"}]}, 204)
 
 
 def post_abstract_message(abstractmessage, data):
@@ -107,15 +97,3 @@ def post_abstract_message(abstractmessage, data):
         raise Exception("You must provide valid user id.")
 
     return abstractmessage
-
-
-
-
-
-
-
-
-
-
-
-
