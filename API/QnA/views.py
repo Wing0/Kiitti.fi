@@ -207,7 +207,31 @@ class QuestionAPI(APIView):
 
         return Response({"messages":messages},200)
 
-    def get(self, request, style="latest"):
+    def get(self, request, criterion="latest"):
+        '''
+            Questions can be searched in three different ways:
+            1. By messageId:
+                required parameters:
+                    messageId, positive integer
+                returns:
+                    All questions matchin with given messageId ordered by descending version number
+            2. By tags:
+                required parameters:
+                    tags: list of tag names
+                optional parameters:
+                    criterion: latest or hottest, sort objects by date or votes
+                    amount: maximum number of objects returned
+                        default=10
+                    searchMethod: 'or' or 'and', defines whether the returned question set is union or intersection of given tags
+                        default='and'
+                returns: Specified amount of latest versions of questions including the given tags sorted by given criterion
+            3. By votes or date:
+                optional parameters:
+                    criterion: latest or hottest, sort objects by date or votes
+                    amount: maximum number of objects returned
+                        default=10
+                returns: Specified amount of latest versions of questions sorted by given criterion
+        '''
         # Helping methods for the tag search
         def unique(a):
             """ return the list with duplicate elements removed """
@@ -220,6 +244,16 @@ class QuestionAPI(APIView):
         def union(a, b):
             """ return the union of two lists """
             return list(set(a) | set(b))
+
+        if request.GET.get("messageId"):
+            question_data =[]
+            message_id = request.GET.get("messageId")
+            if isinstance(message_id, int), and message_id >= 0:
+                try:
+                    Question.objects.filter(message_id=message_id).order_by("-version")
+                except:
+                    pass
+            return Response({"questions": question_data}, 200)
 
         amount = request.GET.get("amount")
         if not amount:
@@ -277,9 +311,9 @@ class QuestionAPI(APIView):
 
         question_data = []
         questions = [q for q in questions]
-        if style == "latest":
+        if criterion == "latest":
             questions.sort(key = lambda a: a.created, reverse=True)# - b.created).seconds)
-        elif style == "hottest":
+        elif criterion == "hottest":
             questions.sort(key = lambda a: sum([vote.rate for vote in Vote.objects.filter(message_id=a.message_id)]))# - sum([vote.rate for vote in Vote.objects.filter(message_id=b.message_id)]))
         questions = questions[:int(amount)]
         for question in questions:
