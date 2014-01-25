@@ -84,7 +84,7 @@ class QuestionAPI(APIView):
         if request.GET.get("messageId"):
             question_data =[]
             message_id = request.GET.get("messageId")
-            if isinstance(message_id, int), and message_id >= 0:
+            if isinstance(message_id, int) and message_id >= 0:
                 try:
                     Question.objects.filter(message_id=message_id).order_by("-version")
                 except:
