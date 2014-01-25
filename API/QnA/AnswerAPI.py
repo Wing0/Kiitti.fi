@@ -1,3 +1,4 @@
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from django.db import IntegrityError
 from rest_framework.response import Response
@@ -16,14 +17,14 @@ class AnswerAPI(APIView):
         Further information in helper method docstring
         '''
         if request.GET.get("questionId"):
-            return by_question_id(request.GET.get("questionId"), request.GET.get("limit"), request.GET.get("order"))
+            return self.by_question_id(request.GET.get("questionId"), request.GET.get("limit"), request.GET.get("order"))
         elif request.GET.get("authorId"):
-            return by_author_id(request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
+            return self.by_author_id(request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
         # ToDo: get all latest/best answers?
 
 
     # ToDo: accept an answer -method
-
+    @csrf_exempt
     def post(self, request):
         '''
         This method takes answer information and produces an answer object accordingly.
@@ -56,6 +57,12 @@ class AnswerAPI(APIView):
         messages = []
         try:
             abs_data = post_abstract_message(Answer(), data)
+            if request.user.is_authenticated():
+                abs_data.user = request.user
+                print "yeah, is authenticated"
+            else:
+                messages.append({"content":"User must be logged in.", "identifier":"user"})
+                return Response({"messages":messages}, 401)
         except Exception, e:
             return Response({"messages": {"content": str(e), "identifier": ""}}, 200)
 
@@ -63,14 +70,13 @@ class AnswerAPI(APIView):
         if abs_data.accepted == None:
             abs_data.accepted = False
         abs_data.question_id = data.get("questionId")
-
         messages = abs_data.validate()
         if len(messages) == 0:
             abs_data.save()
             return Response({"messages": messages}, 201)
         return Response({"messages":messages}, 400)
 
-    def by_question_id(question_id, limit=10, order="latest"):
+    def by_question_id(self, question_id, limit=10, order="latest"):
         '''
         by_question_id:
         Retrieves all answers related to given question. The order and limit of answers can be chosen.
@@ -160,7 +166,7 @@ class AnswerAPI(APIView):
                 messages.append({"content":"The question id has to be a positive integer.","identifier":"questionId"})
         return Response({"messages":messages}, 400)
 
-    def by_author(authorId, limit=10, order="latest"):
+    def by_author(self, authorId, limit=10, order="latest"):
         '''
         Retrieves all answers written by given author. The order and limit of answers can be chosen.
 
