@@ -382,11 +382,11 @@ class Vote(models.Model):
 
 class Tag(models.Model):
     tag_id = models.PositiveIntegerField(unique=True)
-    creator = models.ForeignKey(User, to_field="user_id")
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
-    organization = models.ForeignKey(Organization)
 
+    creator = models.ForeignKey(User, to_field="user_id")
+    organization = models.ForeignKey(Organization)
     name = models.CharField(max_length=63, unique=True)
     course_flag = models.BooleanField(default=False)
 
@@ -430,8 +430,14 @@ class Tag(models.Model):
             valid = False
             messages.append({"type": "alert", "content": "Tag name has to be shorter than 255 characters.", "identifier": "name"})
         if self.course_flag not in [True, False]:
-            valid = True
+            valid = False
             messages.append({"type": "alert", "content": "Course flag has to be a boolean value.", "identifier": "courseFlag"})
+        if not isinstance(self.organization, Organization):
+            valid = False
+            messages.append({"type": "alert", "content": "Organization has to be an Organization instance.", "identifier": "organization"})
+        if not isinstance(self.creator, User):
+            valid = False
+            messages.append({"type": "alert", "content": "Creator has to be an User instance.", "identifier": "creator"})
         return valid, messages
 
 
@@ -440,9 +446,9 @@ class TagEntry(models.Model):
     tag = models.ForeignKey(Tag, to_field="tag_id")
     message_id = models.PositiveIntegerField(default=0)
 
-    creator = models.ForeignKey(User, to_field="user_id")
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
+    creator = models.ForeignKey(User, to_field="user_id")
 
     def __unicode__(self):
         return self.tag.name
