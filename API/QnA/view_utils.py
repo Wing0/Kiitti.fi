@@ -5,7 +5,18 @@ from rest_framework.views import APIView
 from QnA.models import *
 import json
 
+def exclude_old_versions(message_list):
+    # Sort all messages by version
+    tmp_questions.sort(key=lambda q: -q.version)
 
+    used = []
+    messages = []
+    # Append first occurrence of message id to messages
+    for q in tmp_questions:
+        if q.message_id not in used:
+            messages.append(q)
+            used.append(q.message_id)
+    return messages
 
 def get_user_data():
     data = []
