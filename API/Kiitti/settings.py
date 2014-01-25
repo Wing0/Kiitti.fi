@@ -24,7 +24,7 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -51,8 +51,8 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-if not DEBUG:
-    MIDDLEWARE_CLASSES.append('django.middleware.csrf.CsrfViewMiddleware')
+#if not DEBUG:
+#    MIDDLEWARE_CLASSES.append('django.middleware.csrf.CsrfViewMiddleware')
 
 ROOT_URLCONF = 'Kiitti.urls'
 
