@@ -32,12 +32,69 @@ def get_question(time):
         data.append(question.serialize())
     return data
 
+def get_message_by_id(model, msgid):
+    '''
+    Get message by id.
+
+    @params
+        model: Subclass of abstractmessage class as string. Example: "Question".
+        msgid, int: Organization id which should be returned.
+    @example
+        /questions/?messageId=223
+    @perm
+        member: Get message.
+    @return
+        200: Found organization.
+            example:
+            {
+                "comment":[
+                    {
+                        "content":"I am content of message.",
+                        "created":"01.01.2014 16:33:41",
+                        "modified":"15.01.2014 08:10:22",
+                        "version": ,
+                        "user": {
+                                    "name": "Wingo",
+                                    ....
+                                }
+                    }
+                ]
+            }
+        204: No content found. List of appropriate error messages.
+            example:
+            {
+                "messages":[{"content":"An example error message.","identifier":"example"}]
+            }
+        400: Invalid parameters. List of appropriate error messages.
+            example:
+            {
+                "messages":[{"content":"An example error message.","identifier":"example"}]
+            }
+    '''
+    if not isinstance(msgid, int):
+        return Response({"messages":[{"content":"Message id must be integer.","identifier":"msgid"}]}, 400)
+    #if not isinstance(model, AbstractMessage):
+    #   return Response({"messages":[{"content":"Model must be class that subclasses abstractmessage.","identifier":"model"}]}, 400)
+    name = "%ss" %model.__name__.lower()
+    try:
+        data = []
+        messagedata = model.objects.filter(message_id=msgid)
+        for message in messagedata:
+            data.append(message.serialize())
+        return Response({name: data}, 200)
+    except:
+        return Response({"messages":[{"content":"No " + name + " with given id.","identifier":"msgid"}]}, 204)
+
+
 def post_abstract_message(abstractmessage, data):
     '''
-    abstractmessage must be an instance of class that subclasses AbstractMessage.
-    data is array that contains all json data.
-    '''
+    Sets the values of given abstractmessage instance equal to datas' values.
 
+    @params
+        abstractmessage, AbstractMessage: Instance of class that subclasses AbstractMessage.
+        data, JSON-dictionary: Is array that contains all json data.
+    @return Given instance of abstractmessage populated with data in given dictionary.
+    '''
 
     if 'messageId' in data.keys():
         abstractmessage.message_id = data["messageId"]
@@ -52,18 +109,4 @@ def post_abstract_message(abstractmessage, data):
     else:
         raise Exception("You must provide valid user id.")
 
-
-
     return abstractmessage
-
-
-
-
-
-
-
-
-
-
-
-

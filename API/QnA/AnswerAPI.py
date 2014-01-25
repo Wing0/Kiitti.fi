@@ -3,6 +3,7 @@ from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from QnA.models import *
+from QnA.view_utils import *
 import json
 
 from view_utils import post_abstract_message, exclude_old_versions

@@ -188,7 +188,6 @@ class AbstractMessage(models.Model):
             'version': self.version,
             'userId': self.user.user_id,
             'created': format_date(self.created),
-            'modified': format_date(self.modified),
             'messageId': self.message_id
         }
 
