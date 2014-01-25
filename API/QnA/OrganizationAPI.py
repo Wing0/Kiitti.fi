@@ -5,50 +5,6 @@ from QnA.models import Organization
 from QnA.view_utils import *
 import json
 
-def get_by_id(orgid):
-    '''
-    Get Organization by id.
-
-    @params
-        orgid, int: Organization id which should be returned.
-    @example
-        /organization/?organizationId=223
-    @perm
-        member: Get basic information aabout Organization.
-        staff: Shows additional information about Organization.
-        admin: Load all Organizations.
-    @return
-        200: Found organization.
-            example:
-            {
-                "organizations":[
-                    {
-                    "name":"Aalto",
-                    "organizationId":"1",
-                    "created":"01.01.2014 16:33:41",
-                    "modified":"15.01.2014 08:10:22",
-                    "address":"Aallonkuja 4 A 13"
-                    }
-                ]
-            }
-        204: No content found. List of appropriate error messages.
-            example:
-            {
-                "messages":[{"content":"An exampleerror message.","identifier":"example"}]
-            }
-    '''
-    try:
-        return Response({"organizations": Organization.objects.get(organization_id=orgid).serialize()}, 200)
-    except:
-        return Response({"messages":[{"content":"No organization with given id.","identifier":"orgid"}]}, 204)
-
-def get_all():
-    data = []
-    orgdata = Organization.objects.all();
-    for org in orgdata:
-        data.append(org.serialize())
-    return Response({"organizations": data}, 200)
-
 
 class OrganizationAPI(APIView):
 
@@ -64,11 +20,11 @@ class OrganizationAPI(APIView):
                     return Response({"messages":[{"content":"No organization id provided.","identifier":"organizationId"}]}, 400)
                 if orgId < 0:
                     raise ValueError()
-                return get_by_id(int(orgId))
+                return self.get_by_id(int(orgId))
             except ValueError:
                 return Response({"messages":[{"content":"Organization id is not positive integer.","identifier":"organizationId"}]}, 400)
         elif order == "all":
-            return get_all()
+            return self.get_all()
 
     def post(self, request):
         success = False
@@ -88,3 +44,47 @@ class OrganizationAPI(APIView):
                 org.save()
                 success = True
         return Response({"messages":messages, "success":success}, 200)
+
+    def get_by_id(self, orgid):
+        '''
+        Get Organization by id.
+
+        @params
+            orgid, int: Organization id which should be returned.
+        @example
+            /organization/?organizationId=223
+        @perm
+            member: Get basic information aabout Organization.
+            staff: Shows additional information about Organization.
+            admin: Load all Organizations.
+        @return
+            200: Found organization.
+                example:
+                {
+                    "organizations":[
+                        {
+                        "name":"Aalto",
+                        "organizationId":"1",
+                        "created":"01.01.2014 16:33:41",
+                        "modified":"15.01.2014 08:10:22",
+                        "address":"Aallonkuja 4 A 13"
+                        }
+                    ]
+                }
+            204: No content found. List of appropriate error messages.
+                example:
+                {
+                    "messages":[{"content":"An exampleerror message.","identifier":"example"}]
+                }
+        '''
+        try:
+            return Response({"organizations": Organization.objects.get(organization_id=orgid).serialize()}, 200)
+        except:
+            return Response({"messages":[{"content":"No organization with given id.","identifier":"orgid"}]}, 204)
+
+    def get_all(self):
+        data = []
+        orgdata = Organization.objects.all();
+        for org in orgdata:
+            data.append(org.serialize())
+        return Response({"organizations": data}, 200)

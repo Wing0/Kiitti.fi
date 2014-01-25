@@ -21,4 +21,5 @@ urlpatterns = patterns('',
     url(r'^tags/?$', TagAPI.as_view()),
     url(r'^organizations/?$', OrganizationAPI.as_view()),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^users/?$', UserAPI.as_view()),
 )
