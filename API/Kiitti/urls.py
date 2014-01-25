@@ -5,6 +5,8 @@ from QnA.CommentAPI import CommentAPI
 from QnA.QuestionAPI import QuestionAPI
 from QnA.TagAPI import TagAPI
 from QnA.OrganizationAPI import OrganizationAPI
+from QnA.LoginAPI import LoginAPI
+from QnA.LogoutAPI import LogoutAPI
 
 from django.contrib import admin
 admin.autodiscover()
@@ -12,6 +14,8 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', UserAPI.as_view()),
+    url(r'^login/?$', LoginAPI.as_view()),
+    url(r'^logout/?$', LogoutAPI.as_view()),
     #url(r'^$', 'Kiitti.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
     url(r'^answers/?$', AnswerAPI.as_view()),
