@@ -9,7 +9,21 @@ import json
 class UserAPI(APIView):
 
     def get(self, request):
-        return Response({"users": get_user_data()}, 200)
+        order = request.GET.get("order")
+        if order is None or order == "all":
+            return self.get_all()
+        elif order == "organization":
+            orgid = request.GET.get("organizationId")
+            if orgid is None:
+                return Response({"messages": "Organization id does not exist.", "identifier": "orgid"}, 400)
+            return self.get_by_organization_id(orgid)
+        elif order == "userid":
+            userid = request.GET.get("userId")
+            if userid is None:
+                return Response({"messages": "User id does not exist.", "identifier": "userid"}, 400)
+            return self.get_by_id(userid)
+        else:
+            return Response({"messages": "Invalid sorting type.", "identifier": ""}, 400)
 
     #VALIDATE
     def post(self, request):
@@ -43,3 +57,107 @@ class UserAPI(APIView):
             messages = [{"type":"Alert","content":"Something is missing","identifier":""}]
             valid = False
         return Response({"messages":messages},200)
+
+    def get_by_id(self, userid):
+        '''
+        Get User by id.
+
+        @params
+            userid, int: User id which should be returned.
+        @example
+            /user/?userId=223
+        @perm
+            member: Get basic information aabout Organization.
+            staff: Shows additional information about Organization.
+            admin: Load all Organizations.
+        @return
+            200: Found User.
+                example:
+                {
+                    "users":[
+                        {
+                        "firstname":"Aalto",
+                        "lastname": "Aaltonen",
+                        "username": "Wingo",
+                        "created":"01.01.2014 16:33:41",
+                        "email":"aalto@aalto.fi",
+                        "password": "hashedpassword",
+                        .....
+                        }
+                    ]
+                }
+            204: No content found. List of appropriate error messages.
+                example:
+                {
+                    "messages":[{"content":"An exampleerror message.","identifier":"example"}]
+                }
+            400: Invalid parameters. List of appropriate error messages.
+                example:
+                {
+                    "messages":[{"content":"An example error message.","identifier":"example"}]
+                }
+        '''
+        try:
+            return Response({"users": User.objects.get(user_id=userid).serialize()}, 200)
+        except:
+            return Response({"messages":[{"content":"No user with given id.","identifier":"userid"}]}, 204)
+
+    def get_by_organization_id(self, orgid):
+        '''
+        Get users related to given organization.
+
+        @param
+            orgid: Organization id.
+        @example
+            /users/?organizationId=123
+        @return
+            200: Found Users.
+                example:
+                {
+                    "users":[
+                        {
+                        "firstname":"Aalto",
+                        "lastname": "Aaltonen",
+                        "username": "Wingo",
+                        "created":"01.01.2014 16:33:41",
+                        "email":"aalto@aalto.fi",
+                        "password": "hashedpassword",
+                        .....
+                        }
+                    ]
+                }
+            204: No content found. List of appropriate error messages.
+                example:
+                {
+                    "messages":[{"content":"An exampleerror message.","identifier":"example"}]
+                }
+            400: Invalid parameters. List of appropriate error messages.
+                example:
+                {
+                    "messages":[{"content":"An example error message.","identifier":"example"}]
+                }
+
+        '''
+        try:
+            orgid = int(orgid)
+            if orgid < 0:
+                raise ValueError()
+            data = []
+            users = User.objects.filter(organization=orgid)
+            for user in users:
+                data.append(user.serialize())
+            return Response({"users": data}, 200)
+        except ValueError:
+            return Response({"messages":[{"content":"Organization id is not positive integer.","identifier":"orgid"}]}, 400)
+        except:
+            return Response({"messages":[{"content":"No user with given id.","identifier":"orgid"}]}, 204)
+
+    def get_all(self):
+        '''
+        Get all users.
+        '''
+        data = []
+        userdata = User.objects.all()
+        for user in userdata:
+            data.append(user.serialize())
+        return Response({"users": data}, 200)

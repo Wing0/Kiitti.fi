@@ -37,7 +37,7 @@ def get_message_by_id(model, msgid):
     Get message by id.
 
     @params
-        model: Subclass of abstractmessage class as string. Example: "Question".
+        model: Subclass of abstractmessage class as string. Example: Question.
         msgid, int: Organization id which should be returned.
     @example
         /questions/?messageId=223
