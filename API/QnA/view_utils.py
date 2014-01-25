@@ -103,10 +103,4 @@ def post_abstract_message(abstractmessage, data):
         abstractmessage.content = data["content"]
     else:
         abstractmessage.content = ""
-
-    if 'userId' in data.keys():
-        abstractmessage.user = User.objects.get(user_id=data["userId"])
-    else:
-        raise Exception("You must provide valid user id.")
-
     return abstractmessage
