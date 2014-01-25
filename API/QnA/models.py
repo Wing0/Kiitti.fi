@@ -213,7 +213,7 @@ class AbstractMessage(models.Model):
             valid = False
             messages.append({"type": "alert", "content": "Message id must be a positive number.", "identifier": "message_id"})
 
-        return valid, messages
+        return messages
 
     def save(self, *args, **kwargs):
         '''
@@ -243,14 +243,14 @@ class Answer(AbstractMessage):
         return jsondict
 
     def validate(self):
-        valid, messages = super(Answer, self).validate()
+        messages = super(Answer, self).validate()
         if not isinstance(self.question_id, int) or self.question_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "Question id must be a positive integer.", "identifier": "question_id"})
         if not isinstance(self.accepted, bool):
             valid = False
             messages.append({"type": "alert", "content": "Accepted value must be a boolean.", "identifier": "accepted"})
-        return valid, messages
+        return messages
 
     def save(self, *args, **kwargs):
         '''
