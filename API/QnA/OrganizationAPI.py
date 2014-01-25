@@ -57,7 +57,6 @@ class OrganizationAPI(APIView):
         Get Organization. Heigher permissions returns more content to user.
         '''
         order = request.GET.get("order")
-        return get_message_by_id(Question, 1)
         if order is None or order == "id":
             try:
                 orgId = request.GET.get("organizationId")
