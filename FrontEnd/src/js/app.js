@@ -1,36 +1,16 @@
-var app = angular.module('app', ['ngResource', 'ngRoute', 'ngAnimate']);
+var app = angular.module('app', ['ngResource', 'ngAnimate', 'ngSanitize',
+                                 'ktStates', 'ktControllers']);
 
 /* CONFIG */
 
-app.config(function($routeProvider, $locationProvider) {
+app.config(function($locationProvider, $httpProvider) {
 
   $locationProvider
     .html5Mode(true)
     .hashPrefix('!');
 
-  $routeProvider
-    .when('/', {
-      templateUrl: '../templates/question.html',
-      controller: 'BrowsePopularController'
-    })
-    .when('/popular', {
-      templateUrl: '../templates/question.html',
-      controller: 'BrowsePopularController'
-    })
-    .when('/new', {
-      templateUrl: '../templates/question.html',
-      controller: 'BrowsePopularController'
-    })
-    .when('/interesting', {
-      templateUrl: '../templates/question.html',
-      controller: 'BrowsePopularController'
-    })
-    .when('/browse', {
-      templateUrl: '../templates/question.html',
-      controller: 'BrowsePopularController'
-    })
-    .otherwise({redirectTo : '/'});
-
+  $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+  $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 });
 
 /* RESOURCES */
@@ -38,22 +18,6 @@ app.config(function($routeProvider, $locationProvider) {
 app.factory('QuestionFactory', function($resource) {
   return $resource('/testdata/single_question.json', {},
     { 'get': {method: 'GET', isArray: false} });
-});
-
-/* CONTROLLERS */
-
-app.controller('BrowsePopularController', function($scope, QuestionFactory) {
-
-  /*var questions = QuestionFactory.get(function(data) {
-    $scope.questions = data.questions;
-  });*/
-
-  $scope.question = QuestionFactory.get();
-
-  /*var questions = QuestionFactory.get(function(data) {
-    console.log(data);
-  });*/
-
 });
 
 app.controller('SubmitAnswerController', function($scope, QuestionFactory) {

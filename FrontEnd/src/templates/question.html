@@ -1,37 +1,35 @@
 <section class="block">
 <div class="container">
 
-  <div class="question">
-    <div class="message-block">
-      <div qna-votes votes-up="question.votes_up" votes-down="question.votes_down"></div>
+  <div class="message-block question">
+    <div qna-votes votes-up="question.votes_up" votes-down="question.votes_down"></div>
 
-      <header>
-        <h1 class="topic">{{question.topic}}</h1>
-        <ul class="tags">
-          <li ng-repeat="tag in question.tags">{{tag}}</li>
+    <header>
+      <h1 class="topic">{{question.topic}}</h1>
+      <ul class="tags">
+        <li ng-repeat="tag in question.tags">{{tag}}</li>
+      </ul>
+    </header>
+
+    <div class="content">
+      <p>{{question.content}}</p>
+    </div>
+
+    <div class="comments" ng-show="question.comments">
+      <h4>Kommentit</h4>
+      <div qna-comment comment="comment" ng-repeat="comment in question.comments"></div>
+    </div>
+
+    <footer>
+      <div class="buttons">
+        <ul>
+          <li><a href="#">Vastaa</a></li>
+          <li><a href="#">Kommentoi</a></li>
         </ul>
-      </header>
-
-      <div class="content">
-        <p>{{question.content}}</p>
       </div>
-
-      <div class="comments" ng-show="question.comments">
-        <h4>Kommentit</h4>
-        <div qna-comment comment="comment" ng-repeat="comment in question.comments"></div>
-      </div>
-
-      <footer>
-        <div class="buttons">
-          <ul>
-            <li><a href="#">Vastaa</a></li>
-            <li><a href="#">Kommentoi</a></li>
-          </ul>
-        </div>
-        <div class="asked">asked <span class="date-posted">{{question.date}}</span> by <span class="username"><a href="#">{{question.user.username}}</a></span></div>
-      </footer>
-    </div><!--/message-block-->
-  </div><!--/question-->
+      <div class="asked">asked <span class="date-posted">{{question.date}}</span> by <span class="username"><a href="#">{{question.user.username}}</a></span></div>
+    </footer>
+  </div><!--/message-block-->
 
   <div class="answers">
     <h3>Vastaukset</h3>

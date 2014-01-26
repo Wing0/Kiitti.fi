@@ -418,6 +418,7 @@ nav li a:hover, nav li a.active {
 /* line 76, ../config/sass/messages.scss */
 .message-block.question {
   margin-top: 0;
+  padding-top: 0;
 }
 /* line 81, ../config/sass/messages.scss */
 .message-block .topic {

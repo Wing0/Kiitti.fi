@@ -1,6 +1,4 @@
 @import "compass/reset";
-@import "compass/css3";
-@import "compass/typography/text/nowrap";
 @import "_base";
 
 body {
@@ -199,5 +197,3 @@ nav {
   zoom: 1;
   *display: inline;
 }
-
-@import "messages"
