@@ -13,10 +13,11 @@ class OrganizationAPI(APIView):
         Get Organization. Heigher permissions returns more content to user.
         '''
         order = request.GET.get("order")
-        if order is None or order == "id":
-            return self.get_by_id(request.GET.get("organizationId"))
-        elif order == "all":
+        if order is None or order == "all":
             return self.get_all()
+        elif order == "id":
+            return self.get_by_id(request.GET.get("organizationId"))
+
 
     def post(self, request):
         success = False

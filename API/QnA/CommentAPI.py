@@ -29,15 +29,18 @@ class CommentAPI(APIView):
         if order is None:
             return Response({"messages": "No order type provided.", "identifier": "order"}, 400)
         elif order == "parent":
-            return get_parent_message(request.GET.get("parentId"), request.GET.get("isQuestion"))
+            return get_parent_message(request.GET.get("parentId"), request.GET.get("isQuestion"), request.user.organization.organization_id)
         elif order == "id":
-            return get_by_id(request.GET.get("messageId"))
+            return get_by_id(request.GET.get("messageId"), request.user.organization.organization_id)
         else:
            return Response({"messages": "No correct order type provided.", "identifier": "order"}, 400)
 
-    def get_all(self):
+    def get_all(self, organization):
         '''
         Get all comments.
+        @params
+            organization, Organization: Organization object.
+
         @return
             200: All Comments ever created.
             example:
@@ -62,11 +65,14 @@ class CommentAPI(APIView):
                 ]
             }
         '''
-        data = []
-        comment_data = Comment.objects.all()
-        for comment in comment_data:
-            data.append(comment.serialize())
-        return Response({"comments": data}, 200)
+        try:
+            data = []
+            comment_data = Comment.objects.filter(organization=organization)
+            for comment in comment_data:
+                data.append(comment.serialize())
+            return Response({"comments": data}, 200)
+        except:
+            return Response({"messages": "No comments related to this organization", "identifier": "organization_id"}, 400);
 
     def get_by_id(self, comment):
         '''
@@ -77,34 +83,46 @@ class CommentAPI(APIView):
         '''
         return get_message_by_id(Comment, comment)
 
-    def get_related_to_parent(self, parentid):
+    def get_related_to_parent(self, parent_id, organization_id, limit=3, order="latest"):
         '''
         Get all comments related to given parentid (questions/answeers messageId).
 
         @params
             parentid, string: Parent id.
+            organization, int: Organization id.
+            limit, int: Limits the amount of results returned.
+            order, string: Order type.
         @example
-            /comments/?parentId=2
+            /comments/?parentId=2&organizationId=1&limit=5&order=oldest
         @return
             200: Returned comments related to given parentid.
             204: No comments with given parentid.
             400: Parent id is not int or cannot be converted to int.
         '''
+        messages = []
         try:
             data = []
-            parentid = int(parentid)
-            if parentid < 0:
+            parent_id = int(parent_id)
+            if not isinstance(limit, int) or limit < 0
+                messages.append(compose_message("Limit value is not positive integer.", "limit"))
+            if not isinstance(organization_id, id) or organization_id < 0:
+                messages.append(compose_message("Organization id is not positive integer.", "organization_id"))
+            if not
+            if parent_id < 0:
                 raise ValueError()
-            comments = Comment.objects.filter(parent_id=parentid)
+            order_by = "pub_date"
+            if order == "oldest":
+                order_by = "-pub_date"
+            comments = Comment.objects.filter(parent_id=parent_id).filter(organization=organization_id).order_by(order_by)[:limit]
             for comment in comments:
                 data.append(comment.serialize())
             return Response({"comments": data}, 200)
         except ValueError:
-            return Response({"messages": "Parent id is not positive integer.", "identifier": "parentId"}, 400)
+            return Response({"messages": [{"content": "Parent id is not positive integer.", "identifier": "parentId"}]}, 400)
         except:
             return Response({"messages": "No comments exist with given parentid.", "identifier": "parentId"}, 204)
 
-    def get_parent_message(self, parentid, isquestion):
+    def get_parent_message(self, parentid, isquestion, organization):
         '''
         Get parent of comment which has messageId equal to parentid.
         isquestion defines whether parent is question or not.
@@ -116,6 +134,7 @@ class CommentAPI(APIView):
         @params
             parentid, string: Parent id for this comment.
             isquestion, string: Boolean value, either "true" or "false".
+            organization, int: Organization id.
         @return
             400: If isquestion is none or isquestion is not string.
 
@@ -125,8 +144,9 @@ class CommentAPI(APIView):
         if not isinstance(isquestion, basestring):
             return Response({"messages": "Is question is not string.", "identifier": "isQuestion"}, 400)
         if isquestion == "true" or question == "True":
-            return get_message_by_id(Question, parentid)
-        else if isquestion == "false" or question == "False":
-            return get_message_by_id(Answer, parentid)
-        else
+            return get_message_by_id(Question, parentid, organization)
+        elif isquestion == "false" or question == "False":
+            return get_message_by_id(Answer, parentid, organization)
+        else:
+            return  Resonse({"messages": "Given value for isquestion is not true or false.", "identifier": "isquestion"}, 400)
 
