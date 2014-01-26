@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import re
 
+def format_date(date):
+    return date.strftime('%Y-%m-%dT%H:%M:%S')
+
 class Organization(models.Model):
 
     organization_id = models.PositiveIntegerField(unique=True)
@@ -18,8 +21,8 @@ class Organization(models.Model):
         jsondict = {
             'name': self.name,
             'address': self.address,
-            'created': self.created,
-            'modified': self.modified,
+            'created': format_date(self.created),
+            'modified': format_date(self.modified),
             'organizationId':self.organization_id
         }
 
@@ -40,21 +43,23 @@ class Organization(models.Model):
     def validate(self):
         valid = True
         messages = []
+        '''
         if not isinstance(self.organization_id, int) or self.organization_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "Organization id must be a positive integer.", "identifier": "organization_id"})
-        if not isinstance(self.name, basetext):
+        '''
+        if not isinstance(self.name, basestring):
             valid = False
             messages.append({"type": "alert", "content": "Name has to be a string.", "identifier": "name"})
-        if not len(self.name) < 3:
+        if len(self.name) < 3:
             valid = False
-            messages.append({"type": "alert", "content": "Name has to be atleast 3 character long.", "identifier": "name"})
-        if not isinstance(self.address, basetext):
+            messages.append({"type": "alert", "content": "Name has to be at least 3 character long.", "identifier": "name"})
+        if not isinstance(self.address, basestring):
             valid = False
             messages.append({"type": "alert", "content": "Address has to be a string.", "identifier": "address"})
-        if not len(self.address) < 3:
+        if len(self.address) < 3:
             valid = False
-            messages.append({"type": "alert", "content": "Address has to be atleast 3 character long.", "identifier": "address"})
+            messages.append({"type": "alert", "content": "Address has to be at least 3 character long.", "identifier": "address"})
 
         return valid, messages
 
@@ -164,6 +169,7 @@ class User(AbstractUser):
 
         return valid, messages
 
+
 class AbstractMessage(models.Model):
     '''
     This is the Abstract message class for all the message classes. The other message classes
@@ -171,18 +177,18 @@ class AbstractMessage(models.Model):
     '''
     content = models.TextField()
     version = models.PositiveIntegerField()
-    user_id = models.ForeignKey(User, to_field="user_id")
+    user = models.ForeignKey(User, to_field="user_id")
+    organization = models.ForeignKey(Organization, to_field="organization_id", blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
+    #modified = models.DateTimeField(auto_now=True)
     message_id = models.PositiveIntegerField()
 
     def serialize(self):
         jsondict = {
             'content': self.content,
             'version': self.version,
-            'userId': self.user_id,
-            'created': self.created,
-            'modified': self.modified,
+            'userId': self.user.user_id,
+            'created': format_date(self.created),
             'messageId': self.message_id
         }
 
@@ -191,22 +197,34 @@ class AbstractMessage(models.Model):
     def validate(self):
         valid = True
         messages = []
-        if not isinstance(self.content, basetext):
+        if not isinstance(self.content, basestring):
             valid = False
             messages.append({"type": "alert", "content": "Content must be a string.", "identifier": "content"})
         if len(self.content) < 1:
             valid = False
-            messages.append({"type": "alert", "content": "Content must be a string.", "identifier": "content"})
-        if not isinstance(self.version, int) or self.version < 0:
+            messages.append({"type": "alert", "content": "Content is missing or its length is zero.", "identifier": "content"})
+
+        if not isinstance(self.user, User):
             valid = False
-            messages.append({"type": "alert", "content": "Version must be a positive integer.", "identifier": "version"})
-        if not isinstance(user_id, int) or self.user_id < 0:
-            valid = False
-            messages.append({"type": "alert", "content": "User id must be a positive integer.", "identifier": "user_id"})
-        if not isinstance(message_id, int) or self.message_id < 0:
+            messages.append({"type": "alert", "content": "User id must be an user object.", "identifier": "user_id"})
+
+        if self.message_id != None and (not isinstance(self.message_id, int) or self.message_id < 0):
+            print "MessageId:", self.message_id, self.message_id != None
             valid = False
             messages.append({"type": "alert", "content": "Message id must be a positive number.", "identifier": "message_id"})
-        return valid, messages
+
+        return messages
+
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate message_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            if not isinstance(self.version , int):
+                self.version = 0
+        # Just save
+        super(AbstractMessage, self).save(*args, **kwargs)
 
 
 class Answer(AbstractMessage):
@@ -225,40 +243,84 @@ class Answer(AbstractMessage):
         return jsondict
 
     def validate(self):
-        valid, messages = super(Answer, self).validate()
+        messages = super(Answer, self).validate()
         if not isinstance(self.question_id, int) or self.question_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "Question id must be a positive integer.", "identifier": "question_id"})
         if not isinstance(self.accepted, bool):
             valid = False
             messages.append({"type": "alert", "content": "Accepted value must be a boolean.", "identifier": "accepted"})
-        return valid, messages
+        return messages
+
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_objects = Answer.objects.all()
+            largest_id = max([0] + [obj.message_id for obj in all_objects])
+            self.message_id = largest_id + 1
+        # Just save
+        super(Answer, self).save(*args, **kwargs)
 
 
 class Question(AbstractMessage):
     '''
 
     '''
-    topic = models.CharField(max_length=250)
+    title = models.CharField(max_length=250)
+
+    def __unicode__(self):
+        return self.title
+
     def serialize(self):
         jsondict = super(Question, self).serialize()
-        jsondict['topic'] = self.topic
+        jsondict['title'] = self.title
+        jsondict['tags'] = [tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=self.message_id)]
         return jsondict
 
     def validate(self):
-        valid, messages = super(Answer, self).validate()
-        if not isinstance(self.topic, basetext):
+
+        valid, messages = super(Question, self).validate()
+        if not isinstance(self.title, basestring):
             valid = False
-            messages.append({"type": "alert", "content": "Topic has to be a string.", "identifier": "topic"})
-        if len(self.topic) < 5:
+            messages.append({"type": "alert", "content": "Title has to be a string.", "identifier": "title"})
+        if self.title and len(self.title) < 5:
             valid = False
-            messages.append({"type": "alert", "content": "Topic must be atleast five characters long.", "identifier": "topic"})
+            messages.append({"type": "alert", "content": "Title must be atleast five characters long.", "identifier": "title"})
         return valid, messages
+
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate message_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_objects = Question.objects.all()
+            largest_id = max([0] + [obj.message_id for obj in all_objects])
+            self.message_id = largest_id + 1
+        # Just save
+        super(Question, self).save(*args, **kwargs)
+
+    def save_changes(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate version number that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_versions = Question.objects.filter(message_id=self.message_id)
+            largest_version = max([0] + [obj.version for obj in all_versions])
+            self.version = largest_version + 1
+        # Just save
+        super(Question, self).save(*args, **kwargs)
+
 
 class Comment(AbstractMessage):
     '''
 
     '''
+    is_question_comment = models.BooleanField(default=False)
     parent_id = models.PositiveIntegerField() #this is the message_id of the message to which this comment is for
     def serialize(self):
         jsondict = super(Comment, self).serialize()
@@ -266,58 +328,39 @@ class Comment(AbstractMessage):
         return jsondict
 
     def validate(self):
-        valid, messages = super(Answer, self).validate()
-        if not isinstance(self.parent_id, basetext) or self.parent_id < 0 :
+        valid, messages = super(Question, self).validate()
+        if not isinstance(self.parent_id, basestring) or self.parent_id < 0 :
             valid = False
             messages.append({"type": "alert", "content": "Parent id has to be a integer.", "identifier": "parent_id"})
         return valid, messages
 
-'''
-class Tag(models.Model):
-
-    ####
-    This is the tag model for questions. Each Question may have 0-5 tags.
-    Courses are also tags, but for those, the course_flag is set to True.
-
-    created: Date when the object was created
-    creator: ForeignKey, The user who created the tag
-    customer: ForeignKey to the corresponding customer
-    name: String, name of the topic, for example "Integrating"
-    follow_counter: Integer, counter that easily expresses the number of followers in the tag
-    question_counter: Integer, counter that easily expresses the number of questions in this category
-    course_flag: Boolean, this is set to True if the tag represents a course, otherwise it is False
-
-    ToDo: Tags are customer-specific. How can we make a distinction between the tags of different customers? ForeignKey or separate table?
-    ####
-
-    created = models.DateField(auto_now_add=True)
-    last_use = models.DateField(auto_now=True)
-    creator = models.ForeignKey('User')
-    customer = models.ForeignKey(Customer, to_field="")
-
-    name = models.CharField(max_length=30)
-    follow_counter = models.IntegerField()
-    question_counter = models.IntegerField()
-    course_flag = models.BooleanField(default=False)
-
-'''
-
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_objects = Comment.objects.all()
+            largest_id = max([0] + [obj.message_id for obj in all_objects])
+            self.message_id = largest_id + 1
+        # Just save
+        super(Comment, self).save(*args, **kwargs)
 
 class Vote(models.Model):
 
     rate = models.SmallIntegerField(default=0)
-    user_id = models.ForeignKey(User, to_field="user_id")
-    message_id = models.IntegerField(default=0)
+    user = models.ForeignKey(User, to_field="user_id")
+    message_id = models.PositiveIntegerField(default=0)
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
 
     def serialize(self):
         jsondict = {
             'rate': self.rate,
-            'userId': self.user_id,
+            'userId': self.user.user_id,
             'messageId': self.message_id,
-            'created': self.created,
-            'modified': self.modified
+            'created': format_date(self.created),
+            'modified': format_date(self.modified)
         }
 
         return jsondict
@@ -328,66 +371,136 @@ class Vote(models.Model):
         if not isinstance(self.rate, int):
             valid = False
             messages.append({"type": "alert", "content": "Rate has to be a integer.", "identifier": "rate"})
-        if not isinstance(self.user_id, int) or self.user_id < 0:
+        if not isinstance(self.user.user_id, int) or self.user_id < 0:
             valid = False
-            messages.append({"type": "alert", "content": "User id has to be a positive integer.", "identifier": "user_id"})
-        if not isinstance(self.user_id, int) or self.message_id < 0:
+            messages.append({"type": "alert", "content": "User id has to be a positive integer.", "identifier": "userId"})
+        if not isinstance(self.user.user_id, int) or self.message_id < 0:
             valid = False
-            messages.append({"type": "alert", "content": "Message id has to be a positive integer.", "identifier": "message_id"})
+            messages.append({"type": "alert", "content": "Message id has to be a positive integer.", "identifier": "messageId"})
 
         return valid, messages
 
 class Tag(models.Model):
-
+    tag_id = models.PositiveIntegerField(unique=True)
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
-    creator = models.ForeignKey(User, to_field="user_id")
-    organization_id = models.ForeignKey(Organization, to_field="organization_id")
 
-    name = models.CharField(max_length=30)
-    follow_counter = models.IntegerField()
-    question_counter = models.IntegerField()
+    creator = models.ForeignKey(User, to_field="user_id")
+    organization = models.ForeignKey(Organization)
+    name = models.CharField(max_length=63, unique=True)
     course_flag = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return self.name
 
     def serialize(self):
         jsondict = {
-            'creator': self.creator,
-            'userId': self.user_id,
-            'messageId': self.message_id,
-            'created': self.created,
-            'modified': self.modified,
-            'organizationId': self.organization_id,
-            'followCounter': self.follow_counter,
-            'questionCounter': self.question_counter,
-            'courseFlag': self.course_flag
+            'tagId':self.tag_id,
+            'creator': self.creator.user_id,
+            'created': format_date(self.created),
+            'modified': format_date(self.modified),
+            'organizationId':self.organization.organization_id,
+            'name':self.name,
+            'courseFlag':self.course_flag
         }
 
         return jsondict
 
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate tag_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_objects = Tag.objects.all()
+            largest_id = max([0] + [obj.tag_id for obj in all_objects])
+            self.tag_id = largest_id +1
+        # Just save
+        super(Tag, self).save(*args, **kwargs)
+
+    def validate(self, messages):
+        valid = True
+        if not isinstance(self.name, basestring):
+            valid = False
+            messages.append({"type": "alert", "content": "Tag name has to be a string.", "identifier": "name"})
+        elif len(self.name) < 3:
+            valid = False
+            messages.append({"type": "alert", "content": "Tag name has to be longer than 3 characters.", "identifier": "name"})
+        elif len(self.name) > 255:
+            valid = False
+            messages.append({"type": "alert", "content": "Tag name has to be shorter than 255 characters.", "identifier": "name"})
+        if self.course_flag not in [True, False]:
+            valid = False
+            messages.append({"type": "alert", "content": "Course flag has to be a boolean value.", "identifier": "courseFlag"})
+        if not isinstance(self.organization, Organization):
+            valid = False
+            messages.append({"type": "alert", "content": "Organization has to be an Organization instance.", "identifier": "organization"})
+        if not isinstance(self.creator, User):
+            valid = False
+            messages.append({"type": "alert", "content": "Creator has to be an User instance.", "identifier": "creator"})
+        return valid, messages
+
+
+class TagEntry(models.Model):
+    tag_entry_id = models.PositiveIntegerField(unique=True)
+    tag = models.ForeignKey(Tag, to_field="tag_id")
+    message_id = models.PositiveIntegerField(default=0)
+
+    created = models.DateField(auto_now_add=True)
+    modified = models.DateField(auto_now=True)
+    creator = models.ForeignKey(User, to_field="user_id")
+
+    def __unicode__(self):
+        return self.tag.name
+
+    def serialize(self):
+        jsondict = {
+            'tagEntryId':self.tag_entry_id,
+            'tagId':self.tag.tag_id,
+            'messageId': self.message_id,
+            'creator': self.creator.user_id,
+            'created': format_date(self.created),
+            'modified': format_date(self.modified),
+        }
+
+        return jsondict
+
+    def save(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_objects = TagEntry.objects.all()
+            largest_id = max([0] + [obj.tag_entry_id for obj in all_objects])
+            self.tag_entry_id = largest_id +1
+        # Just save
+        super(TagEntry, self).save(*args, **kwargs)
+
+
     def validate(self):
         valid = True
         messages = []
-        if not isinstance(self.creator, int) or self.creator < 0:
+        if not isinstance(self.creator.user_id, int) or self.creator.user_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "Creator must be a positive integer.", "identifier": "creator"})
+        '''
         if not isinstance(self.organization_id, int) or self.organization_id < 0:
             valid = False
             messages.append({"type": "alert", "content": "Organization id has to be a positive integer.", "identifier": "organization_id"})
+
         if not isinstance(self.name, int):
             valid = False
             messages.append({"type": "alert", "content": "Name has to be a string.", "identifier": "name"})
+
         if not len(self.name) > 0:
             valid = False
             messages.append({"type": "alert", "content": "Name has to be atleast 1 character long.", "identifier": "name"})
-        if not isinstance(self.follow_counter, int) or self.follow_counter < 0:
-            valid = False
-            messages.append({"type": "alert", "content": "Follow counter must be a positive integer.", "identifier": "follow_counter"})
-        if not isinstance(self.question_counter, int) or self.question_counter < 0:
-            valid = False
-            messages.append({"type": "alert", "content": "Question counter must be a positive integer.", "identifier": "question_counter"})
+
         if not isinstance(self.course_flag, bool):
             valid = False
             messages.append({"type": "alert", "content": "Course flag must be a boolean.", "identifier": "course_flag"})
+        '''
         return valid, messages
 
 '''
