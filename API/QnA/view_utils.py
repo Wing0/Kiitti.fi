@@ -8,6 +8,9 @@ import json
 def compose_message(content, identifier=""):
     return {"content":content, "identifier":identifier}
 
+def create_message(content, identifier=""):
+    return {"messages": [{"content": content, "identifier": identifier}]}
+
 def exclude_old_versions(message_list):
     # Sort all messages by version
     message_list.sort(key=lambda q: -q.version)
@@ -35,13 +38,14 @@ def get_question(time):
         data.append(question.serialize())
     return data
 
-def get_message_by_id(model, msgid):
+def get_message_by_id(model, msgid, organization):
     '''
     Get message by id.
 
     @params
         model, AbstractMessage: Subclass of abstractmessage class. Example: Question.
-        msgid, int: Organization id which should be returned.
+        msgid, int: Message id which should be returned.
+        organization, int: Organization id where user belongs.
     @example
         /questions/?messageId=223
     @perm
@@ -83,7 +87,7 @@ def get_message_by_id(model, msgid):
     name = "%ss" %model.__name__.lower()
     try:
         data = []
-        messagedata = model.objects.filter(message_id=msgid)
+        messagedata = model.objects.filter(message_id=msgid).filter(organization=organization)
         for message in messagedata:
             data.append(message.serialize())
         return Response({name: data}, 200)
