@@ -9,19 +9,16 @@ import json
 class UserAPI(APIView):
 
     def get(self, request):
+        '''
+        Get user objects.
+        '''
         order = request.GET.get("order")
         if order is None or order == "all":
             return self.get_all()
         elif order == "organization":
-            orgid = request.GET.get("organizationId")
-            if orgid is None:
-                return Response({"messages": "Organization id does not exist.", "identifier": "orgid"}, 400)
-            return self.get_by_organization_id(orgid)
+            return self.get_by_organization_id(request.GET.get("organizationId"))
         elif order == "userid":
-            userid = request.GET.get("userId")
-            if userid is None:
-                return Response({"messages": "User id does not exist.", "identifier": "userid"}, 400)
-            return self.get_by_id(userid)
+            return self.get_by_id(request.GET.get("userId"))
         else:
             return Response({"messages": "Invalid sorting type.", "identifier": ""}, 400)
 
@@ -87,13 +84,13 @@ class UserAPI(APIView):
                 {
                     "users":[
                         {
-                        "firstname":"Aalto",
-                        "lastname": "Aaltonen",
-                        "username": "Wingo",
-                        "created":"01.01.2014 16:33:41",
-                        "email":"aalto@aalto.fi",
-                        "password": "hashedpassword",
-                        .....
+                            "username": "admin",
+                            "firstname": "Admin",
+                            "lastname": "Adminen",
+                            "email": "admin@admin.org",
+                            "reputation": 0,
+                            "userId": 1,
+                            "created": "2014-01-25T18:28:28.520Z"
                         }
                     ]
                 }
@@ -108,8 +105,15 @@ class UserAPI(APIView):
                     "messages":[{"content":"An example error message.","identifier":"example"}]
                 }
         '''
+        if userid is None:
+            return Response({"messages": "User id does not exist.", "identifier": "userid"}, 400)
         try:
-            return Response({"users": User.objects.get(user_id=userid).serialize()}, 200)
+            userid = int(userid)
+            if userid < 0:
+                raise ValueError()
+            return Response({"users": User.objects.get(user_id=usersid).serialize()}, 200)
+        except ValueError:
+            return Response({"messages":[{"content":"User id is not positive integer.","identifier":"userid"}]}, 400)
         except:
             return Response({"messages":[{"content":"No user with given id.","identifier":"userid"}]}, 204)
 
@@ -118,7 +122,7 @@ class UserAPI(APIView):
         Get users related to given organization.
 
         @param
-            orgid: Organization id.
+            orgid, string: Organization id in string format.
         @example
             /users/?organizationId=123
         @return
@@ -149,6 +153,8 @@ class UserAPI(APIView):
                 }
 
         '''
+        if orgid is None:
+            return Response({"messages": "Organization id does not exist.", "identifier": "orgid"}, 400)
         try:
             orgid = int(orgid)
             if orgid < 0:

@@ -14,15 +14,7 @@ class OrganizationAPI(APIView):
         '''
         order = request.GET.get("order")
         if order is None or order == "id":
-            try:
-                orgId = request.GET.get("organizationId")
-                if orgId is None:
-                    return Response({"messages":[{"content":"No organization id provided.","identifier":"organizationId"}]}, 400)
-                if orgId < 0:
-                    raise ValueError()
-                return self.get_by_id(int(orgId))
-            except ValueError:
-                return Response({"messages":[{"content":"Organization id is not positive integer.","identifier":"organizationId"}]}, 400)
+            return self.get_by_id(request.GET.get("organizationId"))
         elif order == "all":
             return self.get_all()
 
@@ -50,7 +42,7 @@ class OrganizationAPI(APIView):
         Get Organization by id.
 
         @params
-            orgid, int: Organization id which should be returned.
+            orgid, string: Organization id which should be returned.
         @example
             /organization/?organizationId=223
         @perm
@@ -65,8 +57,8 @@ class OrganizationAPI(APIView):
                         {
                         "name":"Aalto",
                         "organizationId":"1",
-                        "created":"01.01.2014 16:33:41",
-                        "modified":"15.01.2014 08:10:22",
+                        "created":"2014-01-25T18:28:28.520Z",
+                        "modified":"2014-01-25T18:28:28.520Z",
                         "address":"Aallonkuja 4 A 13"
                         }
                     ]
@@ -78,7 +70,14 @@ class OrganizationAPI(APIView):
                 }
         '''
         try:
+            if orgId is None:
+                return Response({"messages":[{"content":"No organization id provided.","identifier":"organizationId"}]}, 400)
+            orgId = int(orgId)
+            if orgId < 0:
+                raise ValueError()
             return Response({"organizations": Organization.objects.get(organization_id=orgid).serialize()}, 200)
+        except ValueError:
+            return Response({"messages":[{"content":"Organization id is not positive integer.","identifier":"organizationId"}]}, 400)
         except:
             return Response({"messages":[{"content":"No organization with given id.","identifier":"orgid"}]}, 204)
 

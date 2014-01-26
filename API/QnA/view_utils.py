@@ -40,7 +40,7 @@ def get_message_by_id(model, msgid):
     Get message by id.
 
     @params
-        model: Subclass of abstractmessage class as string. Example: Question.
+        model, AbstractMessage: Subclass of abstractmessage class. Example: Question.
         msgid, int: Organization id which should be returned.
     @example
         /questions/?messageId=223
@@ -74,8 +74,10 @@ def get_message_by_id(model, msgid):
                 "messages":[{"content":"An example error message.","identifier":"example"}]
             }
     '''
-    if not isinstance(msgid, int):
-        return Response({"messages":[{"content":"Message id must be integer.","identifier":"msgid"}]}, 400)
+    if model is None:
+        return Response({"messages": "No model type provided.", "identifier": "model"}, 400)
+    if not isinstance(msgid, int) or msgid < 0:
+        return Response({"messages":[{"content":"Message id must be positive integer.","identifier":"msgid"}]}, 400)
     #if not isinstance(model, AbstractMessage):
     #   return Response({"messages":[{"content":"Model must be class that subclasses abstractmessage.","identifier":"model"}]}, 400)
     name = "%ss" %model.__name__.lower()
