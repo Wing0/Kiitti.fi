@@ -9,14 +9,15 @@ import json
 class CommentAPI(APIView):
 
     def post(self, request):
+        '''
+        Example in get_all()-method.
+        '''
         data = json.loads(request.body)
         messages = {}
-        try:
-            abs_data = post_abstract_message(Comment(), data)
-        except Exception, e:
-            return Response({"messages": {"type": "alert", "content": str(e), "identifier": ""}}, 200)
-
+        abs_data = post_abstract_message(Comment(), data)
         parent_id = data["parentId"]
+        abs_data.organization = request.user.organization
+        abs_data.user = request.user
         abs_data.parent_id = parent_id
         abs_data.save()
         return Response(200)
@@ -24,8 +25,13 @@ class CommentAPI(APIView):
     def get(self, request):
         '''
         Get comments.
+        @returns
+            403: If user is not logged in.
+            400: If order has invalid value.
         '''
         order = request.GET.get("order")
+        if not request.user.is_authenticated():
+            return Response(create_message("You must be logged in to request comments."), 403)
         if order is None:
             return self.get_all(request.user.organization.organization_id)
         if order == "parent":
@@ -52,16 +58,8 @@ class CommentAPI(APIView):
                         "content": "I am very important content of random comment.",
                         "parentId": 1,
                         "isQuestion": "true",
-                        "version": 0,'
-                        "user":{
-                            "username": "admin",
-                            "firstname": "Admin",
-                            "lastname": "Adminen",
-                            "email": "admin@admin.org",
-                            "reputation": 0,
-                            "userId": 1,
-                            "created": "2014-01-25T18:28:28.520Z"
-                        }
+                        "version": 0,
+                        "userId": 2
                     }
                 ]
             }
@@ -73,11 +71,13 @@ class CommentAPI(APIView):
                 data.append(comment.serialize())
             return Response({"comments": data}, 200)
         except:
-            return Response({"messages": "No comments related to this organization", "identifier": "organization_id"}, 400);
+            return Response(create_message("No comments related to this organization", "organization_id"), 400);
 
     def get_by_id(self, comment):
         '''
         Get Comment by id.
+
+        For more info check get_message_by_id() in view_utils.
 
         @params
             comment, string: Message id of comments to retrieve.
