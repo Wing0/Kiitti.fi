@@ -20,7 +20,7 @@ class UserAPI(APIView):
         elif order == "userid":
             return self.get_by_id(request.GET.get("userId"))
         else:
-            return Response({"messages": "Invalid sorting type.", "identifier": ""}, 400)
+            return Response(create_message("Invalid sorting type.", "order"), 400)
 
     #VALIDATE
     def post(self, request):

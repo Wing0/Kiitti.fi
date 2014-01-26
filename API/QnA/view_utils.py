@@ -78,21 +78,24 @@ def get_message_by_id(model, msgid, organization):
                 "messages":[{"content":"An example error message.","identifier":"example"}]
             }
     '''
+    messages = []
     if model is None:
-        return Response({"messages": "No model type provided.", "identifier": "model"}, 400)
+        messages.append(compose_message("No model type provided.", "model"))
     if not isinstance(msgid, int) or msgid < 0:
-        return Response({"messages":[{"content":"Message id must be positive integer.","identifier":"msgid"}]}, 400)
+        messages.append(compose_message("Message id must be positive integer.", "msgid"))
     #if not isinstance(model, AbstractMessage):
     #   return Response({"messages":[{"content":"Model must be class that subclasses abstractmessage.","identifier":"model"}]}, 400)
-    name = "%ss" %model.__name__.lower()
-    try:
-        data = []
-        messagedata = model.objects.filter(message_id=msgid).filter(organization=organization)
-        for message in messagedata:
-            data.append(message.serialize())
-        return Response({name: data}, 200)
-    except:
-        return Response({"messages":[{"content":"No " + name + " with given id.","identifier":"msgid"}]}, 204)
+    if len(messages) == 0:
+        name = "%ss" %model.__name__.lower()
+        try:
+            data = []
+            messagedata = model.objects.filter(message_id=msgid).filter(organization=organization)
+            for message in messagedata:
+                data.append(message.serialize())
+            return Response({name: data}, 200)
+        except:
+            messages.append(compose_message("Message id not found.", "msgid"))
+    return Response({"messages": messages}, 400)
 
 
 def post_abstract_message(abstractmessage, data):

@@ -27,19 +27,20 @@ class CommentAPI(APIView):
         '''
         order = request.GET.get("order")
         if order is None:
-            return Response({"messages": "No order type provided.", "identifier": "order"}, 400)
-        elif order == "parent":
-            return get_parent_message(request.GET.get("parentId"), request.GET.get("isQuestion"), request.user.organization.organization_id)
+            return self.get_all(request.user.organization.organization_id)
+        if order == "parent":
+            return self.get_parent_message(request.GET.get("parentId"),
+                request.GET.get("isQuestion"), request.user.organization.organization_id)
         elif order == "id":
-            return get_by_id(request.GET.get("messageId"), request.user.organization.organization_id)
+            return self.get_by_id(request.GET.get("messageId"), request.user.organization.organization_id)
         else:
-           return Response({"messages": "No correct order type provided.", "identifier": "order"}, 400)
+           return Response(create_message("No order type provided.", "order"), 400)
 
     def get_all(self, organization):
         '''
         Get all comments.
         @params
-            organization, Organization: Organization object.
+            organization, int: Organization id.
 
         @return
             200: All Comments ever created.
@@ -96,31 +97,30 @@ class CommentAPI(APIView):
             /comments/?parentId=2&organizationId=1&limit=5&order=oldest
         @return
             200: Returned comments related to given parentid.
-            204: No comments with given parentid.
-            400: Parent id is not int or cannot be converted to int.
+            400: Bad request. Returned error messages.
         '''
         messages = []
         try:
-            data = []
-            parent_id = int(parent_id)
-            if not isinstance(limit, int) or limit < 0
+            if not isinstance(parent_id, int) or parent_id < 0:
+                messages.append(compose_message("Parent id must be positive integer.", "parent_id"))
+            if not isinstance(limit, int) or limit < 0:
                 messages.append(compose_message("Limit value is not positive integer.", "limit"))
             if not isinstance(organization_id, id) or organization_id < 0:
                 messages.append(compose_message("Organization id is not positive integer.", "organization_id"))
-            if not
-            if parent_id < 0:
-                raise ValueError()
-            order_by = "pub_date"
-            if order == "oldest":
-                order_by = "-pub_date"
-            comments = Comment.objects.filter(parent_id=parent_id).filter(organization=organization_id).order_by(order_by)[:limit]
-            for comment in comments:
-                data.append(comment.serialize())
-            return Response({"comments": data}, 200)
-        except ValueError:
-            return Response({"messages": [{"content": "Parent id is not positive integer.", "identifier": "parentId"}]}, 400)
+            if not isinstance(order, basestring):
+                messages.append(compose_message("Order is not string", "order"))
+            if len(messages) == 0:
+                order_by = "pub_date"
+                if order == "oldest":
+                    order_by = "-pub_date"
+                data = []
+                comments = Comment.objects.filter(parent_id=parent_id).filter(organization=organization_id).order_by(order_by)[:limit]
+                for comment in comments:
+                    data.append(comment.serialize())
+                return Response({"comments": data}, 200)
         except:
-            return Response({"messages": "No comments exist with given parentid.", "identifier": "parentId"}, 204)
+            messages.append(compose_message("Answer/Question with given parentId does not contain any comments", "parentId"))
+        return Response({"messages": messages}, 400)
 
     def get_parent_message(self, parentid, isquestion, organization):
         '''
@@ -136,17 +136,19 @@ class CommentAPI(APIView):
             isquestion, string: Boolean value, either "true" or "false".
             organization, int: Organization id.
         @return
-            400: If isquestion is none or isquestion is not string.
+            400: Bad request. Returned error messages.
 
         '''
-        if isquestion is None:
-            return Response({"messages": "No value for isQuestion provided.", "identifier": "isQuestion"}, 400)
-        if not isinstance(isquestion, basestring):
-            return Response({"messages": "Is question is not string.", "identifier": "isQuestion"}, 400)
+        messages = []
+        temp = False
         if isquestion == "true" or question == "True":
-            return get_message_by_id(Question, parentid, organization)
-        elif isquestion == "false" or question == "False":
-            return get_message_by_id(Answer, parentid, organization)
-        else:
-            return  Resonse({"messages": "Given value for isquestion is not true or false.", "identifier": "isquestion"}, 400)
+            temp = True
+        if not isinstance(history, bool):
+            messages.append(compose_message("History must be boolean value.", "history"))
+        if len(messages) == 0:
+            if temp:
+                return get_message_by_id(Question, parentid, organization)
+            else:
+                return get_message_by_id(Answer, parentid, organization)
+        return Response({"messages": messages}, 400)
 
