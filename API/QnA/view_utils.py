@@ -5,14 +5,17 @@ from rest_framework.views import APIView
 from QnA.models import *
 import json
 
+def compose_message(content, identifier=""):
+    return {"content":content, "identifier":identifier}
+
 def exclude_old_versions(message_list):
     # Sort all messages by version
-    tmp_questions.sort(key=lambda q: -q.version)
+    message_list.sort(key=lambda q: -q.version)
 
     used = []
     messages = []
     # Append first occurrence of message id to messages
-    for q in tmp_questions:
+    for q in message_list:
         if q.message_id not in used:
             messages.append(q)
             used.append(q.message_id)
@@ -94,7 +97,7 @@ def post_abstract_message(abstractmessage, data):
 
     @params
         abstractmessage, AbstractMessage: Instance of class that subclasses AbstractMessage.
-        data, JSON-dictionary: Is array that contains all json data.
+        data, dictionary: Is array that contains all data in request body.
     @return Given instance of abstractmessage populated with data in given dictionary.
     '''
 

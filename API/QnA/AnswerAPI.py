@@ -16,11 +16,13 @@ class AnswerAPI(APIView):
         This method mediates the task to correct function.
         Further information in helper method docstring
         '''
-        if request.GET.get("questionId"):
-            return self.by_question_id(request.GET.get("questionId"), request.GET.get("limit"), request.GET.get("order"))
-        elif request.GET.get("authorId"):
-            return self.by_author_id(request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
+        if request.GET.get("questionId") != None:
+            return self.by_question_id(request, request.GET.get("questionId"), request.GET.get("limit"), request.GET.get("order"))
+        elif request.GET.get("authorId") != None:
+            return self.by_author_id(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
         # ToDo: get all latest/best answers?
+        else:
+            return Response({"user":request.user.serialize(), "questionId":request.GET.get("questionId")},404)
 
 
     # ToDo: accept an answer -method
@@ -47,7 +49,11 @@ class AnswerAPI(APIView):
                 example: {
                             "messages":[{"content":"An example error message.","identifier":"example"}]
                         }
-            401: Unauthorized, the user does not have permission for the action
+            401: Unauthorized, the user has to be loggend in to perform this action
+                list of appropriate error messages
+                example: {
+                            "messages":[{"content":"An example error message.","identifier":"example"}]
+            403: Forbidden, the user does not have permission for the action
                 list of appropriate error messages
                 example: {
                             "messages":[{"content":"An example error message.","identifier":"example"}]
@@ -55,28 +61,40 @@ class AnswerAPI(APIView):
         '''
         data = json.loads(request.body)
         messages = []
-        try:
-            abs_data = post_abstract_message(Answer(), data)
-            if request.user.is_authenticated():
-                abs_data.user = request.user
-                print "yeah, is authenticated"
-            else:
-                messages.append({"content":"User must be logged in.", "identifier":"user"})
-                return Response({"messages":messages}, 401)
-        except Exception, e:
-            return Response({"messages": {"content": str(e), "identifier": ""}}, 200)
 
-        abs_data.accepted = data.get("accepted")
-        if abs_data.accepted == None:
-            abs_data.accepted = False
-        abs_data.question_id = data.get("questionId")
-        messages = abs_data.validate()
+        ans = post_abstract_message(Answer(), data)
+        if request.user.is_authenticated():
+            ans.user = request.user
+        else:
+            messages.append({"content":"User must be logged in.", "identifier":"user"})
+            return Response({"messages":messages}, 401)
+
+        ans.accepted = data.get("accepted")
+        if ans.accepted == None:
+            ans.accepted = False
+        if data.get("questionId") != None:
+            try:
+                q_id = int(data.get("questionId"))
+                ans.question_id = q_id
+                q = Question.objects.get(message_id=q_id)
+                if not q.organization == request.user.organization:
+                    messages.append(compose_message("You are not allowed to perform this action."))
+                    return Response({"messages":messages}, 403)
+            except ValueError:
+                messages.append(compose_message("Question id must be positive integer","questionId"))
+            except Exception, e:
+                messages.append(compose_message("Question was not found.","questionId"))
+                return Response({"messages":messages}, 404)
+
+        else:
+            messages.append(compose_message("Please provide question id.", "questionId"))
+        messages = ans.validate()
         if len(messages) == 0:
-            abs_data.save()
+            ans.save()
             return Response({"messages": messages}, 201)
         return Response({"messages":messages}, 400)
 
-    def by_question_id(self, question_id, limit=10, order="latest"):
+    def by_question_id(self, request, question_id, limit=10, order="latest"):
         '''
         by_question_id:
         Retrieves all answers related to given question. The order and limit of answers can be chosen.
@@ -104,7 +122,7 @@ class AnswerAPI(APIView):
                                         "accepted":false
                                         }]
                         }
-            204: No content found
+            404: No content found
                 list of appropriate error messages
                 example: {
                             "messages":[{"content":"An example error message.","identifier":"example"}]
@@ -114,7 +132,11 @@ class AnswerAPI(APIView):
                 example: {
                             "messages":[{"content":"An example error message.","identifier":"example"}]
                         }
-            401: Unauthorized, the user does not have permission for the action
+            401: Unauthorized, the user has to be logged in to perform this action
+                list of appropriate error messages
+                example: {
+                            "messages":[{"content":"An example error message.","identifier":"example"}]
+            403: Forbidden, the user does not have permission for the action
                 list of appropriate error messages
                 example: {
                             "messages":[{"content":"An example error message.","identifier":"example"}]
@@ -123,6 +145,9 @@ class AnswerAPI(APIView):
         if question_id == None:
             messages.append({"content":"A question id has to be provided.","identifier":"questionId"})
         else:
+            if not request.user.is_authenticated():
+                messages.append({"content":"User must be logged in.", "identifier":"user"})
+                return Response({"messages":messages}, 401)
             try:
                 # Parameter check and default values
                 question_id = int(question_id)
@@ -138,23 +163,24 @@ class AnswerAPI(APIView):
                 except ValueError:
                     messages.append({"content":"The limit has to be a positive integer.","identifier":"limit"})
 
+                try:
+                    q = Question.objects.get(message_id=question_id)
+                    if not q.organization == request.user.organization:
+                        messages.append(compose_message("You are not allowed to perform this action."))
+                        return Response({"messages":messages}, 403)
+                except Exception, e:
+                    messages.append({"content":"The question was not found. %s" %e,"identifier":"questionId"})
+                    return Response({"messages":messages}, 404)
                 if order == None:
                     order = "latest"
                 if not order in ["latest","votes"]:
                     messages.append({"content":"The order parameter can be only 'latest' or 'votes'","identifier":"order"})
 
                 if len(messages) == 0:
-                    '''
-                    try:
-                        q = Question.objects.get(message_id=question_id)
-                    except:
-                        messages.append({"content":"The question was not found.","identifier":"questionId"})
-                        return Response({"messages":messages}, 204)
-                    '''
                     answers = list(Answer.objects.filter(question_id=question_id))
                     if len(answers) == 0:
                         messages.append({"content":"The question does not have answers.","identifier":""})
-                        return Response({"messages":messages}, 204)
+                        return Response({"messages":messages}, 404)
 
                     answers = exclude_old_versions(answers)
                     if order == "latest":
@@ -166,7 +192,7 @@ class AnswerAPI(APIView):
                 messages.append({"content":"The question id has to be a positive integer.","identifier":"questionId"})
         return Response({"messages":messages}, 400)
 
-    def by_author(self, authorId, limit=10, order="latest"):
+    def by_author(self, request, authorId, limit=10, order="latest"):
         '''
         Retrieves all answers written by given author. The order and limit of answers can be chosen.
 
@@ -203,7 +229,11 @@ class AnswerAPI(APIView):
                 example: {
                             "messages":[{"content":"An example error message.","identifier":"example"}]
                         }
-            401: Unauthorized, the user does not have permission for the action
+            401: Unauthorized, the user has to be logged in to perform this action
+                list of appropriate error messages
+                example: {
+                            "messages":[{"content":"An example error message.","identifier":"example"}]
+            403: Forbidden, the user does not have permission for the action
                 list of appropriate error messages
                 example: {
                             "messages":[{"content":"An example error message.","identifier":"example"}]
@@ -213,6 +243,9 @@ class AnswerAPI(APIView):
             messages.append({"content":"A question id has to be provided.","identifier":"questionId"})
         else:
             try:
+                if not request.user.is_authenticated():
+                    messages.append({"content":"User must be logged in.", "identifier":"user"})
+                    return Response({"messages":messages}, 401)
                 # Parameter check and default values
                 author_id = int(author_id)
                 if author_id < 0:
@@ -234,12 +267,15 @@ class AnswerAPI(APIView):
 
                 if len(messages) == 0:
                     try:
-                        usr = User.objects.get(user_id=author_id)
+                        author = User.objects.get(user_id=author_id)
+                        if not author.organization == request.user.organization:
+                            messages.append(compose_message("You are not allowed to perform this action."))
+                            return Response({"messages":messages}, 403)
                     except:
                         messages.append({"content":"The author was not found.","identifier":"questionId"})
                         return Response({"messages":messages}, 404)
 
-                    answers = list(Answer.objects.filter(user=usr))
+                    answers = list(Answer.objects.filter(user=author))
                     if len(answers) == 0:
                         messages.append({"content":"The user has not written any answers.","identifier":""})
                         return Response({"messages":messages}, 404)

@@ -1,4 +1,8 @@
 *.pyc
 *.DS_Store
 *.sass-cache
-Grunt
+FrontEnd/Grunt
+FrontEnd/node_modules/
+FrontEnd/.tmp/
+FrontEnd/src/bower_components/
+FrontEnd/dist

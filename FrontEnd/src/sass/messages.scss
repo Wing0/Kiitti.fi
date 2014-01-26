@@ -1,0 +1,239 @@
+@import "compass/css3";
+@import "compass/utilities/general/clearfix";
+@import "_base";
+
+$vote-width: 100px;
+$thumb-size: 40px;
+
+.questions {
+  .question {
+    &:not(:last-child) {
+      margin-bottom: 30px;
+    }
+  }
+}
+
+.answers {
+  margin-top: 20px;
+  h3 {
+    font-size: 120%;
+    font-weight: bold;
+    padding-bottom: 7px;
+    margin: 0;
+    border-bottom: 1px solid $color-separator;
+  }
+
+  .answer {
+    border-bottom: 1px solid $color-separator;
+  }
+}
+
+.votes {
+  position: absolute;
+  left: 0;
+  top: 30px;
+
+  .vote {
+    width: $vote-width/2 - 2;
+
+    text-align: center;
+
+    vertical-align: middle;
+    @include inline-block;
+
+    .amount {
+      font-size: 100%;
+      font-weight: 700;
+      color: lighten($color-text, 30);
+      margin-top: 6px;
+    }
+  }
+
+  .thumb {
+    padding: 7px;
+    width: $thumb-size - 14;
+    height: $thumb-size - 14;
+    @include border-radius($thumb-size/2);
+    border-width: 2px;
+    border-style: solid;
+  }
+  .down .thumb {
+    border-color: lighten($color-negative, 17);
+    background-color: lighten($color-negative, 25);
+  }
+  .up .thumb {
+    border-color: lighten($color-positive, 20);
+    background-color: lighten($color-positive, 30);
+  }
+}
+
+.message-block {
+
+  @include box-sizing(border-box);
+  min-height: 130px;
+
+  padding: 30px 0;
+  &.question { margin-top: 0; padding-top: 0; }
+
+  position: relative;
+  padding-left: $vote-width + 20px;
+
+  .topic {
+    font-size: 180%;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  header, .question-header {
+    h1, h2, h3, .topic {
+      margin-bottom: 5px;
+    }
+  }
+
+  .comments {
+    background-color: darken($color-background, 3);
+
+    margin-top: 20px;
+    padding: 15px;
+
+    font-size: 90%;
+
+    h4 {
+      font-size: 120%;
+      font-weight: 700;
+      margin-top: 0;
+      padding-top: 0;
+    }
+
+    .comment {
+      padding-top: 10px;
+      &:not(:last-child) {
+        padding-bottom: 10px;
+        border-bottom: 1px dotted $color-separator;
+      }
+
+      p {
+        display: inline;
+      }
+
+      .username {
+        margin-left: 5px;
+        &:before {
+          content: "– "
+        }
+      }
+      .date {
+        margin-left: 5px;
+        color: $color-text-muted;
+      }
+    }
+  }
+
+  &.answer {
+    @include transition(opacity 0.5s ease-in-out);
+
+    &.ng-enter {
+      @include opacity(0);
+    }
+    &.ng-leave {
+      @include opacity(1);
+    }
+  }
+
+  footer {
+    margin-top: 20px;
+    padding: 10px 0;
+    border-top: 1px solid rgb(240,240,240);
+    border-bottom: 1px solid rgb(240,240,240);
+    text-align: right;
+    font-size: 80%;
+    color: $color-text-muted;
+
+    a, a:visited {
+      @include transition(color 0.1s ease-in-out);
+      color: $color-text-muted;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    a:hover {
+      color: darken($color-text-muted, 25);
+    }
+    .buttons {
+      @include inline-block;
+      float: left;
+    }
+    .asked {
+      @include inline-block;
+      float: right;
+    }
+
+    li {
+      @include inline-block;
+      &:not(:first-child) { margin-left: 10px; }
+    }
+
+    @include clearfix;
+  }
+}
+
+.tags {
+  margin-top: 3px;
+  margin-bottom: 3px;
+}
+
+.tags li, .tag {
+  @include transition(color 0.1s ease-in-out);
+  @include transition(border 0.1s ease-in-out);
+  @include transition(background-color 0.1s ease-in-out);
+
+  color: darken($color-tag, 50);
+  background-color: $color-tag;
+  border: 1px solid darken($color-tag, 10);
+
+  font-size: 75%;
+  font-weight: 700;
+  padding: 4px 7px;
+  margin: 3px 3px;
+  display: inline-block;
+  @include border-radius(5px);
+  &:before { content: "#" };
+
+  &:first-child {
+    margin-left: 0;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: darken($color-tag, 7);
+    color: darken($color-tag, 60);
+    border: 1px solid darken($color-tag, 20);
+  }
+}
+
+form {
+  margin: 30px 0;
+  width: 600px;
+  input, textarea, select, button {
+    @include box-sizing(border-box);
+  }
+  input, textarea {
+    width: 100%;
+    padding: 7px;
+    border: 1px solid darken($color-background, 20);
+    margin-bottom: 10px;
+  }
+
+  #message {
+    height: 150px;
+  }
+
+  button {
+    background-color: lighten($color-background, 10);
+    color: $color-text;
+    font-weight: bold;
+    font-size: 75%;
+    padding: 5px 15px;
+    text-transform: uppercase;
+    border: 1px solid darken($color-background, 20);
+  }
+}

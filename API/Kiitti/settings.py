@@ -26,6 +26,13 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}
+
 # Application definition
 
 INSTALLED_APPS = (
@@ -52,7 +59,7 @@ MIDDLEWARE_CLASSES = [
 ]
 
 #if not DEBUG:
-#    MIDDLEWARE_CLASSES.append('django.middleware.csrf.CsrfViewMiddleware')
+MIDDLEWARE_CLASSES.append('django.middleware.csrf.CsrfViewMiddleware')
 
 ROOT_URLCONF = 'Kiitti.urls'
 

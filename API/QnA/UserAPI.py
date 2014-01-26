@@ -24,6 +24,17 @@ class UserAPI(APIView):
 
     #VALIDATE
     def post(self, request):
+        '''
+        @example:
+            {
+              "username":"test",
+              "password":"test",
+              "organizationId":1,
+              "email":"test@test.test",
+              "firstName":"test",
+              "lastName":"test"
+            }
+        '''
         data = json.loads(request.body)
         if ("username" in data
             and "email" in data

@@ -14,6 +14,9 @@ class Organization(models.Model):
     address = models.TextField()
     #image = models.ImageField()
 
+    def __unicode__(self):
+        return self.name
+
     def get_image():
         return None
 
@@ -67,7 +70,7 @@ class User(AbstractUser):
 
     user_id = models.PositiveIntegerField(unique=True)
     reputation = models.IntegerField(default=0)
-    organization = models.ForeignKey(Organization, to_field='organization_id', blank=True, null=True)
+    organization = models.ForeignKey(Organization, to_field='organization_id')
 
     def serialize(self):
         jsondict = {
@@ -178,6 +181,7 @@ class AbstractMessage(models.Model):
     content = models.TextField()
     version = models.PositiveIntegerField()
     user = models.ForeignKey(User, to_field="user_id")
+    organization = models.ForeignKey(Organization, to_field="organization_id")
     created = models.DateTimeField(auto_now_add=True)
     #modified = models.DateTimeField(auto_now=True)
     message_id = models.PositiveIntegerField()
