@@ -7,10 +7,6 @@ import json
 
 class LogoutAPI(APIView):
 
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
-    permission_classes = (AllowAny,) #...
-
-    #logout
     def post(self, request):
         logout(request)
         return Response({}, 200)
