@@ -1,7 +1,9 @@
 var app = angular.module('app', ['ngResource', 'ngAnimate', 'ngSanitize',
-                                 'ktStates', 'ktControllers']);
+                                 'ktStates', 'ktAuth', 'ktControllers']);
 
 /* CONFIG */
+
+app.constant("APIUrl", 'http://0.0.0.0:7000/api/v1');
 
 app.config(function($locationProvider, $httpProvider) {
 
@@ -18,24 +20,6 @@ app.config(function($locationProvider, $httpProvider) {
 app.factory('QuestionFactory', function($resource) {
   return $resource('/testdata/single_question.json', {},
     { 'get': {method: 'GET', isArray: false} });
-});
-
-app.controller('SubmitAnswerController', function($scope, QuestionFactory) {
-
-  var answertest = {
-    "id": 2,
-    "content": "Uuskommenti asglkjgsdlakjgs",
-    "user_id": 125,
-    "username": "Zorro",
-    "votes_up": 12,
-    "votes_down": 0,
-    "date": "2014-01-02T14:00:00.000Z"
-  }
-
-  $scope.send = function() {
-    console.log("User: ", $scope.user.name, "Message: ", $scope.message);
-    $scope.question.answers.push(answertest);
-  };
 });
 
 /* DIRECTIVES */
