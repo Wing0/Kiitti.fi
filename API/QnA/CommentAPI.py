@@ -103,11 +103,10 @@ class CommentAPI(APIView):
         try:
             data = []
             parent_id = int(parent_id)
-            if not isinstance(limit, int) or limit < 0
+            if not isinstance(limit, int) or limit < 0:
                 messages.append(compose_message("Limit value is not positive integer.", "limit"))
             if not isinstance(organization_id, id) or organization_id < 0:
                 messages.append(compose_message("Organization id is not positive integer.", "organization_id"))
-            if not
             if parent_id < 0:
                 raise ValueError()
             order_by = "pub_date"
