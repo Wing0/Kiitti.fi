@@ -5,25 +5,14 @@ from rest_framework.views import APIView
 from QnA.models import *
 import json
 
-def exclude_old_versions(message_list):
-    # Sort all messages by version
-    message_list.sort(key=lambda q: -q.version)
-
-    used = []
-    messages = []
-    # Append first occurrence of message id to messages
-    for q in message_list:
-        if q.message_id not in used:
-            messages.append(q)
-            used.append(q.message_id)
-    return messages
 
 def order_messages(msg_list, order):
     if not order in ["latest","votes"]:
         raise ValueError("Invalid order value")
     if order == "latest":
-        msg_list.sort(key=lambda x: x.created)
+        msg_list.sort(key=lambda x: x.created, reverse=True)
     elif order == "votes":
+        #questions.sort(key = lambda a: sum([vote.rate for vote in Vote.objects.filter(message_id=a.message_id)]))# - sum([vote.rate for vote in Vote.objects.filter(message_id=b.message_id)]))
         pass
     return msg_list
 
