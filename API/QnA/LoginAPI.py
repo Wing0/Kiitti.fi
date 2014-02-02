@@ -16,7 +16,6 @@ class LoginAPI(APIView):
             return Response({"messages":[{"content":"User was already logged in.","identifier":""}]},200)
 
         data = json.loads(request.body)
-        print data
         if data.get("username") and data.get("password"):
             username = data.get('username')
             password = data.get('password')
