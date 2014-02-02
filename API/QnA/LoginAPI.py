@@ -34,8 +34,8 @@ class LoginAPI(APIView):
     # GetCsrfToken
     @method_decorator(ensure_csrf_cookie)
     def get(self, request):
-        if user.is_authenticated()
+        if request.user.is_authenticated():
             return Response({"user":request.user.serialize()},200)
         else:
-            return Response(create_message("User is not logged in.")}, 401)
+            return Response(create_message("User is not logged in."), 401)
 
