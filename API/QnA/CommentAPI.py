@@ -4,39 +4,118 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from QnA.models import *
 from QnA.view_utils import *
+from QnA.string_utils import *
 import json
 
 class CommentAPI(APIView):
 
     def post(self, request):
         '''
-        Example in get_all()-method.
+        @params
+            isQuestion: If true comment is question comment.
+            parentId: Message id of parent message.
+            content: Content of this comment.
+        @example
+            NOTE: Provide messageId only if you liked to update new version.
+            {
+                "isQuestion": "false",
+                "content": "I am important comment!11!!1",
+                "messageId": 2,
+                "parentId": 1
+            }
+        @perm
+            No idea... Currently no perms.
+        @return
+            200: If sent data is valid. No messages returned.
+            400: If sent data is not valid.
+            401: If user is not logged in.
         '''
+        if not request.user.is_authenticated():
+            return Response(create_message("You must log in to post comments."), 401)
         data = json.loads(request.body)
-        messages = {}
+        messages = []
         abs_data = post_abstract_message(Comment(), data)
         parent_id = data["parentId"]
-        abs_data.organization = request.user.organization
-        abs_data.user = request.user
-        abs_data.parent_id = parent_id
-        abs_data.save()
-        return Response(200)
+        if parent_id is None:
+            raise Exception()
+        try:
+            parent_id = int(parent_id)
+        except Exception:
+            messages.append(compose_message("Parent id must be positive integer.", "parentId"))
+        question = data["isQuestion"]
+        if question == "True" or question == "true":
+            question = True
+        elif question == "False" or question == "false":
+            question = False
+        else:
+            messages.append(compose_message("Is question must be boolean.", "isQuestion"))
+        if len(messages) == 0:
+            abs_data.is_question_comment = question
+            abs_data.organization = request.user.organization
+            abs_data.user = request.user
+            abs_data.parent_id = parent_id
+            msg = abs_data.validate()
+            if len(msg) == 0:
+                abs_data.save()
+                return Response(200)
+            else:
+                return Response({"messages": msg}, 400)
+        return Response({"messages": messages}, 400)
 
     def get(self, request):
         '''
         Get comments.
+
+        @params
+            isQuestion: Determines whether comment belongs to question.
+            parentId: Id of parent message.
+            messageId: Id of comment to get.
+            order:
+                parent: Use for testing
+                id: Get comment with messageId
+            sort:
+                latest: Newest comments are first.
+                oldest: Oldest comments are first.
+
+        @example
+        /comments?order=temp&isQuestion=false&parentId=2&sort=latest
+
         @returns
-            403: If user is not logged in.
+            200: If content was found.
+            example:
+                {
+                    "comments":[
+                        {
+                            "messageId": 3,
+                            "content": "I am very important content of random comment.",
+                            "parentId": 1,
+                            "isQuestion": "true",
+                            "version": 0,
+                            "userId": 2
+                        }
+                    ]
+                }
+
             400: If order has invalid value.
+            401: If user is not logged in.
+            403: If user has no permission to perfrom asked action.
+            404: If comments was not found with given id.
         '''
         order = request.GET.get("order")
         if not request.user.is_authenticated():
-            return Response(create_message("You must be logged in to request comments."), 403)
+            return Response(create_message("You must be logged in to request comments."), 401)
         if order is None:
             return self.get_all(request.user.organization.organization_id)
-        if order == "parent":
-            return self.get_parent_message(request.GET.get("parentId"),
-                request.GET.get("isQuestion"), request.user.organization.organization_id)
+        elif order == "parent":
+            parent = string_to_int(request.GET.get("parentId"))
+            is_question = string_to_boolean(request.GET.get("isQuestion"))
+            sort = string_to_int(request.GET.get("sort"))
+            limit = string_to_int(request.GET.get("limit"))
+            if limit is None:
+                limit = 3
+            if sort is None:
+                sort = "latest"
+            return self.get_by_parent(parent, is_question, request.user.organization.organization_id, limit, sort)
         elif order == "id":
             return self.get_by_id(request.GET.get("messageId"), request.user.organization.organization_id)
         else:
@@ -73,7 +152,7 @@ class CommentAPI(APIView):
         except:
             return Response(create_message("No comments related to this organization", "organization_id"), 400);
 
-    def get_by_id(self, comment):
+    def get_by_id(self, comment, organization):
         '''
         Get Comment by id.
 
@@ -82,14 +161,16 @@ class CommentAPI(APIView):
         @params
             comment, string: Message id of comments to retrieve.
         '''
-        return get_message_by_id(Comment, comment)
+        return get_message_by_id(Comment, comment, organization)
 
-    def get_related_to_parent(self, parent_id, organization_id, limit=3, order="latest"):
+
+    def get_by_parent(self, parent_id, is_question, organization_id, limit=3, order="latest"):
         '''
-        Get all comments related to given parentid (questions/answeers messageId).
+        Get all comments related to given parentid (question/answer messageId).
 
         @params
-            parentid, string: Parent id.
+            parent_id, int: Parent id.
+            is_question, bool: If true parent message is question.
             organization, int: Organization id.
             limit, int: Limits the amount of results returned.
             order, string: Order type.
@@ -98,54 +179,40 @@ class CommentAPI(APIView):
         @return
             200: Returned comments related to given parentid.
             400: Bad request. Returned error messages.
+            403: If user has no permission.
+            404: If content was not found.
         '''
         messages = []
         if not isinstance(parent_id, int) or parent_id < 0:
             messages.append(compose_message("Parent id must be positive integer.", "parent_id"))
         if not isinstance(limit, int) or limit < 0:
             messages.append(compose_message("Limit value is not positive integer.", "limit"))
-        if not isinstance(organization_id, id) or organization_id < 0:
+        if not isinstance(organization_id, int) or organization_id < 0:
             messages.append(compose_message("Organization id is not positive integer.", "organization_id"))
         if not isinstance(order, basestring):
             messages.append(compose_message("Order is not string", "order"))
+        if not isinstance(is_question, bool):
+            messages.append(compose_message("Is question value is not boolean.", "is_question"))
         if len(messages) == 0:
-            order_by = "pub_date"
+            order_by = "-created"
             if order == "oldest":
-                order_by = "-pub_date"
-            data = []
-            comments = Comment.objects.filter(parent_id=parent_id).filter(organization=organization_id).order_by(order_by)[:limit]
-            for comment in comments:
-                data.append(comment.serialize())
-            return Response({"comments": data}, 200)
+                order_by = "created"
+            try:
+                try:
+                    message = None
+                    if is_question:
+                        message = Question.objects.get(message_id=parent_id)
+                    else:
+                        message = Answer.objects.get(message_id=parent_id)
+                    if organization_id != message.organization.organization_id:
+                        return Response(create_message("You are not allowed to perform this action."), 403)
+                except Exception:
+                    return Response(create_message("No messages found with given parent id.", "parent_id"), 404)
+                data = []
+                comments = Comment.objects.filter(parent_id=parent_id).order_by(order_by)[:limit]
+                for comment in comments:
+                    data.append(comment.serialize())
+                return Response({"comments": data}, 200)
+            except Exception, e:
+                return Response({"comments": e.message}, 200)
         return Response({"messages": messages}, 400)
-
-    def get_parent_message(self, parentid, isquestion, organization):
-        '''
-        Get parent of comment which has messageId equal to parentid.
-        isquestion defines whether parent is question or not.
-
-        For more info check get_message_by_id() in view_utils.
-
-        @example
-            /comments/?parentId=34&isQuestion=true
-        @params
-            parentid, string: Parent id for this comment.
-            isquestion, string: Boolean value, either "true" or "false".
-            organization, int: Organization id.
-        @return
-            400: Bad request. Returned error messages.
-
-        '''
-        messages = []
-        temp = False
-        if isquestion == "true" or question == "True":
-            temp = True
-        if not isinstance(history, bool):
-            messages.append(compose_message("History must be boolean value.", "history"))
-        if len(messages) == 0:
-            if temp:
-                return get_message_by_id(Question, parentid, organization)
-            else:
-                return get_message_by_id(Answer, parentid, organization)
-        return Response({"messages": messages}, 400)
-

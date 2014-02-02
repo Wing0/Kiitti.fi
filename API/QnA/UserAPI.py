@@ -18,9 +18,23 @@ class UserAPI(APIView):
         if order is None or order == "all":
             return self.get_all()
         elif order == "organization":
-            return self.get_by_organization_id(request.GET.get("organizationId"))
+            try:
+                orgid = request.GET.get("organizationId")
+                if orgid is None:
+                    raise ValueError()
+                orgid = int(orgid)
+                return self.get_by_organization_id(orgid)
+            except ValueError:
+                return Response(create_message("Organization id is not positive integer.", "orgid"), 400)
         elif order == "userid":
-            return self.get_by_id(request.GET.get("userId"))
+            try:
+                userid = request.GET.get("userId")
+                if userid is None:
+                    raise ValueError()
+                userid = int(userid)
+                return self.get_by_id(userid)
+            except ValueError:
+                return Response(create_message("User id is not positive integer.", "userId"), 400)
         else:
             return Response(create_message("Invalid sorting type.", "order"), 400)
 
