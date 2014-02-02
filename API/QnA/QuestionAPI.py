@@ -12,20 +12,40 @@ class QuestionAPI(APIView):
     def post(self, request):
         '''
         This method saves new question into database
-        @params
-            user_id, positive integer:
-
+        @params (this means body parameters, not autoinserted by django)
+            version, positive integer: version number of the question.
+            title, string: title of the Question
+            content, string: content text of the Question
+            messageId, positive integer: message id of the Question. For client: set this only if you are updating old message. save() method
+            will give new messageId for new messages!
+        @example:
+            {
+                "version":1,
+                "title": "Why does the sun go down every night?",
+                "content":"Why does the sun go down every night? I don't understand!",
+                "messageId":3,
+                "tags": ["tagFirst", "tagSecond"]
+            }
+        @perm
+            member: any member can post an question
+        @return
+            201: Created, the question was succesfully created
+            400: Bad request, parameters were missing or wrong type
+                list of appropriate error messages
+                example: {
+                            "messages":[{"content":"An example error message.","identifier":"example"}]
+                        }
+            401: Unauthorized, the user has to be loggend in to perform this action
+                list of appropriate error messages
+                example: {
+                            "messages":[{"content":"An example error message.","identifier":"example"}]
         '''
-
 
         data = json.loads(request.body)
 
         messages = []
 
-        if request.user.is_authenticated():
-            data["userId"] = request.user.user_id
-
-        else:
+        if not request.user.is_authenticated():
             messages.append(compose_message("User must be logged in.", "user"))
             return Response({"messages":messages}, 401)
 
@@ -35,30 +55,37 @@ class QuestionAPI(APIView):
         abs_data.title = title
         abs_data.organization = request.user.organization
         abs_data.user = request.user
-        valid, messages = abs_data.validate()
-        if valid:
-            if abs_data.message_id:
-                abs_data.save_changes()
-            else:
-                abs_data.save()
+        messages = abs_data.validate()
+        '''
+        # save tags functionality. This should be part of modify question post() command
+        # Similar functionality should be implemented when question is created
+        if len(messages) == 0:
             # Save tags
             taglist = data.get("tags")
             if taglist and isinstance(taglist,list):
                 existing_tags = [tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=abs_data.message_id)]
+                tagnames = []
+                for tag in list(set(taglist)): #List(set()) thing removes duplicates
+                    if tag not in existing_tags:
+                        tagnames.append(tag)
+                for tagname in tagnames:
+                    #try:
+                    tag = Tag.objects.get(name=tagname)
+                    entry = TagEntry(tag=tag, message_id=abs_data.message_id, creator=abs_data.user)
+                    entry.save()
+                    #except:
+                    #    messages.append(compose_message("Tag %s was not found." % tagname, "tags"))
+                    '''
+        if len(messages) == 0:
+            if abs_data.message_id:
+                abs_data.save_changes()
+            else:
+                abs_data.save()
+            return Response({"messages": messages}, 201)
 
-                for tagname in [tag for tag in list(set(taglist)) if tag not in existing_tags]:
-                    try:
-                        tag = Tag.objects.get(name=tagname)
-                        entry = TagEntry(tag=tag, message_id=abs_data.message_id, creator=abs_data.user)
-                        entry.save()
-                    except:
-                        messages.append(compose_message("Tag %s was not found." % tagname, "tags"))
-                        # Create tag?
-
-        return Response({"messages":messages},200)
+        return Response({"messages":messages},400)
 
     def get(self, request, criterion="latest"):
-
         '''
         This method mediates the task to correct function.
         Further information in helper method docstring
