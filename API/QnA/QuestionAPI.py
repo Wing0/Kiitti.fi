@@ -56,25 +56,32 @@ class QuestionAPI(APIView):
         abs_data.organization = request.user.organization
         abs_data.user = request.user
         messages = abs_data.validate()
+        '''
+        # save tags functionality. This should be part of modify question post() command
+        # Similar functionality should be implemented when question is created
         if len(messages) == 0:
             # Save tags
             taglist = data.get("tags")
             if taglist and isinstance(taglist,list):
                 existing_tags = [tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=abs_data.message_id)]
-
-                for tagname in [tag for tag in list(set(taglist)) if tag not in existing_tags]:
-                    try:
-                        tag = Tag.objects.get(name=tagname)
-                        entry = TagEntry(tag=tag, message_id=abs_data.message_id, creator=abs_data.user)
-                        entry.save()
-                    except:
-                        messages.append(compose_message("Tag %s was not found." % tagname, "tags"))
-            if len(messages) == 0:
-                if abs_data.message_id:
-                    abs_data.save_changes()
-                else:
-                    abs_data.save()
-                return Response({"messages": messages}, 201)
+                tagnames = []
+                for tag in list(set(taglist)): #List(set()) thing removes duplicates
+                    if tag not in existing_tags:
+                        tagnames.append(tag)
+                for tagname in tagnames:
+                    #try:
+                    tag = Tag.objects.get(name=tagname)
+                    entry = TagEntry(tag=tag, message_id=abs_data.message_id, creator=abs_data.user)
+                    entry.save()
+                    #except:
+                    #    messages.append(compose_message("Tag %s was not found." % tagname, "tags"))
+                    '''
+        if len(messages) == 0:
+            if abs_data.message_id:
+                abs_data.save_changes()
+            else:
+                abs_data.save()
+            return Response({"messages": messages}, 201)
 
         return Response({"messages":messages},400)
 
