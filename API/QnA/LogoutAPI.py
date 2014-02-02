@@ -15,3 +15,7 @@ class LogoutAPI(APIView):
     def post(self, request):
         logout(request)
         return Response({}, 200)
+
+    def get(self, request):
+        logout(request)
+        return Response({}, 200)
