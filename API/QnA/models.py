@@ -275,6 +275,7 @@ class Question(AbstractMessage):
         jsondict = super(Question, self).serialize()
         jsondict['title'] = self.title
         jsondict['tags'] = [tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=self.message_id)]
+        jsondict['meta'] = {"number_of_answers":len(exclude_old_versions(list(Answer.objects.filter(question_id=self.message_id))))} #ToDo
         return jsondict
 
     def validate(self):
