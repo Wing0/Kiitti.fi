@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from QnA.utils import *
 import re
 
 def format_date(date):
@@ -53,16 +54,16 @@ class Organization(models.Model):
         '''
         if not isinstance(self.name, basestring):
             valid = False
-            messages.append({"type": "alert", "content": "Name has to be a string.", "identifier": "name"})
+            messages.append(compose_message("Name has to be a string", "name"))
         if len(self.name) < 3:
             valid = False
-            messages.append({"type": "alert", "content": "Name has to be at least 3 character long.", "identifier": "name"})
+            messages.append(compose_message("Name has to be at least 3 character long.", "name"))
         if not isinstance(self.address, basestring):
             valid = False
-            messages.append({"type": "alert", "content": "Address has to be a string.", "identifier": "address"})
+            messages.append(compose_message("Address has to be a string.", "address"))
         if len(self.address) < 3:
             valid = False
-            messages.append({"type": "alert", "content": "Address has to be at least 3 character long.", "identifier": "address"})
+            messages.append(compose_message("Address has to be at least 3 character long.", "address"))
 
         return valid, messages
 
@@ -109,21 +110,21 @@ class User(AbstractUser):
 
         if not isinstance(self.username, basestring):
             valid = False
-            messages.append({"type":"alert","content":"Username has to be a string.","identifier":"username"})
+            messages.append(compose_message("Username has to be a string.","username"))
         if not len(self.username) <= 255:
             valid = False
-            messages.append({"type":"alert","content":"Username has to be a shorter than 256 characters.","identifier":"username"})
+            messages.append(compose_message("Username has to be a shorter than 256 characters.","username"))
         if not len(self.username) >= 3:
             valid = False
-            messages.append({"type":"alert","content":"Username has to be a longer than 2 characters.","identifier":"username"})
+            messages.append(compose_message("Username has to be a longer than 2 characters.","username"))
 
         if not isinstance(self.email, basestring):
             valid = False
-            messages.append({"type":"alert","content":"Email has to be a string.","identifier":"email"})
+            messages.append(compose_message("Email has to be a string.","email"))
         else:
             if not re.match("[^@]+@[^@]+\.[^@]+",self.email):
                 valid = False
-                messages.append({"type":"alert","content":"Give a valid email address.","identifier":"email"})
+                messages.append(compose_message("Give a valid email address.","email"))
             else:
                 retrieved_user = False
                 try:
@@ -132,41 +133,41 @@ class User(AbstractUser):
                     retrieved_user = False
                 if retrieved_user:
                     valid = False
-                    messages.append({"type":"alert","content":"Email already in use.","identifier":"email"})
+                    messages.append(compose_message("Email already in use.","email"))
 
         if not isinstance(self.first_name, basestring):
             valid = False
-            messages.append({"type":"alert","content":"First name has to be a string.","identifier":"first_name"})
+            messages.append(compose_message("First name has to be a string.","first_name"))
         if not len(self.first_name) <= 255:
             valid = False
-            messages.append({"type":"alert","content":"First name has to be a shorter than 256 characters.","identifier":"first_name"})
+            messages.append(compose_message("First name has to be a shorter than 256 characters.","first_name"))
         if not len(self.first_name) >= 1:
             valid = False
-            messages.append({"type":"alert","content":"First name has to be at least 1 character.","identifier":"first_name"})
+            messages.append(compose_message("First name has to be at least 1 character.","first_name"))
 
         if not isinstance(self.last_name, basestring):
             valid = False
-            messages.append({"type":"alert","content":"Last name has to be a string.","identifier":"last_name"})
+            messages.append(compose_message("Last name has to be a string.","last_name"))
         if not len(self.last_name) <= 255:
             valid = False
-            messages.append({"type":"alert","content":"Last name has to be a shorter than 256 characters.","identifier":"last_name"})
+            messages.append(compose_message("Last name has to be a shorter than 256 characters.","last_name"))
         if not len(self.last_name) >= 1:
             valid = False
-            messages.append({"type":"alert","content":"Last name has to be at least 1 character.","identifier":"last_name"})
+            messages.append(compose_message("Last name has to be at least 1 character.","last_name"))
 
         if not isinstance(self.password, basestring):
             valid = False
-            messages.append({"type":"alert","content":"Pasword has to be a string.","identifier":"password"})
+            messages.append(compose_message("Password has to be a string.","password"))
         if not len(self.password) <= 255:
             valid = False
-            messages.append({"type":"alert","content":"Password has to be a shorter than 256 characters.","identifier":"password"})
+            messages.append(compose_message("Password has to be a shorter than 256 characters.","password"))
         if not len(self.password) >= 4:
             valid = False
-            messages.append({"type":"alert","content":"Password has to be at least 4 character.","identifier":"password"})
+            messages.append(compose_message("Password has to be at least 4 character.","password"))
 
         if not isinstance(self.organization_id, int):
             valid = False
-            messages.append({"type":"alert","content":"Organization id has to be a integer.","identifier":"organization_id"})
+            messages.append(compose_message("Organization id has to be a integer.","organization_id"))
         else:
             Organization.objects.get()
 
@@ -202,19 +203,19 @@ class AbstractMessage(models.Model):
         messages = []
         if not isinstance(self.content, basestring):
             valid = False
-            messages.append({"type": "alert", "content": "Content must be a string.", "identifier": "content"})
+            messages.append(compose_message("Content must be a string.","content"))
         if len(self.content) < 1:
             valid = False
-            messages.append({"type": "alert", "content": "Content is missing or its length is zero.", "identifier": "content"})
+            messages.append(compose_message("Content is missing or its length is zero.", "content"))
 
         if not isinstance(self.user, User):
             valid = False
-            messages.append({"type": "alert", "content": "User id must be an user object.", "identifier": "user_id"})
+            messages.append(compose_message("User id must be an user object.","user_id"))
 
         if self.message_id != None and (not isinstance(self.message_id, int) or self.message_id < 0):
             print "MessageId:", self.message_id, self.message_id != None
             valid = False
-            messages.append({"type": "alert", "content": "Message id must be a positive number.", "identifier": "message_id"})
+            messages.append(compose_message("Message id must be a positive number.","message_id"))
 
         return messages
 
@@ -249,10 +250,10 @@ class Answer(AbstractMessage):
         messages = super(Answer, self).validate()
         if not isinstance(self.question_id, int) or self.question_id < 0:
             valid = False
-            messages.append({"type": "alert", "content": "Question id must be a positive integer.", "identifier": "question_id"})
+            messages.append(compose_message("Question id must be a positive integer.", "question_id"))
         if not isinstance(self.accepted, bool):
             valid = False
-            messages.append({"type": "alert", "content": "Accepted value must be a boolean.", "identifier": "accepted"})
+            messages.append(compose_message("Accepted value must be a boolean.", "accepted"))
         return messages
 
     def save(self, *args, **kwargs):
@@ -288,10 +289,10 @@ class Question(AbstractMessage):
         valid, messages = super(Question, self).validate()
         if not isinstance(self.title, basestring):
             valid = False
-            messages.append({"type": "alert", "content": "Title has to be a string.", "identifier": "title"})
+            messages.append(compose_message("Title has to be a string.", "title"))
         if self.title and len(self.title) < 5:
             valid = False
-            messages.append({"type": "alert", "content": "Title must be atleast five characters long.", "identifier": "title"})
+            messages.append(compose_message("Title must be atleast five characters long.",  "title"))
         return valid, messages
 
     def save(self, *args, **kwargs):
@@ -334,7 +335,7 @@ class Comment(AbstractMessage):
         valid, messages = super(Question, self).validate()
         if not isinstance(self.parent_id, basestring) or self.parent_id < 0 :
             valid = False
-            messages.append({"type": "alert", "content": "Parent id has to be a integer.", "identifier": "parent_id"})
+            messages.append(compose_message("Parent id has to be a integer.", "parent_id"))
         return valid, messages
 
     def save(self, *args, **kwargs):
@@ -373,13 +374,13 @@ class Vote(models.Model):
         messages = []
         if not isinstance(self.rate, int):
             valid = False
-            messages.append({"type": "alert", "content": "Rate has to be a integer.", "identifier": "rate"})
+            messages.append(compose_message("Rate has to be a integer.", "rate"))
         if not isinstance(self.user.user_id, int) or self.user_id < 0:
             valid = False
-            messages.append({"type": "alert", "content": "User id has to be a positive integer.", "identifier": "userId"})
+            messages.append(compose_message("User id has to be a positive integer.", "userId"))
         if not isinstance(self.user.user_id, int) or self.message_id < 0:
             valid = False
-            messages.append({"type": "alert", "content": "Message id has to be a positive integer.", "identifier": "messageId"})
+            messages.append(compose_message("Message id has to be a positive integer.", "messageId"))
 
         return valid, messages
 
@@ -425,22 +426,22 @@ class Tag(models.Model):
         valid = True
         if not isinstance(self.name, basestring):
             valid = False
-            messages.append({"type": "alert", "content": "Tag name has to be a string.", "identifier": "name"})
+            messages.append(compose_message("Tag name has to be a string.", "name"))
         elif len(self.name) < 3:
             valid = False
-            messages.append({"type": "alert", "content": "Tag name has to be longer than 3 characters.", "identifier": "name"})
+            messages.append(compose_message("Tag name has to be longer than 3 characters.", "name"))
         elif len(self.name) > 255:
             valid = False
-            messages.append({"type": "alert", "content": "Tag name has to be shorter than 255 characters.", "identifier": "name"})
+            messages.append(compose_message("Tag name has to be shorter than 255 characters.", "name"))
         if self.course_flag not in [True, False]:
             valid = False
-            messages.append({"type": "alert", "content": "Course flag has to be a boolean value.", "identifier": "courseFlag"})
+            messages.append(compose_message("Course flag has to be a boolean value.", "courseFlag"))
         if not isinstance(self.organization, Organization):
             valid = False
-            messages.append({"type": "alert", "content": "Organization has to be an Organization instance.", "identifier": "organization"})
+            messages.append(compose_message("Organization has to be an Organization instance.", "organization"))
         if not isinstance(self.creator, User):
             valid = False
-            messages.append({"type": "alert", "content": "Creator has to be an User instance.", "identifier": "creator"})
+            messages.append(compose_message("Creator has to be an User instance.", "creator"))
         return valid, messages
 
 
@@ -486,7 +487,7 @@ class TagEntry(models.Model):
         messages = []
         if not isinstance(self.creator.user_id, int) or self.creator.user_id < 0:
             valid = False
-            messages.append({"type": "alert", "content": "Creator must be a positive integer.", "identifier": "creator"})
+            messages.append(compose_message("Creator must be a positive integer.", "creator"))
         '''
         if not isinstance(self.organization_id, int) or self.organization_id < 0:
             valid = False
