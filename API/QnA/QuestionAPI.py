@@ -4,21 +4,33 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from QnA.models import *
 from QnA.view_utils import *
+from QnA.utils import *
 import json
 
 class QuestionAPI(APIView):
 
     def post(self, request):
+        '''
+        This method saves new question into database
+        @params
+            user_id, positive integer:
+
+        '''
+
+
         data = json.loads(request.body)
 
-        if not "userId" in data and request.user.is_authenticated():
+        messages = []
+
+        if request.user.is_authenticated():
             data["userId"] = request.user.user_id
-        messages = {}
-        try:
-            abs_data = post_abstract_message(Question(), data)
-        except Exception, e:
-            messages = {"type": "alert", "content": str(e), "identifier": ""}
-            return Response({"messages": messages}, 200)
+
+        else:
+            messages.append(compose_message("User must be logged in.", "user"))
+            return Response({"messages":messages}, 401)
+
+        abs_data = post_abstract_message(Question(), data)
+
         title = data.get('title')
         abs_data.title = title
         abs_data.organization = request.user.organization
@@ -40,7 +52,7 @@ class QuestionAPI(APIView):
                         entry = TagEntry(tag=tag, message_id=abs_data.message_id, creator=abs_data.user)
                         entry.save()
                     except:
-                        messages.append({"type": "alert", "content": "Tag %s was not found." % tag, "identifier": "tags"})
+                        messages.append(compose_message("Tag %s was not found." % tag, "tags"))
                         # Create tag?
 
         return Response({"messages":messages},200)

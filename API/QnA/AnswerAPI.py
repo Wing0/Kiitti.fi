@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from QnA.models import *
 from QnA.view_utils import *
+from QnA.utils import *
 import json
 
 from view_utils import post_abstract_message, exclude_old_versions
@@ -66,7 +67,7 @@ class AnswerAPI(APIView):
         if request.user.is_authenticated():
             ans.user = request.user
         else:
-            messages.append({"content":"User must be logged in.", "identifier":"user"})
+            messages.append(compose_message("User must be logged in.", "user"))
             return Response({"messages":messages}, 401)
 
         ans.accepted = data.get("accepted")
@@ -96,10 +97,10 @@ class AnswerAPI(APIView):
 
     def by_question_id(self, request, question_id, limit=10, order="latest"):
         '''
-        by_question_id:
         Retrieves all answers related to given question. The order and limit of answers can be chosen.
 
         @params
+            request: the request parameter from get function
             question_id: The id of the question in which the answers are related to
             limit, integer (optional): The maximum number of answers retriveved. Default = 10
             order, string (optional): The method for ordering the retrieved answers. "votes" or "latest". Default="latest".
@@ -183,8 +184,7 @@ class AnswerAPI(APIView):
                         return Response({"messages":messages}, 404)
 
                     answers = exclude_old_versions(answers)
-                    if order == "latest":
-                        answers.sort(key=lambda x: x.created)
+                    answers = order_messages(answers, order)
 
                     return Response({"answers":[ans.serialize() for ans in answers[:limit]], "messages":messages}, 200)
 
@@ -192,12 +192,13 @@ class AnswerAPI(APIView):
                 messages.append({"content":"The question id has to be a positive integer.","identifier":"questionId"})
         return Response({"messages":messages}, 400)
 
-    def by_author(self, request, authorId, limit=10, order="latest"):
+    def by_author(self, request, author_id, limit=10, order="latest"):
         '''
         Retrieves all answers written by given author. The order and limit of answers can be chosen.
 
         @params
-            authorId: The id of the author who has written the answers
+            request: the request parameter from get function
+            author_id: The id of the author who has written the answers
             limit, integer (optional): The maximum number of answers retriveved. Default = 10
             order, string (optional): The method for ordering the retrieved answers. "votes" or "latest". Default="latest".
         @example
@@ -240,7 +241,7 @@ class AnswerAPI(APIView):
         '''
         messages = []
         if author_id == None:
-            messages.append({"content":"A question id has to be provided.","identifier":"questionId"})
+            messages.append({"content":"A author id has to be provided.","identifier":"questionId"})
         else:
             try:
                 if not request.user.is_authenticated():
@@ -281,8 +282,7 @@ class AnswerAPI(APIView):
                         return Response({"messages":messages}, 404)
 
                     answers = exclude_old_versions(answers)
-                    if order == "latest":
-                        answers.sort(key=lambda x: x.created)
+                    answers = order_messages(answers, order)
 
                     return Response({"answers":[ans.serialize() for ans in answers[:limit]], "messages":messages}, 200)
 

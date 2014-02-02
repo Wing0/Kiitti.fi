@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from QnA.models import *
 from QnA.view_utils import *
 from QnA.string_utils import *
+from QnA.utils import *
 import json
 
 class CommentAPI(APIView):

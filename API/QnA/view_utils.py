@@ -5,12 +5,6 @@ from rest_framework.views import APIView
 from QnA.models import *
 import json
 
-def compose_message(content, identifier=""):
-    return {"content":content, "identifier":identifier}
-
-def create_message(content, identifier=""):
-    return {"messages": [compose_message(content, identifier)]}
-
 def exclude_old_versions(message_list):
     # Sort all messages by version
     message_list.sort(key=lambda q: -q.version)
@@ -24,19 +18,14 @@ def exclude_old_versions(message_list):
             used.append(q.message_id)
     return messages
 
-def get_user_data():
-    data = []
-    userdata = User.objects.all()
-    for user in userdata:
-        data.append(user.serialize())
-    return data
-
-def get_question(time):
-    data = []
-    questiondata = Question.objects.filter(date__gte=time)
-    for question in questiondata:
-        data.append(question.serialize())
-    return data
+def order_messages(msg_list, order):
+    if not order in ["latest","votes"]:
+        raise ValueError("Invalid order value")
+    if order == "latest":
+        msg_list.sort(key=lambda x: x.created)
+    elif order == "votes":
+        pass
+    return msg_list
 
 def get_message_by_id(model, msgid, organization, history=False):
     '''
@@ -100,7 +89,6 @@ def get_message_by_id(model, msgid, organization, history=False):
         except:
             messages.append(compose_message("Message id not found.", "msgid"))
     return Response({"messages": messages}, 400)
-
 
 def post_abstract_message(abstractmessage, data):
     '''
