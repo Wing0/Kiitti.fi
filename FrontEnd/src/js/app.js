@@ -15,6 +15,12 @@ app.config(function($locationProvider, $httpProvider) {
   $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 });
 
+app.run(function($rootScope, AuthAPI) {
+  AuthAPI.load().success(function(data) {
+    $rootScope.user = data.user;
+  });
+})
+
 /* RESOURCES */
 
 app.factory('QuestionFactory', function($resource) {

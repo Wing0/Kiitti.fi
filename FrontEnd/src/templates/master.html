@@ -7,9 +7,11 @@
         </a>
       </div>
       <div id="user-panel">
-        <img src="" class="avatar" alt="Wingo">
+        <a href="/login" ng-if="!user">login-></a>
+        <a href="/logout" ng-if="user">logout-></a>
+        <img src="" class="avatar" alt="user.username">
         <p class="activity">16</p>
-        <p class="username">Wingo</p>
+        <p class="username" ng-bind="user.username"></p>
       </div>
     </div>
     <div style="clear:both"></div>
@@ -29,11 +31,4 @@
   <section id="main-content">
     <div ui-view></div>
   </section>
-</div>
-
-<div ng-controller="LoginController">
-
-<a href="/login">login-></a>
-<a href="/logout">logout-></a>
-
 </div>
