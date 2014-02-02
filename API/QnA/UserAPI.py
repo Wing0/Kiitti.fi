@@ -13,6 +13,8 @@ class UserAPI(APIView):
         '''
         Get user objects.
         '''
+        if not request.user.is_authenticated():
+            return Response(create_message("You must be logged in to request userdata."), 403)
         order = request.GET.get("order")
         if order is None or order == "all":
             return self.get_all()
@@ -21,7 +23,7 @@ class UserAPI(APIView):
         elif order == "userid":
             return self.get_by_id(request.GET.get("userId"))
         else:
-            return Response({"messages": "Invalid sorting type.", "identifier": ""}, 400)
+            return Response(create_message("Invalid sorting type.", "order"), 400)
 
     #VALIDATE
     def post(self, request):
@@ -95,28 +97,22 @@ class UserAPI(APIView):
                         }
                     ]
                 }
-            204: No content found. List of appropriate error messages.
-                example:
-                {
-                    "messages":[{"content":"An exampleerror message.","identifier":"example"}]
-                }
             400: Invalid parameters. List of appropriate error messages.
                 example:
                 {
                     "messages":[{"content":"An example error message.","identifier":"example"}]
                 }
         '''
-        if userid is None:
-            return Response({"messages": "User id does not exist.", "identifier": "userid"}, 400)
-        try:
-            userid = int(userid)
-            if userid < 0:
-                raise ValueError()
-            return Response({"users": User.objects.get(user_id=usersid).serialize()}, 200)
-        except ValueError:
-            return Response({"messages":[{"content":"User id is not positive integer.","identifier":"userid"}]}, 400)
-        except:
-            return Response({"messages":[{"content":"No user with given id.","identifier":"userid"}]}, 204)
+        messages = []
+        if not isinstance(userid, int) or userid < 0:
+           messages.append(compose_message("User id must be positive integer.", "userid"))
+        if len(messages) == 0:
+            try:
+                return Response({"users": User.objects.get(user_id=usersid).serialize()}, 200)
+            except:
+                messages.append(compose_message("No user with given id.", "userid"))
+        return Response({"messages": messages}, 400)
+
 
     def get_by_organization_id(self, orgid):
         '''
@@ -132,20 +128,24 @@ class UserAPI(APIView):
                 {
                     "users":[
                         {
-                        "firstname":"Aalto",
-                        "lastname": "Aaltonen",
-                        "username": "Wingo",
-                        "created":"01.01.2014 16:33:41",
-                        "email":"aalto@aalto.fi",
-                        "password": "hashedpassword",
-                        .....
+                            "username": "admin",
+                            "firstname": "Admin",
+                            "lastname": "Adminen",
+                            "email": "admin@admin.org",
+                            "reputation": 0,
+                            "userId": 1,
+                            "created": "2014-01-25T18:28:28.520Z"
+                        },
+                        {
+                            "username": "test",
+                            "firstname": "test",
+                            "lastname": "Testaaja",
+                            "email": "testn@admin.org",
+                            "reputation": 0,
+                            "userId": 2,
+                            "created": "2014-01-26T18:28:28.520Z"
                         }
                     ]
-                }
-            204: No content found. List of appropriate error messages.
-                example:
-                {
-                    "messages":[{"content":"An exampleerror message.","identifier":"example"}]
                 }
             400: Invalid parameters. List of appropriate error messages.
                 example:
@@ -154,21 +154,19 @@ class UserAPI(APIView):
                 }
 
         '''
-        if orgid is None:
-            return Response({"messages": "Organization id does not exist.", "identifier": "orgid"}, 400)
-        try:
-            orgid = int(orgid)
-            if orgid < 0:
-                raise ValueError()
-            data = []
-            users = User.objects.filter(organization=orgid)
-            for user in users:
-                data.append(user.serialize())
-            return Response({"users": data}, 200)
-        except ValueError:
-            return Response({"messages":[{"content":"Organization id is not positive integer.","identifier":"orgid"}]}, 400)
-        except:
-            return Response({"messages":[{"content":"No user with given id.","identifier":"orgid"}]}, 204)
+        messages = []
+        if not isinstance(orgid, int) or orgid < 0:
+            messages.append(compose_message("Organization id must be positive integer.", "orgid"))
+        if len(messages) == 0:
+            try:
+                data = []
+                users = User.objects.filter(organization=orgid)
+                for user in users:
+                    data.append(user.serialize())
+                return Response({"users": data}, 200)
+            except:
+                messages.append(compose_message("No organization found.", "organization_id"))
+        return Response({"messages": messages}, 400)
 
     def get_all(self):
         '''

@@ -33,7 +33,8 @@ class QuestionAPI(APIView):
 
         title = data.get('title')
         abs_data.title = title
-
+        abs_data.organization = request.user.organization
+        abs_data.user = request.user
         valid, messages = abs_data.validate()
         if valid:
             if abs_data.message_id:

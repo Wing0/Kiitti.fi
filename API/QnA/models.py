@@ -217,7 +217,7 @@ class AbstractMessage(models.Model):
             valid = False
             messages.append(compose_message("Message id must be a positive number.","message_id"))
 
-        return messages
+        return valid, messages
 
     def save(self, *args, **kwargs):
         '''
@@ -285,7 +285,6 @@ class Question(AbstractMessage):
         return jsondict
 
     def validate(self):
-
         valid, messages = super(Question, self).validate()
         if not isinstance(self.title, basestring):
             valid = False

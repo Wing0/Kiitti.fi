@@ -13,6 +13,8 @@ class OrganizationAPI(APIView):
         '''
         Get Organization. Heigher permissions returns more content to user.
         '''
+        if not request.user.is_authenticated():
+            return Response(create_message("You must be logged in to request comments."), 403)
         order = request.GET.get("order")
         if order is None or order == "all":
             return self.get_all()
@@ -31,8 +33,10 @@ class OrganizationAPI(APIView):
         if not data.get("address"):
             messages.append({"type": "alert","content": "Organization address must be provided.","identifier": "address"})
             valid_input = False
+        if not data.get("organization_id"):
+            messages.append({"type": "alert","content": "Organization id must be provided.","identifier": "organizationId"})
         if valid_input:
-            org = Organization(name=data.get("name"), address=data.get("address"))
+            org = Organization(name=data.get("name"), address=data.get("address"), organization_id=data.get("organizationId"))
             valid, messages = org.validate()
             if valid:
                 org.save()
@@ -65,23 +69,21 @@ class OrganizationAPI(APIView):
                         }
                     ]
                 }
-            204: No content found. List of appropriate error messages.
+            400: Bad request. List of appropriate error messages.
                 example:
                 {
                     "messages":[{"content":"An exampleerror message.","identifier":"example"}]
                 }
         '''
+        messages = []
         try:
-            if orgId is None:
-                return Response({"messages":[{"content":"No organization id provided.","identifier":"organizationId"}]}, 400)
-            orgId = int(orgId)
-            if orgId < 0:
-                raise ValueError()
-            return Response({"organizations": Organization.objects.get(organization_id=orgid).serialize()}, 200)
-        except ValueError:
-            return Response({"messages":[{"content":"Organization id is not positive integer.","identifier":"organizationId"}]}, 400)
+            if not isinstance(orgid, int) or orgid < 0:
+                messages.append(compose_message("Organization id must be positive integer.", "orgid"))
+            if len(messages) == 0:
+                return Response({"organizations": Organization.objects.get(organization_id=orgid).serialize()}, 200)
         except:
-            return Response({"messages":[{"content":"No organization with given id.","identifier":"orgid"}]}, 204)
+            messages.append(compose_message("No Organization with given id exist.", "orgid"))
+        return Response({"messages": messages}, 400)
 
     def get_all(self):
         data = []
