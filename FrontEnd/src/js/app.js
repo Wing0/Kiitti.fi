@@ -1,9 +1,9 @@
 var app = angular.module('app', ['ngResource', 'ngAnimate', 'ngSanitize',
-                                 'ktStates', 'ktAuth', 'ktControllers']);
+                                 'ktStates', 'ktAuth', 'ktControllers', 'ktAPI']);
 
 /* CONFIG */
 
-app.constant("APIUrl", 'http://0.0.0.0:7000/api/v1');
+app.constant("APIUrl", 'http://0.0.0.0:8000');
 
 app.config(function($locationProvider, $httpProvider) {
 

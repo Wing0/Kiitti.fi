@@ -1,13 +1,13 @@
-var ktControllers = angular.module('ktControllers', []);
+var ktControllers = angular.module('ktControllers', ['ui.router', 'ktAPI']);
 
-ktControllers.controller('MainController', function($rootScope) {
+ktControllers.controller('MainController', function($rootScope, $state) {
   $rootScope.$on('event:auth-loginRequired', function() {
     console.log("! login required");
-    $state.go('login');
+    $rootScope.loginRequired = true;
   });
   $rootScope.$on('event:auth-loginConfirmed', function() {
     console.log("login confirmed");
-    $state.go('master.popular');
+    $rootScope.loginRequired = false;
   });
 });
 
@@ -29,7 +29,9 @@ ktControllers.controller('SubmitAnswerController', function($scope, QuestionFact
   };
 });
 
-ktControllers.controller('BrowsePopularController', function($scope, QuestionFactory) {
+ktControllers.controller('BrowsePopularController', function($scope, QuestionFactory, AnswerFactory) {
+
+  $scope.questions = AnswerFactory.get({"questionId": 1});
 
   /*var questions = QuestionFactory.get(function(data) {
   $scope.questions = data.questions;

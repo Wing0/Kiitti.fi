@@ -1,10 +1,10 @@
 var ktStates = angular.module('ktStates', ['ui.router',
-                                           'ktControllers']);
+                                           'ktControllers', 'ktAPI']);
 
 ktStates.config(function($stateProvider, $urlRouterProvider) {
 
   $urlRouterProvider
-    .when('/', '/login')
+    .when('/', '/popular')
     .otherwise('/');
 
   var tdir = '../templates/';
@@ -23,6 +23,21 @@ ktStates.config(function($stateProvider, $urlRouterProvider) {
     .state('login.forgot', {
       url: '/forgot',
       templateUrl: tdir + 'loginmaster.forgot.html'
+    })
+    .state('logout', {
+      url: '/logout',
+      controller: function($location, AuthAPI) {
+        console.log("test");
+        AuthAPI.logout()
+        .success(function() {
+          console.log("logout");
+          $location.path('/');
+        })
+        .error(function(data, status) {
+          console.log("data", data);
+          console.log("status", status);
+        });
+      }
     })
 
     .state('master', {

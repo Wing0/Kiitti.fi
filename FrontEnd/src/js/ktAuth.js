@@ -1,31 +1,37 @@
-var ktAuth = angular.module('ktAuth', ['http-auth-interceptor']);
+var ktAuth = angular.module('ktAuth', ['http-auth-interceptor', 'ktAPI']);
 
-ktAuth.factory('AuthFactory', function(APIUrl, $http) {
-  return {
-    load: function() {
-      return $http.post(APIUrl + '/auth/load');
-    },
-    login: function(user) {
-      return $http.post(APIUrl + '/auth/login', user);
-    },
-    logout: function() {
-      return $http.post(APIUrl + '/auth/logout');
-    },
-    register: function(user) {
-      return $http.post(APIUrl + '/auth/register', user);
-    }
-  }
-});
+ktAuth.controller('LoginController', function($scope, $http, authService, AuthAPI, $location) {
 
-ktAuth.controller('LoginController', function ($scope, $http, authService, AuthFactory) {
+  /* test if already logged in */
+  AuthAPI.load()
+  .success(function(data, status, headers, config) {
+    $location.path('/');
+  })
+  .error(function(data, status, headers, config) {
+    $location.path('/login');
+  });
+
   $scope.login = function(user) {
-    AuthFactory.login(user)
+    console.log(user);
+    AuthAPI.login(user)
       .success(function(data, status, headers, config) {
         authService.loginConfirmed();
+        $location.path('/');
         console.log("login onnistui!");
       })
       .error(function(data, status, headers, config) {
         console.log("login error");
+      });
+  }
+
+  $scope.logout = function() {
+    AuthAPI.logout()
+      .success(function(data, status, headers, config) {
+        console.log("uloskirjautuminen onnistui");
+      })
+      .error(function(data, status) {
+        console.log("data", data);
+        console.log("status", status);
       });
   }
 });
