@@ -12,24 +12,47 @@ class QuestionAPI(APIView):
     def post(self, request):
         '''
         This method saves new question into database
-        @params
-            user_id, positive integer:
-
+        @params (this means body parameters, not autoinserted by django)
+            version, positive integer: version number of the question.
+            title, string: title of the Question
+            content, string: content text of the Question
+            messageId, positive integer: message id of the Question. For client: set this only if you are updating old message. save() method
+            will give new messageId for new messages!
+        @example:
+            {
+                "version":1,
+                "title": "Why does the sun go down every night?",
+                "content":"Why does the sun go down every night? I don't understand!",
+                "messageId":3,
+                "tags": ["tagFirst", "tagSecond"]
+            }
+        @perm
+            member: any member can post an question
+        @return
+            201: Created, the question was succesfully created
+            400: Bad request, parameters were missing or wrong type
+                list of appropriate error messages
+                example: {
+                            "messages":[{"content":"An example error message.","identifier":"example"}]
+                        }
+            401: Unauthorized, the user has to be loggend in to perform this action
+                list of appropriate error messages
+                example: {
+                            "messages":[{"content":"An example error message.","identifier":"example"}]
         '''
-
 
         data = json.loads(request.body)
 
+
         messages = []
 
-        if request.user.is_authenticated():
-            data["userId"] = request.user.user_id
-
-        else:
+        if not request.user.is_authenticated():
             messages.append(compose_message("User must be logged in.", "user"))
             return Response({"messages":messages}, 401)
 
+
         abs_data = post_abstract_message(Question(), data)
+
 
         title = data.get('title')
         abs_data.title = title
@@ -37,10 +60,6 @@ class QuestionAPI(APIView):
         abs_data.user = request.user
         valid, messages = abs_data.validate()
         if valid:
-            if abs_data.message_id:
-                abs_data.save_changes()
-            else:
-                abs_data.save()
             # Save tags
             taglist = data.get("tags")
             if taglist and isinstance(taglist,list):
@@ -52,10 +71,15 @@ class QuestionAPI(APIView):
                         entry = TagEntry(tag=tag, message_id=abs_data.message_id, creator=abs_data.user)
                         entry.save()
                     except:
-                        messages.append(compose_message("Tag %s was not found." % tag, "tags"))
-                        # Create tag?
+                        messages.append(compose_message("Tag %s was not found." % tagname, "tags"))
+            if len(messages) == 0:
+                if abs_data.message_id:
+                    abs_data.save_changes()
+                else:
+                    abs_data.save()
+                return Response({"messages": messages}, 201)
 
-        return Response({"messages":messages},200)
+        return Response({"messages":messages},400)
 
     def get(self, request, criterion="latest"):
         '''
