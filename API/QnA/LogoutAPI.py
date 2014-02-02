@@ -5,12 +5,14 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import AllowAny
 import json
 
-class LogoutAPI(APIView):
+from view_utils import *
 
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
-    permission_classes = (AllowAny,) #...
+class LogoutAPI(APIView):
 
     #logout
     def post(self, request):
-        logout(request)
-        return Response({}, 200)
+        try:
+            logout(request)
+            return Response({}, 200)
+        except:
+            return Response(create_message("Logout failed."), 500)
