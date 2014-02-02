@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from QnA.models import *
+from QnA.utils import *
 import json
 
 def create_tag(organization_id, name, course_flag, creator):

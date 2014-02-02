@@ -5,12 +5,6 @@ from rest_framework.views import APIView
 from QnA.models import *
 import json
 
-def compose_message(content, identifier=""):
-    return {"content":content, "identifier":identifier}
-
-def create_message(content, identifier=""):
-    return {"messages": [{"content": content, "identifier": identifier}]}
-
 def exclude_old_versions(message_list):
     # Sort all messages by version
     message_list.sort(key=lambda q: -q.version)
