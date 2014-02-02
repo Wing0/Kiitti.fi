@@ -32,7 +32,7 @@ class AnswerAPI(APIView):
         '''
         This method takes answer information and produces an answer object accordingly.
         @params
-            questionId, integer: The id of the question which the answer relates to
+            questionId, integer: The message id of the question which the answer relates to
             content, string:
             messageId, integer (optional): In case the message is modified, provide the initial messageId
         @example

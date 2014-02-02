@@ -91,6 +91,8 @@ def post_abstract_message(abstractmessage, data):
 
     if 'messageId' in data.keys():
         abstractmessage.message_id = data["messageId"]
+    if 'version' in data.keys():
+        abstractmessage.version = data["version"]
     if 'content' in data.keys():
         abstractmessage.content = data["content"]
     else:
