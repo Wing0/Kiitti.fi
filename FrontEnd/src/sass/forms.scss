@@ -1,0 +1,102 @@
+@import "_base";
+
+/* SEARCH BAR RESET */
+
+/*
+input[type="search"] {
+  -webkit-appearance: textfield;
+}
+input[type="search"]::-webkit-search-decoration,
+//input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration  {
+  -webkit-appearance: none;
+}
+*/
+
+form {
+
+  & > label, input, textarea,
+  button, .button, input[type="submit"] {
+    margin: 10px 0;
+  }
+
+  label {
+    color: $color-emphasis-1;
+    font-weight: 700;
+    display: block;
+    margin-top: 10px;
+    margin-bottom: -5px;
+    font-size: 0.9em;
+  }
+
+  input, input:focus {
+    @include box-sizing(border-box);
+    @include box-shadow(white 0 0 0);
+
+    padding: 3px 0 1px 0;
+    font-size: 1.2em;
+    text-align: center;
+
+    color: darken($color-background-light, 60);
+
+    background-color: rgb(245,245,252);
+    border: none;
+    border-bottom: 1px solid rgb(220,220,220);
+    outline-color: rgb(220,220,220);
+
+    min-width: 250px;
+    width: 100%;
+    margin-left: -1px;
+  }
+
+  input[type="submit"] {
+    min-width: 100px;
+    width: auto;
+  }
+
+  &#add-user {
+    max-width: 300px;
+  }
+}
+
+div.search {
+
+  margin: 10px 0;
+  height: 32px;
+
+  input[type="search"], .search-field {
+    width: 200px;
+    height: 100%;
+    @include box-sizing(border-box);
+
+    margin: 0 !important;
+    padding: 7px 4px;
+
+    @include border-radius($default-border-radius 0 0 $default-border-radius);
+    border: 1px solid $color-separator;
+    font-size: 0.9em;
+
+    &:focus {
+      @include box-shadow(white 0 0 0);
+      outline: none;
+    }
+  }
+
+  button.search-button {
+    padding: 0;
+    margin: 0;
+    height:100%;;
+    width:32px;
+    @include box-sizing(border-box);
+
+    @include border-radius(0 $default-border-radius $default-border-radius 0);
+    border: none;
+    cursor: pointer;
+    color:white;
+    background-color: $color-button;
+    position:relative;
+
+    font-size: 16px;
+  }
+}

@@ -1,13 +1,35 @@
 @import "compass/reset";
 @import "_base";
 
+/*
+ * Base styles
+ */
+html, body, #main-view {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+
 body {
+  background-color: $color-background;
+  background-image: image-url('background.png');
+  background-repeat: repeat;
   font-family: $font-stack;
-  min-width: 480px;
+  min-width: 240px;
 
   #wrapper {
     width: 100%;
   }
+}
+
+hr {
+  border-top: 1px solid rgb(220,220,220);
+  border-bottom: 0;
+  border-left: 0;
+  border-right: 0;
+  margin: 0;
+  padding: 0;
 }
 
 a, a:visited {
@@ -38,7 +60,9 @@ a:hover {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: $font-header;
-  font-weight: 400;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: $color-emphasis-2;
   //text-shadow: 3px 3px 0 darken($color-emphasis, 50);
 }
 
@@ -48,13 +72,6 @@ h3, h4, h5 {
   margin-bottom: 10px;
   margin-top: 25px;
 }
-
-h1 { font-size: 300%; }
-h2 { font-size: 250%; }
-h3 { font-size: 150%; }
-h4 { font-size: 130%; }
-h5 { font-size: 110%; }
-h6 { font-size: 100%; }
 
 p {
   font-family: $font-paragraph;

@@ -210,30 +210,4 @@ $thumb-size: 40px;
   }
 }
 
-form {
-  margin: 30px 0;
-  width: 600px;
-  input, textarea, select, button {
-    @include box-sizing(border-box);
-  }
-  input, textarea {
-    width: 100%;
-    padding: 7px;
-    border: 1px solid darken($color-background, 20);
-    margin-bottom: 10px;
-  }
 
-  #message {
-    height: 150px;
-  }
-
-  button {
-    background-color: lighten($color-background, 10);
-    color: $color-text;
-    font-weight: bold;
-    font-size: 75%;
-    padding: 5px 15px;
-    text-transform: uppercase;
-    border: 1px solid darken($color-background, 20);
-  }
-}

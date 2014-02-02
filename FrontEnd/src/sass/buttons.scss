@@ -1,0 +1,20 @@
+@import "_base";
+
+button, .button {
+  background-color: $color-emphasis-1;
+  color: $color-text;
+  font-weight: bold;
+  font-size: 0.8em;
+  padding: 10px 15px;
+  text-transform: uppercase;
+  border: 1px solid darken($color-emphasis-1, 5);
+
+  &.emphasis-1 {
+    color: white;
+    background-color: $color-emphasis-1;
+  }
+  &.emphasis-2 {
+    color: white;
+    background-color: $color-emphasis-2;
+  }
+}
