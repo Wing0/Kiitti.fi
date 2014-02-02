@@ -45,7 +45,6 @@ class Organization(models.Model):
         super(Organization, self).save(*args, **kwargs)
 
     def validate(self):
-        valid = True
         messages = []
         '''
         if not isinstance(self.organization_id, int) or self.organization_id < 0:
@@ -53,19 +52,14 @@ class Organization(models.Model):
             messages.append({"type": "alert", "content": "Organization id must be a positive integer.", "identifier": "organization_id"})
         '''
         if not isinstance(self.name, basestring):
-            valid = False
             messages.append(compose_message("Name has to be a string", "name"))
         if len(self.name) < 3:
-            valid = False
             messages.append(compose_message("Name has to be at least 3 character long.", "name"))
         if not isinstance(self.address, basestring):
-            valid = False
             messages.append(compose_message("Address has to be a string.", "address"))
         if len(self.address) < 3:
-            valid = False
             messages.append(compose_message("Address has to be at least 3 character long.", "address"))
-
-        return valid, messages
+        return messages
 
 class User(AbstractUser):
 
@@ -279,14 +273,12 @@ class Question(AbstractMessage):
         return jsondict
 
     def validate(self):
-        valid, messages = super(Question, self).validate()
+        messages = super(Question, self).validate()
         if not isinstance(self.title, basestring):
-            valid = False
             messages.append(compose_message("Title has to be a string.", "title"))
         if self.title and len(self.title) < 5:
-            valid = False
             messages.append(compose_message("Title must be atleast five characters long.",  "title"))
-        return valid, messages
+        return messages
 
     def save(self, *args, **kwargs):
         '''

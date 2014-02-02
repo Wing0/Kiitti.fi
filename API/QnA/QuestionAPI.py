@@ -55,8 +55,8 @@ class QuestionAPI(APIView):
         abs_data.title = title
         abs_data.organization = request.user.organization
         abs_data.user = request.user
-        valid, messages = abs_data.validate()
-        if valid:
+        messages = abs_data.validate()
+        if len(messages) == 0:
             # Save tags
             taglist = data.get("tags")
             if taglist and isinstance(taglist,list):
