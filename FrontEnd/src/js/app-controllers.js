@@ -1,13 +1,12 @@
-var ktControllers = angular.module('ktControllers', ['ui.router', 'ktAPI']);
+var ktControllers = angular.module('ktControllers', ['ktAPI']);
 
-ktControllers.controller('MainController', function($rootScope, $state) {
+ktControllers.controller('MainController', function($rootScope, $location) {
   $rootScope.$on('event:auth-loginRequired', function() {
     console.log("! login required");
-    $rootScope.loginRequired = true;
+    $location.path('/login');
   });
   $rootScope.$on('event:auth-loginConfirmed', function() {
     console.log("login confirmed");
-    $rootScope.loginRequired = false;
   });
 });
 
