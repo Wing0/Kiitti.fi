@@ -4,7 +4,7 @@ var ktStates = angular.module('ktStates', ['ui.router',
 ktStates.config(function($stateProvider, $urlRouterProvider) {
 
   $urlRouterProvider
-    .when('/', '/popular')
+    .when('/', '/login')
     .otherwise('/');
 
   var tdir = '../templates/';
@@ -13,12 +13,12 @@ ktStates.config(function($stateProvider, $urlRouterProvider) {
     .state('login', {
       abstract: true,
       templateUrl: tdir + 'loginmaster.html',
+      controller: 'LoginController',
       url: '/login'
     })
     .state('login.login', {
       url: '',
-      templateUrl: tdir + 'loginmaster.login.html',
-      controller: 'AuthController'
+      templateUrl: tdir + 'loginmaster.login.html'
     })
     .state('login.forgot', {
       url: '/forgot',

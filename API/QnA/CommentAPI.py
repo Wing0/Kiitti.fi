@@ -100,26 +100,23 @@ class CommentAPI(APIView):
             400: Bad request. Returned error messages.
         '''
         messages = []
-        try:
-            if not isinstance(parent_id, int) or parent_id < 0:
-                messages.append(compose_message("Parent id must be positive integer.", "parent_id"))
-            if not isinstance(limit, int) or limit < 0:
-                messages.append(compose_message("Limit value is not positive integer.", "limit"))
-            if not isinstance(organization_id, id) or organization_id < 0:
-                messages.append(compose_message("Organization id is not positive integer.", "organization_id"))
-            if not isinstance(order, basestring):
-                messages.append(compose_message("Order is not string", "order"))
-            if len(messages) == 0:
-                order_by = "pub_date"
-                if order == "oldest":
-                    order_by = "-pub_date"
-                data = []
-                comments = Comment.objects.filter(parent_id=parent_id).filter(organization=organization_id).order_by(order_by)[:limit]
-                for comment in comments:
-                    data.append(comment.serialize())
-                return Response({"comments": data}, 200)
-        except:
-            messages.append(compose_message("Answer/Question with given parentId does not contain any comments", "parentId"))
+        if not isinstance(parent_id, int) or parent_id < 0:
+            messages.append(compose_message("Parent id must be positive integer.", "parent_id"))
+        if not isinstance(limit, int) or limit < 0:
+            messages.append(compose_message("Limit value is not positive integer.", "limit"))
+        if not isinstance(organization_id, id) or organization_id < 0:
+            messages.append(compose_message("Organization id is not positive integer.", "organization_id"))
+        if not isinstance(order, basestring):
+            messages.append(compose_message("Order is not string", "order"))
+        if len(messages) == 0:
+            order_by = "pub_date"
+            if order == "oldest":
+                order_by = "-pub_date"
+            data = []
+            comments = Comment.objects.filter(parent_id=parent_id).filter(organization=organization_id).order_by(order_by)[:limit]
+            for comment in comments:
+                data.append(comment.serialize())
+            return Response({"comments": data}, 200)
         return Response({"messages": messages}, 400)
 
     def get_parent_message(self, parentid, isquestion, organization):

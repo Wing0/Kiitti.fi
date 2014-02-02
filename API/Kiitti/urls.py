@@ -14,8 +14,8 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', UserAPI.as_view()),
-    url(r'^login/?$', LoginAPI.as_view()),
-    url(r'^logout/?$', LogoutAPI.as_view()),
+    url(r'^auth/login/?$', LoginAPI.as_view()),
+    url(r'^auth/logout/?$', LogoutAPI.as_view()),
     #url(r'^$', 'Kiitti.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
     url(r'^answers/?$', AnswerAPI.as_view()),
