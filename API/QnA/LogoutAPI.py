@@ -6,12 +6,18 @@ from rest_framework.permissions import AllowAny
 from QnA.utils import *
 import json
 
-class LogoutAPI(APIView):
+from view_utils import *
 
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
-    permission_classes = (AllowAny,) #...
+class LogoutAPI(APIView):
 
     #logout
     def post(self, request):
+        try:
+            logout(request)
+            return Response({}, 200)
+        except:
+            return Response(create_message("Logout failed."), 500)
+
+    def get(self, request):
         logout(request)
         return Response({}, 200)

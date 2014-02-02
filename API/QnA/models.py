@@ -213,7 +213,6 @@ class AbstractMessage(models.Model):
             messages.append(compose_message("User id must be an user object.","user_id"))
 
         if self.message_id != None and (not isinstance(self.message_id, int) or self.message_id < 0):
-            print "MessageId:", self.message_id, self.message_id != None
             valid = False
             messages.append(compose_message("Message id must be a positive number.","message_id"))
 
