@@ -199,24 +199,18 @@ class AbstractMessage(models.Model):
         return jsondict
 
     def validate(self):
-        valid = True
         messages = []
         if not isinstance(self.content, basestring):
-            valid = False
             messages.append(compose_message("Content must be a string.","content"))
         if len(self.content) < 1:
-            valid = False
             messages.append(compose_message("Content is missing or its length is zero.", "content"))
 
         if not isinstance(self.user, User):
-            valid = False
             messages.append(compose_message("User id must be an user object.","user_id"))
 
         if self.message_id != None and (not isinstance(self.message_id, int) or self.message_id < 0):
-            valid = False
             messages.append(compose_message("Message id must be a positive number.","message_id"))
-
-        return valid, messages
+        return messages
 
     def save(self, *args, **kwargs):
         '''
@@ -330,11 +324,12 @@ class Comment(AbstractMessage):
         return jsondict
 
     def validate(self):
-        valid, messages = super(Question, self).validate()
-        if not isinstance(self.parent_id, basestring) or self.parent_id < 0 :
-            valid = False
+        messages = super(Comment, self).validate()
+        if not isinstance(self.parent_id, int) or self.parent_id < 0 :
             messages.append(compose_message("Parent id has to be a integer.", "parent_id"))
-        return valid, messages
+        if not isinstance(self.is_question_comment, bool):
+            messages.append(compose_message("Is question value is not boolean.", "is_question_comment"))
+        return messages
 
     def save(self, *args, **kwargs):
         '''
