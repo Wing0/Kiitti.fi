@@ -65,7 +65,9 @@ def get_message_by_id(model, msgid, organization, history=False):
         name = "%ss" %model.__name__.lower()
         try:
             data = []
-            messagedata = model.objects.filter(message_id=msgid).filter(organization=organization)
+            messagedata = model.objects.filter(message_id=msgid)
+            if len(messagedata) > 0 and messagedata[0].organization.organization_id != organization:
+                return Response(create_message("You are not allowed to perform this action."), 403)
             for message in messagedata:
                 data.append(message.serialize())
             if history:

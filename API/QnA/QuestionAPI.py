@@ -12,8 +12,8 @@ class QuestionAPI(APIView):
     def post(self, request):
         '''
         This method saves new question into database
-
-
+        @params
+            user_id, positive integer:
 
         '''
 
