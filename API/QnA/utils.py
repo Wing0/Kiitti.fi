@@ -15,9 +15,9 @@ def string_to_boolean(value):
         False: If string equals to "False" or "false"
         None: If string cannot be converted to boolean
     '''
-    if value == "True" or value == "true":
+    if value == "True" or value == "true" or value == True:
         return True
-    elif value == "False" or value == "false":
+    elif value == "False" or value == "false" or value == False:
         return False
     return None
 
@@ -33,7 +33,7 @@ def string_to_int(value):
     '''
     try:
         if not isinstance(value, basestring):
-            raise Exception()
+            raise ValueError()
         return int(value)
-    except Exception:
+    except ValueError:
         return None
