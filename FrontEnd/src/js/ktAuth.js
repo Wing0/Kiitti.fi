@@ -24,16 +24,4 @@ ktAuth.controller('LoginController', function($rootScope, $scope, $http, authSer
         console.log("login error");
       });
   }
-
-  $scope.logout = function() {
-    AuthAPI.logout()
-      .success(function(data, status, headers, config) {
-        console.log("uloskirjautuminen onnistui");
-        $rootScope.user = "";
-      })
-      .error(function(data, status) {
-        //console.log("data", data);
-        //console.log("status", status);
-      });
-  }
 });
