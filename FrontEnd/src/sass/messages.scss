@@ -186,9 +186,9 @@ $thumb-size: 40px;
   @include transition(border 0.1s ease-in-out);
   @include transition(background-color 0.1s ease-in-out);
 
-  color: darken($color-tag, 50);
-  background-color: $color-tag;
-  border: 1px solid darken($color-tag, 10);
+  color: $color-emphasis-3;
+  //background-color: $color-tag;
+  //border: 1px solid darken($color-tag, 10);
 
   font-size: 75%;
   font-weight: 700;
@@ -204,9 +204,10 @@ $thumb-size: 40px;
 
   &:hover {
     cursor: pointer;
-    background-color: darken($color-tag, 7);
-    color: darken($color-tag, 60);
-    border: 1px solid darken($color-tag, 20);
+    text-decoration: underline;
+    //background-color: darken($color-tag, 7);
+    //color: darken($color-tag, 60);
+    //border: 1px solid darken($color-tag, 20);
   }
 }
 

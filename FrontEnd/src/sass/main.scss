@@ -4,7 +4,7 @@
 /*
  * Base styles
  */
-html, body, #main-view {
+html, body {
   padding: 0;
   margin: 0;
   height: 100%;
@@ -13,15 +13,32 @@ html, body, #main-view {
 
 body {
   background-color: $color-background;
-  background-image: image-url('background.png');
-  background-repeat: repeat;
   font-family: $font-stack;
   min-width: 240px;
+}
 
-  #wrapper {
-    width: 100%;
+/* BUILDING BLOCKS */
+
+.block {
+  padding: 0 $page-padding-horizontal;
+  @media (max-width: $break-narrow) {
+    padding: 0 $page-padding-horizontal/2;
   }
 }
+
+.container {
+  margin: 0 auto;
+  & > section, & > div, & > header, & > footer, p, ul {
+    text-align: left;
+  }
+}
+
+.cell {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+/***/
 
 hr {
   border-top: 1px solid rgb(220,220,220);
@@ -42,32 +59,15 @@ a:hover {
   text-decoration: underline;
 }
 
-/* GENERAL BLOCKS */
-
-.block {
-  @include box-sizing(border-box);
-  padding: $block-padding-vertical $block-padding-horizontal;
-
-  .container {
-    width: 100%;
-    max-width: $page-max-width;
-    position: relative;
-    margin: 0 auto;
-  }
-}
-
 /* TYPOGRAPHY */
 
 h1, h2, h3, h4, h5, h6 {
   font-family: $font-header;
   font-weight: 700;
-  text-transform: uppercase;
   color: $color-emphasis-2;
-  //text-shadow: 3px 3px 0 darken($color-emphasis, 50);
 }
 
 h3, h4, h5 {
-  font-family: $font-paragraph;
   text-transform: none;
   margin-bottom: 10px;
   margin-top: 25px;
@@ -75,7 +75,6 @@ h3, h4, h5 {
 
 p {
   font-family: $font-paragraph;
-  margin-top: 10px;
 }
 
 em, i {
@@ -83,134 +82,108 @@ em, i {
 }
 
 strong, b {
-  font-style: 400;
+  font-style: 600;
 }
 
 /* HEADER */
 
-header.main {
-  height: $header-height;
+/* SECTIONS */
+
+header#main-header {
+  background-color: $color-emphasis-1;
+  color: white;
+
+  @media (min-width: $break-narrow+1) {
+    height: 60px;
+    text-align: left;
+  }
+  @media (max-width: $break-narrow) {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+  }
+
+  border-bottom: 1px solid darken(rgb(245,245,245), 5);
+  white-space: nowrap; // prevent inline-blocks from wrapping
 
   .container {
-    text-align: justify;
-    -ms-text-justify: distribute-all-lines;
-    text-justify: distribute-all-lines;
+    display: table;
+    height: 100%;
+    width: 100%;
+    max-width: inherit; // override for full width
+  }
 
-    &:after {
-      @include inline-block;
-      width: 100%;
-      content: '';
-      height: 0;
-      font-size:0;
-      line-height:0;
+  .logo img {
+    height: 30px;
+  }
+
+  nav {
+
+    font-size: 1.2em;
+
+    @media (min-width: $break-narrow+1) {
+      padding-left: 20px;
+    }
+
+    & > div {
+      display: inline-block;
+    }
+
+    button {
+      color: white;
+      border: none;
+      margin: 0px 5px;
+      &:last-child { margin-right: 0; }
+      &:first-child { margin-left: 0; }
+      font-weight: 300;
+      font-family: $font-stack;
+      text-transform: none;
+      i {
+        &:first-child {margin-right: 8px;}
+        &:last-child {margin-left: 6px;}
+
+        font-size: 1.2em;
+      };
+    }
+
+    ul {
+      height: 100%;
+      display: table;
+    }
+
+    li {
+      height: 100%;
+      display: table-cell;
+      vertical-align: middle;
+
+      &.active a, a:hover {
+        color: $color-emphasis-1;
+      }
+      a {
+        padding: 10px 10px;
+      }
     }
   }
 
-  background-color: $color-main-emphasis;
-
-  &.block {
-    padding: 0 $block-padding-horizontal;
-  }
-
-  .app-header {
-    @include inline-block;
-
-    .app-name {
-      font-weight: 700;
-      color: $color-light-text;
-      font-size: 140%;
-      text-transform: uppercase;
-    }
-  }
-
-  #user-panel {
-    @include inline-block;
-    background-color: darken($color-main-emphasis, 20);
-
-    // remove padding
-    @media (max-width: $page-max-width) {
-      margin-right: -$block-padding-horizontal;
-    }
-
-    .avatar {
-      width: $header-height;
-      height: $header-height;
-      background-color: white;
-      border: 0;
-    }
-
-    .username {
-      padding: 0 20px;
-    }
-
-    .activity {
-      padding: 0 20px;
-    }
-
-    .avatar, .username, .activity {
-      @include inline-block;
-    }
-  }
-
-  p { margin: 0; }
-  a, a:link { text-decoration: none; }
-}
-
-/* NAV */
-
-nav {
-  background-color: $color-nav;
-  padding: 0 $block-padding-horizontal 0 $block-padding-horizontal !important;
-
-  li {
-    @include inline-block; // needs line-break-hack to avoid invisible margin
-
-    a {
+  /* RESPONSIVE */
+  @media (max-width: $break-narrow) {
+    .cell {
       display: block;
-      padding: 12px 20px;
-
-      @include transition(color 0.2s ease-in-out);
-      @include transition(background-color 0.2s ease-in-out);
-      &:link, &:visited {
-        background-color: $color-nav;
-        color: lighten($color-nav, 50);
-      }
-      text-decoration: none;
-      &:hover, &.active {
-        background-color: lighten($color-nav, 15);
-        color: lighten($color-nav, 80);
-        text-decoration: none;
-      }
+      text-align: center !important;
+    }
+    li {
+      display: block;
+      padding: 10px 0 10px 0;
     }
   }
+}
 
-  ul {
-    //margin-left: -20px;
+#main-content {
+  @include clearfix;
+  .container {
+    min-width: $page-min-width;
+    max-width: $page-max-width;
+    margin: 30px auto;
+    text-align: center;
   }
-}
-
-.wrapper{
-  width: 550px;
-  text-align: justify;
-  background: firebrick;
-  font-size: 0;
-  font-size: 12px\9; /* IE6-9 only hack */
-}
-
-.wrapper div {
-  background: white;
-  display: inline-block;
-  font-size: 12px;
-
-  zoom: 1;
-  *display: inline;
-}
-
-.wrapper:after{
-  content: "";
-  width: 100%;
-  display: inline-block;
-
-  zoom: 1;
-  *display: inline;
 }

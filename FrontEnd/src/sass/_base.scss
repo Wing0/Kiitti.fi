@@ -1,6 +1,7 @@
 @import "compass/css3";
 @import "compass/typography/text/nowrap";
-@import url(http://fonts.googleapis.com/css?family=Economica:400,700);
+@import "compass/utilities/general/clearfix";
+@import url(http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700,300italic|Open+Sans:400italic,600italic,300,400,700|Arvo:400,700,400italic,700italic);
 
 /* MIXINS */
 
@@ -17,31 +18,34 @@
 $break-narrow: 480px;
 $break-full: 1060px;
 
-$page-max-width: 900px;
-$page-min-width: 330px;
+$page-max-width: 950px;
+$page-min-width: 500px;
+$page-padding-horizontal: 30px;
 
-$color-main-emphasis: rgb(80,110,140);
 $color-link: rgb(30, 140, 230);
-$color-text: rgb(30,30,30);
-$color-text-muted: rgb(160,160,160);
+$color-text: rgb(51,46,38);
+$color-text-muted: rgb(187,180,161);
 $color-light-text: rgb(255,255,255);
 $color-nav: rgb(10,10,10);
-$color-tag: lighten($color-main-emphasis, 52);
-$color-background: rgb(245,252,255);
+
+$color-background: rgb(255,251,242);
 $color-positive: rgb(75,150,50);
 $color-negative: rgb(220,50,45);
 $color-separator: rgb(200,200,200);
 
-$color-background-light: rgb(233,243,245);
-$color-emphasis-1: rgb(0,145,105);
-$color-emphasis-2: rgb(240,70,75);
+$color-background-light: $color-background;
+$color-emphasis-1: rgb(0,141,95);
+$color-emphasis-2: rgb(238,75,75);
+$color-emphasis-3: rgb(39,146,180);
+$color-main-emphasis: $color-emphasis-1; // deprecated
+$color-tag: lighten($color-main-emphasis, 52);
 
-$block-padding-vertical: 40px;
-$block-padding-horizontal: 30px;
+$block-padding-vertical: 40px; // deprecated
+$block-padding-horizontal: 30px; // deprecated
 
-$font-stack: 'Arial', sans-serif;
-$font-header: 'Economica', sans-serif;
-$font-paragraph: $font-stack;
+$font-stack: 'Open Sans', sans-serif;
+$font-header: 'Open Sans Condensed', sans-serif;
+$font-paragraph: 'Arvo', serif;
 
 $header-height: 60px;
 
