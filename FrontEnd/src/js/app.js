@@ -13,6 +13,24 @@ app.config(function($locationProvider, $httpProvider) {
 
   $httpProvider.defaults.xsrfCookieName = 'csrftoken';
   $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+
+  // Messages interceptor
+  $httpProvider.interceptors.push(function($rootScope, $q, httpBuffer) {
+    return {
+      'response': function(response) {
+          if (response.data.messages)
+            $rootScope.messages = response.data.messages;
+
+          return response || $q.when(response); // default behaviour
+        },
+      'responseError': function(rejection) {
+        if (rejection.data.messages)
+          $rootScope.messages = rejection.data.messages;
+
+        return $q.reject(rejection); // default behaviour
+      }
+    };
+  });
 });
 
 app.run(function($rootScope, AuthAPI) {

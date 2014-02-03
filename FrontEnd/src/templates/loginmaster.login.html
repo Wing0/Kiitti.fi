@@ -5,8 +5,8 @@
   <br>
   <input type="password" id="password" name="password" ng-model="user.password" placeholder="Salasana" required><br>
 
-  <div ng-show="error" class="error message">
-    <p>Käyttäjänimi tai salasana oli väärin.</p>
+  <div ng-show="messages" class="{{message.type}} message" ng-repeat="message in messages">
+    <p ng-bind="message.content"></p>
   </div>
 
   <input class="button emphasis-1" type="submit" id="submit" name="submit" value="Kirjaudu">

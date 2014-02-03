@@ -26,16 +26,15 @@ ktStates.config(function($stateProvider, $urlRouterProvider) {
     })
     .state('logout', {
       url: '/logout',
-      controller: function($location, AuthAPI) {
-        console.log("test");
+      controller: function($location, AuthAPI, $rootScope, $log) {
         AuthAPI.logout()
         .success(function() {
-          console.log("logout");
-          $location.path('/');
+          $log.info("User " + $rootScope.user.username + " logged out");
+          $rootScope.messages = "";
+          $location.path('/login');
         })
         .error(function(data, status) {
-          console.log("data", data);
-          console.log("status", status);
+          $log.error("User " + $rootScope.user.username + " could not be logged out")
         });
       }
     })
