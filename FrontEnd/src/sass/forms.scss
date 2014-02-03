@@ -30,7 +30,7 @@ form {
     font-size: 0.9em;
   }
 
-  input, input:focus {
+  input {
     @include box-sizing(border-box);
     @include box-shadow(white 0 0 0);
 
@@ -48,6 +48,11 @@ form {
     min-width: 250px;
     width: 100%;
     margin-left: -1px;
+
+    @include input-placeholder {
+      color: darken($color-background-light, 30);
+      font-weight: 300;
+    }
   }
 
   input[type="submit"] {

@@ -2,6 +2,18 @@
 @import "compass/typography/text/nowrap";
 @import url(http://fonts.googleapis.com/css?family=Economica:400,700);
 
+/* MIXINS */
+
+@mixin input-placeholder {
+  &.placeholder { @content; }
+  &:-moz-placeholder { @content; }
+  &::-moz-placeholder { @content; }
+  &:-ms-input-placeholder { @content; }
+  &::-webkit-input-placeholder { @content; }
+}
+
+/* VARIABLES */
+
 $break-narrow: 480px;
 $break-full: 1060px;
 
