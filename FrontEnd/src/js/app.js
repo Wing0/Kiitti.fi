@@ -18,14 +18,22 @@ app.config(function($locationProvider, $httpProvider) {
   $httpProvider.interceptors.push(function($rootScope, $q, httpBuffer) {
     return {
       'response': function(response) {
-          if (response.data.messages)
+          if (response.data.messages) {
             $rootScope.messages = response.data.messages;
+            angular.forEach($rootScope.messages, function(value, key) {
+              value.type = "success";
+            });
+          }
 
           return response || $q.when(response); // default behaviour
         },
       'responseError': function(rejection) {
-        if (rejection.data.messages)
+        if (rejection.data.messages) {
           $rootScope.messages = rejection.data.messages;
+          angular.forEach($rootScope.messages, function(value, key) {
+            value.type = "error";
+          });
+        }
 
         return $q.reject(rejection); // default behaviour
       }
