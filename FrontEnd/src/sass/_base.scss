@@ -22,8 +22,6 @@ $page-max-width: 1200px;
 $page-min-width: 320px;
 $page-padding-horizontal: 30px;
 
-$color-link: rgb(30, 140, 230);
-
 $color-text-muted: rgb(187,180,161);
 $color-light-text: rgb(255,255,255);
 $color-nav: rgb(10,10,10);
@@ -38,9 +36,10 @@ $color-background-light: $color-background;
 $color-background-dark: rgb(224,215,195); // (a bit) darker brown
 $color-emphasis-1: rgb(63,135,94); // green
 $color-emphasis-2: rgb(220,93,88); // red
-$color-emphasis-3: rgb(39,146,180); // blue
+$color-emphasis-3: rgb(40,140,190); // blue
 $color-main-emphasis: $color-emphasis-1; // deprecated
 $color-tag: $color-emphasis-3;
+$color-link: $color-emphasis-3;
 $color-input-border: lighten($color-background-dark, 5);
 
 $block-padding-vertical: 40px; // deprecated

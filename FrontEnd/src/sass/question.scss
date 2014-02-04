@@ -17,6 +17,7 @@ $thumb-size: 40px;
   display: table;
   width: 100%;
   max-width: 650px;
+  min-width: 300px;
 
   .cell {
     display: table-cell;
@@ -102,14 +103,27 @@ $thumb-size: 40px;
   min-width: 100px;
   max-width: 150px;
 
-  h2 {
-    margin-bottom: 5px;
+  & > div {
+    margin-bottom: 30px;
   }
 
+  h2 {
+    margin-bottom: 8px;
+  }
   .tags {
     margin-top: 10px;
     li {
       margin: 3px 0;
+    }
+  }
+  .related {
+    li {
+      color: $color-link;
+      font-size: 0.85em;
+      padding: 5px 0;
+      &:not(:last-child) {
+        //border-bottom: 1px solid $color-background-dark;
+      }
     }
   }
 }
