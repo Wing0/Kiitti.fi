@@ -1,4 +1,5 @@
 var app = angular.module('app', ['ngResource', 'ngAnimate', 'ngSanitize',
+                                 'textAngular',
                                  'ktStates', 'ktAuth', 'ktControllers', 'ktAPI']);
 
 /* CONFIG */

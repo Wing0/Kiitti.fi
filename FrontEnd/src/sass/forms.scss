@@ -22,44 +22,40 @@ form {
   }
 
   label {
+    color: $color-emphasis-2;
+    font-weight: bold;
     display: block;
     margin-top: 10px;
-    margin-bottom: -5px;
+    margin-bottom: 4px;
   }
 
-  input {
+  input, textarea, .input {
     @include box-sizing(border-box);
     @include box-shadow(white 0 0 0);
 
-    padding: 3px 0 1px 0;
-    font-size: 1.2em;
-    text-align: center;
+    min-width: 200px;
+    max-width: 400px;
+    width: 100%;
+    margin: 4px 0;
 
-    color: darken($color-background-light, 60);
-
-    background-color: rgb(245,245,252);
-    border: none;
-    border-bottom: 1px solid rgb(220,220,220);
+    border: 1px solid $color-input-border;
     outline-color: rgb(220,220,220);
 
-    min-width: 250px;
-    width: 100%;
-    margin-left: -1px;
+    padding: 4px 5px;
+    font-size: 1.1em;
+    font-weight: 300;
+    color: $color-text;
+    background-color: white;
 
     @include input-placeholder {
-      color: darken($color-background-light, 30);
+      color: $color-text;
       font-weight: 300;
     }
   }
+}
 
-  input[type="submit"] {
-    min-width: 100px;
-    width: auto;
-  }
-
-  &#add-user {
-    max-width: 300px;
-  }
+form.add-answer {
+  margin: 20px 0;
 }
 
 div.search {

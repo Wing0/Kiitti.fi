@@ -14,14 +14,11 @@
 
   <div class="new-answer">
     <h2>Lisää vastaus</h2>
-    <form ng-controller="SubmitAnswerController">
-      <div id="from">
-        <label for="username">Käyttäjänimi:</label>
-        <input type="text" id="username" name="username" ng-model="user.username" />
-      </div>
-      <label for="message">Viesti:</label>
-      <textarea id="message" name="message" ng-model="message"></textarea>
-      <button type="submit" ng-click="send()">Lähetä</button>
+    <hr>
+    <form class="add-answer" ng-controller="SubmitAnswerController">
+      <label for="message">Vastauksesi:</label>
+      <div text-angular ng-model="htmlVariable"></div>
+      <button ng-click="send()" class="emphasis-1">Lähetä vastaus</button>
     </form>
   </div>
 

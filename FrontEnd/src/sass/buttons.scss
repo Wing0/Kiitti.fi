@@ -1,6 +1,8 @@
 @import "_base";
 
 button, .button {
+  display: inline-block;
+
   background-color: $color-emphasis-1;
   color: $color-text;
   font-weight: bold;
@@ -24,6 +26,8 @@ button, .button {
 }
 
 .button-alt {
+  display: inline-block;
+
   color: $color-emphasis-1;
   padding: 5px 0;
   i {
@@ -34,4 +38,8 @@ button, .button {
     cursor: pointer;
     text-decoration: underline;
   }
+
+  &:not(:first-of-type) { margin-left: 10px; }
+  &:not(:last-of-type) { margin-right: 10px; }
 }
+

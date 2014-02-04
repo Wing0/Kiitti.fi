@@ -12,8 +12,14 @@
       <p ng-bind="question.content"></p>
     </div>
 
-    <div class="comments" ng-show="message.comments">
-      <div qna-comment comment="comment" ng-repeat="comment in message.comments"></div>
+    <div class="comment-block">
+      <div class="comments">
+        <div class="comment" ng-repeat="comment in message.comments">
+          <span class="content" ng-bind="comment.content"></span>
+          <span class="username"><a href="#" ng-bind="comment.username"></a></span>
+          <span class="date" ng-bind="comment.date"></span>
+        </div>
+      </div>
       <div class="buttons">
         <div class="button-alt" ng-click="addComment()"><i class="fa fa-pencil"></i><span>Lisää kommentti</span></div>
       </div>

@@ -44,7 +44,7 @@ $thumb-size: 40px;
     }
   }
 
-  .comments {
+  .comment-block {
     margin: 15px 0;
     border-top: 2px dotted $color-background-dark;
     border-bottom: 2px dotted $color-background-dark;
@@ -52,12 +52,10 @@ $thumb-size: 40px;
 
     .comment {
       padding: 7px 0;
-      &:last-of-type {
-        border-bottom: 2px dotted lighten($color-background-dark, 8);
-      }
+      line-height: 1.3;
 
-      p {
-        display: inline;
+      &:not(:last-of-type) {
+        border-bottom: 2px dotted lighten($color-background-dark, 8);
       }
 
       .username {
@@ -73,15 +71,18 @@ $thumb-size: 40px;
     }
 
     .buttons {
+      white-space: nowrap;
       margin: 7px 0;
     }
   }
 }
 
+.answers {
+  margin-bottom: 30px;
+}
+
 
 .message-block {
-
-
   &.answer {
     @include transition(opacity 0.5s ease-in-out);
 
