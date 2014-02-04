@@ -4,6 +4,8 @@
 
 .ta-root {
   button {
+    @include transition(background-color 0.2s ease-in-out);
+
     padding: 4px 6px;
     margin: 0;
     border: 1px solid darken($color-background-dark, 10);
