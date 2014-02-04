@@ -15,6 +15,7 @@ body {
   background-color: $color-background;
   font-family: $font-stack;
   min-width: 240px;
+  color: $color-text;
 }
 
 /* BUILDING BLOCKS */
@@ -71,6 +72,16 @@ h3, h4, h5 {
   text-transform: none;
   margin-bottom: 10px;
   margin-top: 25px;
+}
+
+h1 {
+  font-size: 1.8em;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: 1.4em;
+  font-weight: bold;
 }
 
 p {
@@ -183,7 +194,7 @@ header#main-header {
   .container {
     min-width: $page-min-width;
     max-width: $page-max-width;
-    margin: 30px auto;
+    margin: 50px auto;
     text-align: center;
   }
 }

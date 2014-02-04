@@ -9,6 +9,10 @@ button, .button {
   text-transform: uppercase;
   border: 1px solid darken($color-emphasis-1, 5);
 
+  &:hover {
+    cursor: pointer;
+  }
+
   &.emphasis-1 {
     color: white;
     background-color: $color-emphasis-1;
@@ -16,5 +20,18 @@ button, .button {
   &.emphasis-2 {
     color: white;
     background-color: $color-emphasis-2;
+  }
+}
+
+.button-alt {
+  color: $color-emphasis-1;
+  padding: 5px 0;
+  i {
+    font-size: 1.2em;
+    margin-right: 7px;
+  }
+  &:hover {
+    cursor: pointer;
+    text-decoration: underline;
   }
 }

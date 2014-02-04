@@ -18,25 +18,27 @@
 $break-narrow: 480px;
 $break-full: 1060px;
 
-$page-max-width: 950px;
+$page-max-width: 900px;
 $page-min-width: 500px;
 $page-padding-horizontal: 30px;
 
 $color-link: rgb(30, 140, 230);
-$color-text: rgb(51,46,38);
+
 $color-text-muted: rgb(187,180,161);
 $color-light-text: rgb(255,255,255);
 $color-nav: rgb(10,10,10);
 
-$color-background: rgb(255,251,242);
 $color-positive: rgb(75,150,50);
 $color-negative: rgb(220,50,45);
 $color-separator: rgb(200,200,200);
 
+$color-text: rgb(79,73,61); // dark brown
+$color-background: rgb(255,251,242); // light brown
 $color-background-light: $color-background;
-$color-emphasis-1: rgb(0,141,95);
-$color-emphasis-2: rgb(238,75,75);
-$color-emphasis-3: rgb(39,146,180);
+$color-background-dark: rgb(224,215,195); // (a bit) darker brown
+$color-emphasis-1: rgb(63,135,94); // green
+$color-emphasis-2: rgb(220,93,88); // red
+$color-emphasis-3: rgb(39,146,180); // blue
 $color-main-emphasis: $color-emphasis-1; // deprecated
 $color-tag: lighten($color-main-emphasis, 52);
 
