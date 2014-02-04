@@ -1,25 +1,42 @@
-<section class="conversation">
-
-  <div class="question">
-    <h1 class="topic" ng-bind="question.topic"></h1>
-    <div ng-include src="'templates/partial_conversation.message.html'" ng-init="message=question"></div>
-  </div>
-
-  <div class="answers">
-    <h2>Vastaukset</h2>
-    <div ng-repeat="message in question.answers">
-      <div ng-include src="'templates/partial_conversation.message.html'"></div>
+<div class="table">
+  <section class="conversation cell">
+    <div class="question">
+      <h1 class="topic" ng-bind="question.topic"></h1>
+      <div ng-include src="'templates/partial_conversation.message.html'" ng-init="message=question"></div>
     </div>
-  </div><!--/answers-->
 
-  <div class="new-answer">
-    <h2>Lisää vastaus</h2>
-    <hr>
-    <form class="add-answer" ng-controller="SubmitAnswerController">
-      <label for="message">Vastauksesi:</label>
-      <div text-angular ng-model="htmlVariable"></div>
-      <button ng-click="send()" class="emphasis-1">Lähetä vastaus</button>
-    </form>
-  </div>
+    <div class="answers">
+      <h2>Vastaukset</h2>
+      <div ng-repeat="message in question.answers">
+        <div ng-include src="'templates/partial_conversation.message.html'"></div>
+      </div>
+    </div><!--/answers-->
 
-</section>
+    <div class="new-answer">
+      <h2>Lisää vastaus</h2>
+      <hr>
+      <form class="add-answer" ng-controller="SubmitAnswerController">
+        <label for="message">Vastauksesi:</label>
+        <div text-angular ng-model="htmlVariable"></div>
+        <button ng-click="send()" class="emphasis-1">Lähetä vastaus</button>
+      </form>
+    </div>
+  </section>
+
+  <aside class="question-meta cell">
+    <div class="tags">
+      <h2>Tagit</h2>
+      <ul>
+        <li>matematiikka<i class="fa fa-arrow-right"></i></li>
+        <li>neliöjuuri<i class="fa fa-arrow-right"></i></li>
+      </ul>
+    </div>
+    <div class="related">
+      <h2>Vastaavat</h2>
+      <ul>
+        <li>linkki</li>
+        <li>linkki</li>
+      </ul>
+    </div>
+  </aside>
+</div>

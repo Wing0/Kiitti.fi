@@ -18,7 +18,7 @@
 $break-narrow: 480px;
 $break-full: 1060px;
 
-$page-max-width: 900px;
+$page-max-width: 1200px;
 $page-min-width: 320px;
 $page-padding-horizontal: 30px;
 
@@ -40,7 +40,7 @@ $color-emphasis-1: rgb(63,135,94); // green
 $color-emphasis-2: rgb(220,93,88); // red
 $color-emphasis-3: rgb(39,146,180); // blue
 $color-main-emphasis: $color-emphasis-1; // deprecated
-$color-tag: lighten($color-main-emphasis, 52);
+$color-tag: $color-emphasis-3;
 $color-input-border: lighten($color-background-dark, 5);
 
 $block-padding-vertical: 40px; // deprecated
