@@ -27,13 +27,28 @@ $thumb-size: 40px;
     padding-left: 5px;
     padding-right: 30px;
     text-align: center;
-    i {
-      color: $color-background-dark;
-      font-size: 2.2em;
-    }
+
     .votes-amount {
       font-size: 1.5em;
       font-weight: bold;
+    }
+    .vote {
+      &:hover {
+        cursor: pointer;
+      }
+      i {
+        @include transition(color 0.15s ease-in-out);
+        color: $color-background-dark;
+        font-size: 2.2em;
+      }
+    }
+    .vote {
+      &.up:hover i {
+        color: $color-emphasis-1;
+      }
+      &.down:hover i {
+        color: $color-emphasis-2;
+      }
     }
   }
   .message-stack {
@@ -100,8 +115,7 @@ $thumb-size: 40px;
 .question-meta {
   padding-left: 50px;
   vertical-align: top;
-  min-width: 100px;
-  max-width: 150px;
+  width: 150px;
 
   & > div {
     margin-bottom: 30px;

@@ -39,7 +39,8 @@ form {
     margin: 4px 0;
 
     border: 1px solid $color-input-border;
-    outline-color: rgb(220,220,220);
+
+    outline-color: $color-emphasis-2;
 
     padding: 4px 5px;
     font-size: 1.1em;
