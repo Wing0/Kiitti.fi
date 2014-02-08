@@ -1,0 +1,10 @@
+<div ng-repeat="question in data.questions">
+  <div class="sing-question" ng-init="showContent=false">
+    <header>
+      <h2><a href="/question/{{question.messageId}}" ng-bind="question.title"></a></h2>
+    </header>
+    <section class="content" ng-show="showContent">
+      <div ng-bind="question.content"></div>
+    </section>
+  </div>
+</div>

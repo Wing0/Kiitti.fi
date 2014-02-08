@@ -50,8 +50,9 @@ app.run(function($rootScope, AuthAPI) {
 
 /* RESOURCES */
 
-app.factory('QuestionFactory', function($resource) {
-  return $resource('/testdata/single_question.json', {},
+app.factory('QuestionFactory', function($resource, APIUrl) {
+  //return $resource('/testdata/single_question.json', {},
+  return $resource(APIUrl + '/questions', {},
     { 'get': {method: 'GET', isArray: false} });
 });
 

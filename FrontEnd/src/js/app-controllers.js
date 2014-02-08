@@ -28,19 +28,30 @@ ktControllers.controller('SubmitAnswerController', function($scope, QuestionFact
   };
 });
 
+ktControllers.controller('CreateQuestionController', function($scope, QuestionFactory) {
+  $scope.send = function() {
+    console.log($scope.question);
+    QuestionFactory.save($scope.question);
+  }
+});
+
+ktControllers.controller('BrowseQuestionsController', function($scope, QuestionFactory) {
+  $scope.data = QuestionFactory.get();
+});
+
+ktControllers.controller('SingleQuestionController', function($scope, QuestionFactory) {
+  console.log($scope.messageId);
+});
+
 ktControllers.controller('BrowsePopularController', function($scope, QuestionFactory, AnswerFactory) {
 
-  $scope.questions = AnswerFactory.get({"questionId": 1});
+  //$scope.questions = AnswerFactory.get({"questionId": 1});
 
   /*var questions = QuestionFactory.get(function(data) {
   $scope.questions = data.questions;
   });*/
 
   $scope.question = QuestionFactory.get();
-
-  /*var questions = QuestionFactory.get(function(data) {
-  console.log(data);
-  });*/
 
 });
 
