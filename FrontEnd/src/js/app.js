@@ -1,19 +1,22 @@
-var app = angular.module('app', ['ngResource', 'ngAnimate', 'ngSanitize',
+var app = angular.module('app', ['ngResource', 'ngAnimate', 'ngSanitize', 'ngCookies',
                                  'textAngular',
                                  'ktStates', 'ktAuth', 'ktControllers', 'ktAPI']);
 
 /* CONFIG */
 
-app.constant("APIUrl", 'http://0.0.0.0:8000');
+app.constant("APIUrl", 'http://127.0.0.1:8000');
 
-app.config(function($locationProvider, $httpProvider) {
+app.config(function($locationProvider, $httpProvider, $cookiesProvider) {
 
   $locationProvider
     .html5Mode(true)
     .hashPrefix('!');
 
-  $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-  $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+  // $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+  // $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+
+  // $httpProvider.defaults.headers.common['X-CSRFToken'] = $cookiesProvider.csrftoken;
+  $httpProvider.defaults.withCredentials = true;
 
   // Messages interceptor
   $httpProvider.interceptors.push(function($rootScope, $q, httpBuffer) {
@@ -42,9 +45,11 @@ app.config(function($locationProvider, $httpProvider) {
   });
 });
 
-app.run(function($rootScope, AuthAPI) {
-  AuthAPI.load().success(function(data) {
+app.run(function($rootScope, AuthAPI, $cookies, $http, $location) {
+  AuthAPI.load()
+  .success(function(data) {
     $rootScope.user = data.user;
+    $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
   });
 })
 
