@@ -40,7 +40,7 @@ class Organization(models.Model):
             # Create user actions
             orgobjects = Organization.objects.all()
             largest_id = max([0] + [org.organization_id for org in orgobjects])
-            self.organization_id = largest_id
+            self.organization_id = largest_id + 1
         # Just save
         super(Organization, self).save(*args, **kwargs)
 
