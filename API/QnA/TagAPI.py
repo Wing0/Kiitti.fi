@@ -81,7 +81,7 @@ class TagAPI(APIView):
                 if isinstance(user_id, int):
                     user = False
                     try:
-                        user = User.objects.get(user_id = user_id)
+                        user = User.objects.get(user_id=user_id)
                     except:
                         messages.append({"type": "alert", "content": "The user id does not match any user.", "identifier": "userId"})
                     if user:
