@@ -106,7 +106,7 @@ class AnswerAPI(APIView):
             limit, integer (optional): The maximum number of answers retriveved. Default = 10
             order, string (optional): The method for ordering the retrieved answers. "votes" or "latest". Default="latest".
         @example
-            /answers/?questionId=123&limit=4&order="votes"
+            /answers/?questionId=123&limit=4&order=votes
         @perm
             member: All answer information can be given only for members of the organization
         @return
@@ -211,7 +211,7 @@ class AnswerAPI(APIView):
             limit, integer (optional): The maximum number of answers retriveved. Default = 10
             order, string (optional): The method for ordering the retrieved answers. "votes" or "latest". Default="latest".
         @example
-            /answers/?authorId=123&limit=4&order="votes"
+            /answers/?authorId=123&limit=4&order=votes
         @perm
             member: All answer information can be given only for members of the organization.
         @return
