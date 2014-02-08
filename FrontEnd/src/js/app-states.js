@@ -54,15 +54,15 @@ ktStates.config(function($stateProvider, $urlRouterProvider) {
       templateUrl: tdir + 'questions.all.html',
       controller: 'BrowseQuestionsController'
     })
-    .state('master.question', {
-      url: '/question/:messageId',
-      templateUrl: tdir + 'question.html',
-      controller: 'SingleQuestionController'
-    })
     .state('master.createQuestion', {
       url: '/question/new',
       templateUrl: tdir + 'create_question.html',
       controller: 'CreateQuestionController'
+    })
+    .state('master.question', {
+      url: '/question/:messageId',
+      templateUrl: tdir + 'question.html',
+      controller: 'SingleQuestionController'
     });
 });
 
