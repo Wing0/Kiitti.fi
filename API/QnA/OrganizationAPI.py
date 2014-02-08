@@ -23,25 +23,21 @@ class OrganizationAPI(APIView):
 
 
     def post(self, request):
-        success = False
         messages = []
         data = json.loads(request.body)
-        valid_input = True
+        if not request.user.is_authenticated():
+            return Response(create_message("You must be logged in to request organizations."), 401)
         if not data.get("name"):
             messages.append({"type": "alert","content": "Organization name must be provided.","identifier": "name"})
-            valid_input = False
         if not data.get("address"):
             messages.append({"type": "alert","content": "Organization address must be provided.","identifier": "address"})
-            valid_input = False
-        if not data.get("organization_id"):
-            messages.append({"type": "alert","content": "Organization id must be provided.","identifier": "organizationId"})
-        if valid_input:
-            org = Organization(name=data.get("name"), address=data.get("address"), organization_id=data.get("organizationId"))
-            valid, messages = org.validate()
-            if valid:
+        if len(messages) == 0:
+            org = Organization(name=data.get("name"), address=data.get("address"))
+            messages = org.validate()
+            if len(messages) == 0:
                 org.save()
-                success = True
-        return Response({"messages":messages, "success":success}, 200)
+                return Response(create_message("New organization created."), 201)
+        return Response({"messages": messages}, 400)
 
     def get_by_id(self, orgid):
         '''

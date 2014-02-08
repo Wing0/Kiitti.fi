@@ -20,7 +20,7 @@ class AnswerAPI(APIView):
         if request.GET.get("questionId") != None:
             return self.by_question_id(request, request.GET.get("questionId"), request.GET.get("limit"), request.GET.get("order"))
         elif request.GET.get("authorId") != None:
-            return self.by_author_id(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
+            return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
         # ToDo: get all latest/best answers?
         else:
             return Response({"user":request.user.serialize(), "questionId":request.GET.get("questionId")},404)
