@@ -117,7 +117,16 @@ class QuestionAPI(APIView):
                                         "title":"What is the question?",
                                         "content":"An example question",
                                         "version":1,
-                                        "userId":123,
+                                        "user": {
+                                            "username": "admin",
+                                            "reputation": 0,
+                                            "lastLogin": "2014-02-08T14:16:58.926Z",
+                                            "firstName": "Ville",
+                                            "created": "2014-01-05T19:53:55Z",
+                                            "lastName": "Tolonen",
+                                            "userId": 1,
+                                            "email": "admin@admin.fi"
+                                        },
                                         "created": "2014-01-08T11:05:16",
                                         "modified": "2014-01-08T11:05:16",
                                         "messageId": 4,
@@ -221,7 +230,16 @@ class QuestionAPI(APIView):
                                         "title":"What is the question?",
                                         "content":"An example question",
                                         "version":1,
-                                        "userId":123,
+                                        "user": {
+                                            "username": "admin",
+                                            "reputation": 0,
+                                            "lastLogin": "2014-02-08T14:16:58.926Z",
+                                            "firstName": "Ville",
+                                            "created": "2014-01-05T19:53:55Z",
+                                            "lastName": "Tolonen",
+                                            "userId": 1,
+                                            "email": "admin@admin.fi"
+                                        },
                                         "created": "2014-01-08T11:05:16",
                                         "modified": "2014-01-08T11:05:16",
                                         "messageId": 4,
@@ -344,7 +362,16 @@ class QuestionAPI(APIView):
                                         "title":"What is the question?",
                                         "content":"An example question",
                                         "version":1,
-                                        "userId":123,
+                                        "user": {
+                                            "username": "admin",
+                                            "reputation": 0,
+                                            "lastLogin": "2014-02-08T14:16:58.926Z",
+                                            "firstName": "Ville",
+                                            "created": "2014-01-05T19:53:55Z",
+                                            "lastName": "Tolonen",
+                                            "userId": 1,
+                                            "email": "admin@admin.fi"
+                                        },
                                         "created": "2014-01-08T11:05:16",
                                         "modified": "2014-01-08T11:05:16",
                                         "messageId": 4,
@@ -359,6 +386,13 @@ class QuestionAPI(APIView):
                                         "messageId": 4,
                                         "questionId":1,
                                         "accepted":false
+                                        }, {...}, {...}]
+                            "comments":[{
+
+                                        "userId": int,
+                                        "username": string,
+                                        "content": string,
+                                        "date": timestamp
                                         }, {...}, {...}]
                         }
             404: No content found
@@ -445,7 +479,16 @@ class QuestionAPI(APIView):
                                         "title":"What is the question?",
                                         "content":"An example question",
                                         "version":1,
-                                        "userId":123,
+                                        "user": {
+                                            "username": "admin",
+                                            "reputation": 0,
+                                            "lastLogin": "2014-02-08T14:16:58.926Z",
+                                            "firstName": "Ville",
+                                            "created": "2014-01-05T19:53:55Z",
+                                            "lastName": "Tolonen",
+                                            "userId": 1,
+                                            "email": "admin@admin.fi"
+                                        },
                                         "created": "2014-01-08T11:05:16",
                                         "modified": "2014-01-08T11:05:16",
                                         "messageId": 4,
@@ -505,4 +548,3 @@ class QuestionAPI(APIView):
         if order:
             answers = order_messages(answers, order)
         return [ans.serialize() for ans in exclude_old_versions(answers)]
-
