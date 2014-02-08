@@ -235,8 +235,9 @@ class Answer(AbstractMessage):
         jsondict['questionId'] = self.question_id
         jsondict['accepted'] = self.accepted
         jsondict['meta'] = {
-                            "number of comments": len(exclude_old_versions(list(Comment.objects.filter(parent_id = self.message_id, is_question_comment = False)))),
-                            "number of votes": len(Vote.objects.filter(message_id = self.message_id, is_question=False))
+                            "commentsNumber": len(exclude_old_versions(list(Comment.objects.filter(parent_id = self.message_id, is_question_comment = False)))),
+                            "votesNumber": len(Vote.objects.filter(message_id = self.message_id, is_question=False)),
+                            "votes": sum([vote.direction for vote in list(Vote.objects.filter(message_id = self.message_id, is_question=False))])
                             }
 
         return jsondict
@@ -278,9 +279,10 @@ class Question(AbstractMessage):
         jsondict['title'] = self.title
         jsondict['tags'] = [tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=self.message_id)]
         jsondict['meta'] = {
-                            "number of comments": len(exclude_old_versions(list(Comment.objects.filter(parent_id = self.message_id, is_question_comment = True)))),
-                            "number of answers":len(exclude_old_versions(list(Answer.objects.filter(question_id=self.message_id)))),
-                            "number of votes": len(Vote.objects.filter(message_id = self.message_id, is_question=True))
+                            "commentsNumber": len(exclude_old_versions(list(Comment.objects.filter(parent_id = self.message_id, is_question_comment = True)))),
+                            "answersNumber":len(exclude_old_versions(list(Answer.objects.filter(question_id=self.message_id)))),
+                            "votesNumber": len(Vote.objects.filter(message_id = self.message_id, is_question=True)),
+                            "votes": sum([vote.direction for vote in list(Vote.objects.filter(message_id = self.message_id, is_question=True))])
                             }
         return jsondict
 
