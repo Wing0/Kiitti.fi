@@ -117,7 +117,16 @@ class AnswerAPI(APIView):
                             "answers":[{
                                         "content":"An example answer",
                                         "version":1,
-                                        "userId":123,
+                                        "user": {
+                                            "username": "test",
+                                            "reputation": 0,
+                                            "lastLogin": "2014-02-02T19:00:31.568Z",
+                                            "firstName": "test",
+                                            "created": "2014-01-25T18:34:35Z",
+                                            "lastName": "test",
+                                            "userId": 2,
+                                            "email": "test@test.test"
+                                        },
                                         "created": "2014-01-08T11:05:16",
                                         "modified": "2014-01-08T11:05:16",
                                         "messageId": 4,
@@ -213,7 +222,16 @@ class AnswerAPI(APIView):
                             "answers":[{
                                         "content":"An example answer",
                                         "version":1,
-                                        "userId":123,
+                                        "user": {
+                                            "username": "test",
+                                            "reputation": 0,
+                                            "lastLogin": "2014-02-02T19:00:31.568Z",
+                                            "firstName": "test",
+                                            "created": "2014-01-25T18:34:35Z",
+                                            "lastName": "test",
+                                            "userId": 2,
+                                            "email": "test@test.test"
+                                        },
                                         "created": "2014-01-08T11:05:16",
                                         "modified": "2014-01-08T11:05:16",
                                         "messageId": 4,

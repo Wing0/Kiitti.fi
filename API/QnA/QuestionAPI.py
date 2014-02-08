@@ -374,24 +374,45 @@ class QuestionAPI(APIView):
                                         },
                                         "created": "2014-01-08T11:05:16",
                                         "modified": "2014-01-08T11:05:16",
-                                        "messageId": 4,
+                                        "messageId": 5,
                                         },
 
                             "answers":[{
                                         "content":"An example answer",
                                         "version":1,
-                                        "userId":123,
+                                        "user": {
+                                            "username": "admin",
+                                            "reputation": 0,
+                                            "lastLogin": "2014-02-08T14:16:58.926Z",
+                                            "firstName": "Ville",
+                                            "created": "2014-01-05T19:53:55Z",
+                                            "lastName": "Tolonen",
+                                            "userId": 1,
+                                            "email": "admin@admin.fi"
+                                        },
                                         "created": "2014-01-08T11:05:16",
                                         "modified": "2014-01-08T11:05:16",
                                         "messageId": 4,
-                                        "questionId":1,
+                                        "questionId":5,
                                         "accepted":false
                                         }, {...}, {...}]
                             "comments":[{
-                                        "userId": int,
-                                        "username": string,
-                                        "content": string,
-                                        "date": timestamp
+                                        "user": {
+                                            "username": "admin",
+                                            "reputation": 0,
+                                            "lastLogin": "2014-02-08T14:16:58.926Z",
+                                            "firstName": "Ville",
+                                            "created": "2014-01-05T19:53:55Z",
+                                            "lastName": "Tolonen",
+                                            "userId": 1,
+                                            "email": "admin@admin.fi"
+                                        },
+                                        "created": "2014-02-08T15:11:59",
+                                        "organizationId": 0,
+                                        "parentId": 5,
+                                        "content": "dasfasdasfasdasdasfasfasdas",
+                                        "version": 1,
+                                        "messageId": 0
                                         }, {...}, {...}]
                         }
             404: No content found

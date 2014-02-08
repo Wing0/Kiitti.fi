@@ -87,12 +87,22 @@ class CommentAPI(APIView):
                 {
                     "comments":[
                         {
-                            "messageId": 3,
-                            "content": "I am very important content of random comment.",
-                            "parentId": 1,
-                            "isQuestion": "true",
-                            "version": 0,
-                            "userId": 2
+                            "created": "2014-02-08T15:11:59",
+                            "organizationId": 0,
+                            "parentId": 5,
+                            "content": "dasfasdasfasdasdasfasfasdas",
+                            "version": 1,
+                            "messageId": 0
+                            "user": {
+                                "username": "test",
+                                "reputation": 0,
+                                "lastLogin": "2014-02-02T19:00:31.568Z",
+                                "firstName": "test",
+                                "created": "2014-01-25T18:34:35Z",
+                                "lastName": "test",
+                                "userId": 2,
+                                "email": "test@test.test"
+                            },
                         }
                     ]
                 }
@@ -134,12 +144,22 @@ class CommentAPI(APIView):
             {
                 "comments":[
                     {
-                        "messageId": 3,
-                        "content": "I am very important content of random comment.",
-                        "parentId": 1,
-                        "isQuestion": "true",
-                        "version": 0,
-                        "userId": 2
+                        "created": "2014-02-08T15:11:59",
+                        "organizationId": 0,
+                        "parentId": 5,
+                        "content": "dasfasdasfasdasdasfasfasdas",
+                        "version": 1,
+                        "messageId": 0
+                        "user": {
+                            "username": "test",
+                            "reputation": 0,
+                            "lastLogin": "2014-02-02T19:00:31.568Z",
+                            "firstName": "test",
+                            "created": "2014-01-25T18:34:35Z",
+                            "lastName": "test",
+                            "userId": 2,
+                            "email": "test@test.test"
+                        },
                     }
                 ]
             }
