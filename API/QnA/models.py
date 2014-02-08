@@ -186,6 +186,7 @@ class AbstractMessage(models.Model):
             'content': self.content,
             'version': self.version,
             'userId': self.user.user_id,
+            'organizationId': self.organization.organization_id,
             'created': format_date(self.created),
             'messageId': self.message_id
         }
@@ -356,19 +357,15 @@ class Vote(models.Model):
         return jsondict
 
     def validate(self):
-        valid = True
         messages = []
         if not isinstance(self.rate, int):
-            valid = False
             messages.append(compose_message("Rate has to be a integer.", "rate"))
         if not isinstance(self.user.user_id, int) or self.user_id < 0:
-            valid = False
             messages.append(compose_message("User id has to be a positive integer.", "userId"))
         if not isinstance(self.user.user_id, int) or self.message_id < 0:
-            valid = False
             messages.append(compose_message("Message id has to be a positive integer.", "messageId"))
 
-        return valid, messages
+        return messages
 
 class Tag(models.Model):
     tag_id = models.PositiveIntegerField(unique=True)
@@ -385,13 +382,10 @@ class Tag(models.Model):
 
     def serialize(self):
         count = 0
-        try:
-            count = TagEntry.objects.filter(tag=tag_id).count()
-        except:
-            #Tag has no uses
+        count = TagEntry.objects.filter(tag=self.tag_id).count()
         jsondict = {
             'tagId':self.tag_id,
-            'user': self.creator.user_id,
+            'user': self.user.user_id,
             'created': format_date(self.created),
             'modified': format_date(self.modified),
             'organizationId':self.organization.organization_id,
