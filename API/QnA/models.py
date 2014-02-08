@@ -234,6 +234,10 @@ class Answer(AbstractMessage):
         jsondict = super(Answer, self).serialize()
         jsondict['questionId'] = self.question_id
         jsondict['accepted'] = self.accepted
+        jsondict['meta'] = {
+                            "number of comments": len(exclude_old_versions(list(Comment.objects.filter(parent_id = self.message_id, is_question_comment = False)))),
+                            "number of votes": len(Vote.objects.filter(message_id = self.message_id, is_question=False))
+                            }
 
         return jsondict
 
@@ -273,7 +277,11 @@ class Question(AbstractMessage):
         jsondict = super(Question, self).serialize()
         jsondict['title'] = self.title
         jsondict['tags'] = [tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=self.message_id)]
-        jsondict['meta'] = {"number_of_answers":len(exclude_old_versions(list(Answer.objects.filter(question_id=self.message_id))))} #ToDo
+        jsondict['meta'] = {
+                            "number of comments": len(exclude_old_versions(list(Comment.objects.filter(parent_id = self.message_id, is_question_comment = True)))),
+                            "number of answers":len(exclude_old_versions(list(Answer.objects.filter(question_id=self.message_id)))),
+                            "number of votes": len(Vote.objects.filter(message_id = self.message_id, is_question=True))
+                            }
         return jsondict
 
     def validate(self):
@@ -343,15 +351,17 @@ class Vote(models.Model):
 
     direction = models.SmallIntegerField(default=1)
     user = models.ForeignKey(User, to_field="user_id")
+    is_question = models.BooleanField()
     message_id = models.PositiveIntegerField(default=0)
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
 
     def serialize(self):
         jsondict = {
-            'rate': self.rate,
+            'direction': self.direction,
             'userId': self.user.user_id,
             'messageId': self.message_id,
+            'isQuestion': self.is_question,
             'created': format_date(self.created),
             'modified': format_date(self.modified)
         }
