@@ -181,6 +181,9 @@ class AbstractMessage(models.Model):
     #modified = models.DateTimeField(auto_now=True)
     message_id = models.PositiveIntegerField()
 
+    class Meta:
+        abstract = True
+
     def serialize(self):
         jsondict = {
             'content': self.content,
@@ -327,7 +330,7 @@ class Comment(AbstractMessage):
 
 class Vote(models.Model):
 
-    rate = models.SmallIntegerField(default=0)
+    direction = models.SmallIntegerField(default=1)
     user = models.ForeignKey(User, to_field="user_id")
     message_id = models.PositiveIntegerField(default=0)
     created = models.DateField(auto_now_add=True)
