@@ -91,14 +91,17 @@ class QuestionAPI(APIView):
         Further information in helper method docstring
         '''
 
-        if request.GET.get("authorId") != None:
-            return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
-        elif request.GET.get("tags"):
-            return self.by_tags(request, request.GET.get("tags"), request.GET.get("searchMethod"), request.GET.get("limit"), request.GET.get("order"))
-        elif request.GET.get("questionId") != None:
-            return self.by_id(request, request.GET.get("questionId"), request.GET.get("limit"), request.GET.get("order"))
+        if not request.user.is_authenticated():
+            return Response({"messages":create_message("User must be logged in.")}, 401)
         else:
-            return self.get_all(request, request.GET.get("limit"), request.GET.get("order"))
+            if request.GET.get("authorId") != None:
+                return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
+            elif request.GET.get("tags"):
+                return self.by_tags(request, request.GET.get("tags"), request.GET.get("searchMethod"), request.GET.get("limit"), request.GET.get("order"))
+            elif request.GET.get("questionId") != None:
+                return self.by_id(request, request.GET.get("questionId"), request.GET.get("order"), request.GET.get("history"))
+            else:
+                return self.get_all(request, request.GET.get("limit"), request.GET.get("order"))
 
 
     def by_author(self, request, author_id, limit=10, order="latest"):
@@ -152,9 +155,6 @@ class QuestionAPI(APIView):
             messages.append({"content":"A author id has to be provided.","identifier":"authorId"})
         else:
             try:
-                if not request.user.is_authenticated():
-                    messages.append({"content":"User must be logged in.", "identifier":"user"})
-                    return Response({"messages":messages}, 401)
                 # Parameter check and default values
                 author_id = int(author_id)
                 if author_id < 0:
@@ -262,9 +262,6 @@ class QuestionAPI(APIView):
             return list(set(a) | set(b))
 
         messages = []
-        if not request.user.is_authenticated():
-            messages.append({"content":"User must be logged in.", "identifier":"user"})
-            return Response({"messages":messages}, 401)
 
         # Parameter check and default values
         if limit == None:
@@ -391,12 +388,9 @@ class QuestionAPI(APIView):
         '''
         messages = []
         if question_id == None:
-            messages.append({"content":"A question id has to be provided.","identifier":"questionId"})
+            messages.append({"content":"A question id must be provided.","identifier":"questionId"})
         else:
             try:
-                if not request.user.is_authenticated():
-                    messages.append({"content":"User must be logged in.", "identifier":"user"})
-                    return Response({"messages":messages}, 401)
                 # Parameter check and default values
                 question_id = int(question_id)
                 if question_id < 0:
@@ -478,9 +472,6 @@ class QuestionAPI(APIView):
                             "messages":[{"content":"An example error message.","identifier":"example"}]
         '''
         messages = []
-        if not request.user.is_authenticated():
-            messages.append({"content":"User must be logged in.", "identifier":"user"})
-            return Response({"messages":messages}, 401)
         # Parameter check and default values
 
         if limit == None:
