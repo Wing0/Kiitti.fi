@@ -66,6 +66,7 @@ class AnswerAPI(APIView):
         ans = post_abstract_message(Answer(), data)
         if request.user.is_authenticated():
             ans.user = request.user
+            ans.organization = request.user.organization
         else:
             messages.append(compose_message("User must be logged in.", "user"))
             return Response({"messages":messages}, 401)
