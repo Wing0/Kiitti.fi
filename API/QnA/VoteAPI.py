@@ -64,12 +64,16 @@ class VoteAPI(APIView):
                     try:
                         Question.objects.get(message_id = vote.message_id)
                         vote.is_question = True
+                        if Vote.objects.get(message_id = vote.message_id, is_question = True):
+                            messages.append(compose_message("You have already voted this question.","messageId"))
                     except:
                         messages.append(compose_message("No question was found with given message id.","messageId"))
                 elif parent_type == "answer":
                     try:
                         Answer.objects.get(message_id = vote.message_id)
                         vote.is_question = False
+                        if Vote.objects.get(message_id = vote.message_id, is_question = False):
+                            messages.append(compose_message("You have already voted this answer.","messageId"))
                     except:
                         messages.append(compose_message("No answer was found with given message id.","messageId"))
 
