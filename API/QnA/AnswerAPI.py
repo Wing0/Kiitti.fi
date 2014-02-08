@@ -185,8 +185,16 @@ class AnswerAPI(APIView):
 
                     answers = exclude_old_versions(answers)
                     answers = order_messages(answers, order)
-
-                    return Response({"answers":[ans.serialize() for ans in answers[:limit]], "messages":messages}, 200)
+                    answer_list = []
+                    for ans in answers[:limit]:
+                        json = ans.serialize()
+                        del json["userId"]
+                        json["user"] = ans.user.serialize()
+                        comments = Comment.objects.filter(parent_id=ans.message_id)
+                        for comment in comments:
+                            json["comments"] = comment.serialize()
+                        answer_list.append(json)
+                    return Response({"answers": answer_list, "messages":messages}, 200)
 
             except ValueError:
                 messages.append({"content":"The question id has to be a positive integer.","identifier":"questionId"})
@@ -283,8 +291,14 @@ class AnswerAPI(APIView):
 
                     answers = exclude_old_versions(answers)
                     answers = order_messages(answers, order)
-
-                    return Response({"answers":[ans.serialize() for ans in answers[:limit]], "messages":messages}, 200)
+                    answer_list = []
+                    for ans in answers[:limit]:
+                        json = ans.serialize()
+                        comments = Comment.objects.filter(parent_id=ans.message_id)
+                        for comment in comments:
+                            json["comments"] = comment.serialize()
+                        answer_list.append(json)
+                    return Response({"answers": answer_list, "messages":messages}, 200)
 
             except ValueError:
                 messages.append({"content":"The author id has to be a positive integer.","identifier":"questionId"})
