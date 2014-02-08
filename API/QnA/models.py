@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from QnA.utils import *
 import re
+import hashlib
 
 def format_date(date):
     return date.strftime('%Y-%m-%dT%H:%M:%S')
@@ -446,7 +447,7 @@ class TagEntry(models.Model):
 
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
-    creator = models.ForeignKey(User, to_field="user_id")
+    user = models.ForeignKey(User, to_field="user_id")
 
     def __unicode__(self):
         return self.tag.name
@@ -456,7 +457,7 @@ class TagEntry(models.Model):
             'tagEntryId':self.tag_entry_id,
             'tagId':self.tag.tag_id,
             'messageId': self.message_id,
-            'creator': self.creator.user_id,
+            'user': self.user.user_id,
             'created': format_date(self.created),
             'modified': format_date(self.modified),
         }
@@ -495,6 +496,24 @@ class TagEntry(models.Model):
         '''
         return messages
 
+class ResetEntry(models.Model):
+    user = models.ForeignKey(User, to_field="user_id")
+    salt = models.CharField(max_length = 5)
+
+    created = models.DateField(auto_now_add=True)
+
+    def is_valid(self, has):
+        if self.create() == has:
+            return True
+        else:
+            return False
+
+    def create(self):
+        secret = "supercoderz"
+        m = hashlib.sha256()
+        m.update(self.user.email+self.salt+self.user.username+secret)
+        has = m.hexdigest()
+        return has[:10]
 '''
 ToDo:
     User object
