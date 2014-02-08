@@ -8,6 +8,7 @@ from QnA.OrganizationAPI import OrganizationAPI
 from QnA.LoginAPI import LoginAPI
 from QnA.LogoutAPI import LogoutAPI
 from QnA.VoteAPI import VoteAPI
+from QnA.ResetPasswordAPI import ResetPasswordAPI
 
 from django.contrib import admin
 admin.autodiscover()
@@ -28,4 +29,5 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^users/?$', UserAPI.as_view()),
     url(r'^votes/?$', VoteAPI.as_view()),
+    url(r'^reset/?$', ResetPasswordAPI.as_view()),
 )

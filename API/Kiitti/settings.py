@@ -65,6 +65,7 @@ ROOT_URLCONF = 'Kiitti.urls'
 
 WSGI_APPLICATION = 'Kiitti.wsgi.application'
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
