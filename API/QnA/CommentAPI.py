@@ -26,7 +26,7 @@ class CommentAPI(APIView):
         @perm
             No idea... Currently no perms.
         @return
-            200: If sent data is valid. No messages returned.
+            201: If sent data is valid and new Comment was created successfully. No messages returned.
             400: If sent data is not valid.
             401: If user is not logged in.
         '''
@@ -57,7 +57,7 @@ class CommentAPI(APIView):
             msg = abs_data.validate()
             if len(msg) == 0:
                 abs_data.save()
-                return Response(200)
+                return Response(create_message("New comment was created successfully."), 201)
             else:
                 return Response({"messages": msg}, 400)
         return Response({"messages": messages}, 400)
@@ -66,10 +66,17 @@ class CommentAPI(APIView):
         '''
         Get comments.
 
+        Comments can be searched by message_id or by its parents message_id.
+        Get parameter called 'order' defines how comments are searched.
+        Allowed order parameters are: order=id, order=parent or no order type (None).
+        If order=id is given you must also provide parameter messageId (ex. messageId=3).
+        If order=parent is given you must provide parameter parentId (ex. parentId=3)
+
         @params
             isQuestion: Determines whether comment belongs to question.
             parentId: Id of parent message.
             messageId: Id of comment to get.
+            limit: Maximum amount of comments to return.
             order:
                 parent: Use for testing
                 id: Get comment with messageId
@@ -78,7 +85,9 @@ class CommentAPI(APIView):
                 oldest: Oldest comments are first.
 
         @example
-        /comments?order=temp&isQuestion=false&parentId=2&sort=latest
+        /comments?order=parent&isQuestion=false&parentId=2&sort=latest&limit=5
+
+        ^^Returns 5 newest comments which have Answer with message_id=2 as a parent.
 
         @returns
             200: If content was found.

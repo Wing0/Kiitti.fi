@@ -4,91 +4,43 @@ from QnA.models import *
 from QnA.utils import *
 import json
 
-def create_tag(organization_id, name, course_flag, creator):
-    messages = []
-    success= False
-    return success, messages
-
-
-def validate_input(request):
-    # Get the data from the request
-    data = json.loads(request.body)
-
-    # Validate organizationId and find the Organization object
-    organization_id = data.get("organizationId")
-    if organization_id == None:
-        valid = False
-        messages.append({"type": "alert", "content": "Organization id is missing.", "identifier": "organizationId"})
-    else:
-        if isinstance(organization_id, int):
-            try:
-                organization = Organization.objects.get(organization_id = organization_id)
-            except:
-                messages.append({"type": "alert", "content": "Organization id did not match any organization.", "identifier": "organizationId"})
-        else:
-            messages.append({"type": "alert", "content": "Organization id must be a positive integer.", "identifier": "organizationId"})
-
-    # Validate tag name
-    name = data.get("name")
-    if not name:
-        valid = False
-        messages.append({"type": "alert", "content": "Tag name is missing.", "identifier": "name"})
-    elif not isinstance(name, basestring):
-        valid = False
-        messages.append({"type": "alert", "content": "Tag name must be a string.", "identifier": "name"})
-
-    # Validate course flag
-    course_flag =  data.get("courseFlag")
-    if course_flag == None:
-        valid = False
-        messages.append({"type": "alert", "content": "Coursee flag information is missing.", "identifier": "courseFlag"})
-    elif not course_flag in [True, False]:
-        valid = False
-        messages.append({"type": "alert", "content": "Coursee flag must be a boolean value.", "identifier": "courseFlag"})
-
-    # Validate user id and find the corresponding User object
-    user = None
-    user_id = data.get("userId")
-    if user_id == None:
-        # Default action: use the logged in user if user id is not provided
-        if request.user.is_authenticated():
-            user = request.user
-        else:
-            valid = False
-            messages.append({"type": "alert", "content": "Please log in or provide user id.", "identifier": "userId"})
-    else:
-        if isinstance(user_id, int):
-            try:
-                # ToDo: Check user rights for using this user id
-                user = User.objects.get(user_id=user_id)
-            except:
-                valid = False
-                messages.append({"type": "alert", "content": "Provided user id does not match any user.", "identifier": "userId"})
-        else:
-            valid = False
-            messages.append({"type": "alert", "content": "User id has to be a positive integer.", "identifier": "userId"})
-
-    return valid, messages, [organization, name, course_flag, user]
 
 class TagAPI(APIView):
 
     def post(self, request):
-        success = False
-
-        # Input validation
-        valid_input, messagesm, [organization, name, course_flag, user] = validate_input(request)
-
-        # Model creation
-        if valid_input:
-            tag = Tag(organization=organization, course_flag=course_flag, name = name, creator=user)
-
-            # Model data validation
-            valid, messages = tag.validate(messages)
-            if valid:
+        '''
+        @params
+            courseFlag: Determines whether tag is related to course or not.
+            name: Name of tag.
+        @example
+            {
+                "courseFlag": "false",
+                "name": "Mathematics"
+            }
+        @returns
+            201: If Tag was created successfully.
+            400: If user input is invalid.
+            401: If user is not logged in.
+        '''
+        messages = []
+        course_flag = request.GET.get("courseFlag")
+        name = request.GET.get("name")
+        if not request.user.is_authenticated():
+            return Response(create_message("You must be logged in to request comments."), 401)
+        if string_to_boolean(course_flag) == None:
+            messages.append(compose_message("Course flag must be a boolean value.", "courseFlag"))
+        if name == None or len(name) == 0:
+            messages.append(compose_message("Name must be non-empty string.", "name"))
+        if len(messages) == 0:
+            tag = Tag(organization=request.user.organization, course_flag=course_flag, name=name)
+            tag.user = request.user
+            messages = tag.validate()
+            if len(messages) == 0:
                 tag.save()
-                success = True
+                return Response(create_message("New tag was created successfully."), 201)
 
-        return Response({"messages":messages, "success":success},200)
+        return Response({"messages": messages}, 400)
+
 
     def get(self, request):
         '''
