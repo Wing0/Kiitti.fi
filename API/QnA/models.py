@@ -382,10 +382,10 @@ class Tag(models.Model):
 
     def serialize(self):
         count = 0
-        count = TagEntry.objects.filter(tag=tag_id).count()
+        count = TagEntry.objects.filter(tag=self.tag_id).count()
         jsondict = {
             'tagId':self.tag_id,
-            'user': self.creator.user_id,
+            'user': self.user.user_id,
             'created': format_date(self.created),
             'modified': format_date(self.modified),
             'organizationId':self.organization.organization_id,
