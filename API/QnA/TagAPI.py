@@ -24,11 +24,11 @@ class TagAPI(APIView):
         '''
         messages = []
         data = json.loads(request.body)
-        course_flag = string_to_boolean(data["courseFlag"])
-        name = data["name"]
+        course_flag = string_to_boolean(data.get("courseFlag"))
+        name = data.get("name")
         if not request.user.is_authenticated():
             return Response(create_message("You must be logged in to request comments."), 401)
-        if not isinstance(course_flag, bool):
+        if course_flag == None:
             messages.append(compose_message("Course flag must be a boolean value.", "courseFlag"))
         if name == None or len(name) == 0:
             messages.append(compose_message("Name must be non-empty string.", "name"))
