@@ -75,7 +75,6 @@ class UserAPI(APIView):
                     user.save()
                     return Response({"messages": "New user created."}, 201)
                 except IntegrityError, e:
-                    valid = False
                     if e.message == "column username is not unique":
                         messages.append(compose_message("Username already in use."))
                     else:
