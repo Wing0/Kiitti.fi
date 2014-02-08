@@ -405,8 +405,6 @@ class QuestionAPI(APIView):
                     try:
                         questions = list(Question.objects.filter(message_id=question_id).order_by("-version"))
                         question = exclude_old_versions(questions)[0]
-                        print questions
-                        print question
                         if not question.organization == request.user.organization:
                             messages.append(compose_message("You are not allowed to perform this action."))
                             return Response({"messages":messages}, 403)
