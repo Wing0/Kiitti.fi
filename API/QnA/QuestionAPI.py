@@ -49,13 +49,13 @@ class QuestionAPI(APIView):
             messages.append(compose_message("User must be logged in.", "user"))
             return Response({"messages":messages}, 401)
 
-        abs_data = post_abstract_message(Question(), data)
+        q = post_abstract_message(Question(), data)
 
         title = data.get('title')
-        abs_data.title = title
-        abs_data.organization = request.user.organization
-        abs_data.user = request.user
-        messages = abs_data.validate()
+        q.title = title
+        q.organization = request.user.organization
+        q.user = request.user
+        messages = q.validate()
         '''
         # save tags functionality. This should be part of modify question post() command
         # Similar functionality should be implemented when question is created
@@ -63,7 +63,7 @@ class QuestionAPI(APIView):
             # Save tags
             taglist = data.get("tags")
             if taglist and isinstance(taglist,list):
-                existing_tags = [tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=abs_data.message_id)]
+                existing_tags = [tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=q.message_id)]
                 tagnames = []
                 for tag in list(set(taglist)): #List(set()) thing removes duplicates
                     if tag not in existing_tags:
@@ -71,16 +71,16 @@ class QuestionAPI(APIView):
                 for tagname in tagnames:
                     #try:
                     tag = Tag.objects.get(name=tagname)
-                    entry = TagEntry(tag=tag, message_id=abs_data.message_id, creator=abs_data.user)
+                    entry = TagEntry(tag=tag, message_id=q.message_id, creator=q.user)
                     entry.save()
                     #except:
                     #    messages.append(compose_message("Tag %s was not found." % tagname, "tags"))
                     '''
         if len(messages) == 0:
-            if abs_data.message_id:
-                abs_data.save_changes()
+            if q.message_id:
+                q.save_changes()
             else:
-                abs_data.save()
+                q.save()
             return Response({"messages": messages}, 201)
 
         return Response({"messages":messages},400)
@@ -91,14 +91,17 @@ class QuestionAPI(APIView):
         Further information in helper method docstring
         '''
 
-        if request.GET.get("authorId") != None:
-            return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
-        elif request.GET.get("tags"):
-            return self.by_tags(request, request.GET.get("tags"), request.GET.get("searchMethod"), request.GET.get("limit"), request.GET.get("order"))
-        elif request.GET.get("questionId") != None:
-            return self.by_id(request, request.GET.get("questionId"), request.GET.get("limit"), request.GET.get("order"))
+        if not request.user.is_authenticated():
+            return Response({"messages":create_message("User must be logged in.")}, 401)
         else:
-            return self.get_all(request, request.GET.get("limit"), request.GET.get("order"))
+            if request.GET.get("authorId") != None:
+                return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
+            elif request.GET.get("tags"):
+                return self.by_tags(request, request.GET.get("tags"), request.GET.get("searchMethod"), request.GET.get("limit"), request.GET.get("order"))
+            elif request.GET.get("questionId") != None:
+                return self.by_id(request, request.GET.get("questionId"), request.GET.get("order"), request.GET.get("history"))
+            else:
+                return self.get_all(request, request.GET.get("limit"), request.GET.get("order"))
 
 
     def by_author(self, request, author_id, limit=10, order="latest"):
@@ -152,9 +155,6 @@ class QuestionAPI(APIView):
             messages.append({"content":"A author id has to be provided.","identifier":"authorId"})
         else:
             try:
-                if not request.user.is_authenticated():
-                    messages.append({"content":"User must be logged in.", "identifier":"user"})
-                    return Response({"messages":messages}, 401)
                 # Parameter check and default values
                 author_id = int(author_id)
                 if author_id < 0:
@@ -262,9 +262,6 @@ class QuestionAPI(APIView):
             return list(set(a) | set(b))
 
         messages = []
-        if not request.user.is_authenticated():
-            messages.append({"content":"User must be logged in.", "identifier":"user"})
-            return Response({"messages":messages}, 401)
 
         # Parameter check and default values
         if limit == None:
@@ -391,12 +388,9 @@ class QuestionAPI(APIView):
         '''
         messages = []
         if question_id == None:
-            messages.append({"content":"A question id has to be provided.","identifier":"questionId"})
+            messages.append({"content":"A question id must be provided.","identifier":"questionId"})
         else:
             try:
-                if not request.user.is_authenticated():
-                    messages.append({"content":"User must be logged in.", "identifier":"user"})
-                    return Response({"messages":messages}, 401)
                 # Parameter check and default values
                 question_id = int(question_id)
                 if question_id < 0:
@@ -411,8 +405,6 @@ class QuestionAPI(APIView):
                     try:
                         questions = list(Question.objects.filter(message_id=question_id).order_by("-version"))
                         question = exclude_old_versions(questions)[0]
-                        print questions
-                        print question
                         if not question.organization == request.user.organization:
                             messages.append(compose_message("You are not allowed to perform this action."))
                             return Response({"messages":messages}, 403)
@@ -478,9 +470,6 @@ class QuestionAPI(APIView):
                             "messages":[{"content":"An example error message.","identifier":"example"}]
         '''
         messages = []
-        if not request.user.is_authenticated():
-            messages.append({"content":"User must be logged in.", "identifier":"user"})
-            return Response({"messages":messages}, 401)
         # Parameter check and default values
 
         if limit == None:
