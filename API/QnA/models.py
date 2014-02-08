@@ -375,7 +375,7 @@ class Tag(models.Model):
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
 
-    creator = models.ForeignKey(User, to_field="user_id")
+    user = models.ForeignKey(User, to_field="user_id")
     organization = models.ForeignKey(Organization)
     name = models.CharField(max_length=63, unique=True)
     course_flag = models.BooleanField(default=False)
@@ -384,14 +384,20 @@ class Tag(models.Model):
         return self.name
 
     def serialize(self):
+        count = 0
+        try:
+            count = TagEntry.objects.filter(tag=tag_id).count()
+        except:
+            #Tag has no uses
         jsondict = {
             'tagId':self.tag_id,
-            'creator': self.creator.user_id,
+            'user': self.creator.user_id,
             'created': format_date(self.created),
             'modified': format_date(self.modified),
             'organizationId':self.organization.organization_id,
             'name':self.name,
-            'courseFlag':self.course_flag
+            'courseFlag':self.course_flag,
+            'count': count
         }
 
         return jsondict
@@ -409,26 +415,20 @@ class Tag(models.Model):
         super(Tag, self).save(*args, **kwargs)
 
     def validate(self, messages):
-        valid = True
+        messages = []
         if not isinstance(self.name, basestring):
-            valid = False
             messages.append(compose_message("Tag name has to be a string.", "name"))
         elif len(self.name) < 3:
-            valid = False
             messages.append(compose_message("Tag name has to be longer than 3 characters.", "name"))
         elif len(self.name) > 255:
-            valid = False
             messages.append(compose_message("Tag name has to be shorter than 255 characters.", "name"))
         if self.course_flag not in [True, False]:
-            valid = False
             messages.append(compose_message("Course flag has to be a boolean value.", "courseFlag"))
         if not isinstance(self.organization, Organization):
-            valid = False
             messages.append(compose_message("Organization has to be an Organization instance.", "organization"))
         if not isinstance(self.creator, User):
-            valid = False
             messages.append(compose_message("Creator has to be an User instance.", "creator"))
-        return valid, messages
+        return messages
 
 
 class TagEntry(models.Model):
@@ -469,29 +469,23 @@ class TagEntry(models.Model):
 
 
     def validate(self):
-        valid = True
         messages = []
         if not isinstance(self.creator.user_id, int) or self.creator.user_id < 0:
-            valid = False
             messages.append(compose_message("Creator must be a positive integer.", "creator"))
         '''
         if not isinstance(self.organization_id, int) or self.organization_id < 0:
-            valid = False
             messages.append({"type": "alert", "content": "Organization id has to be a positive integer.", "identifier": "organization_id"})
 
         if not isinstance(self.name, int):
-            valid = False
             messages.append({"type": "alert", "content": "Name has to be a string.", "identifier": "name"})
 
         if not len(self.name) > 0:
-            valid = False
             messages.append({"type": "alert", "content": "Name has to be atleast 1 character long.", "identifier": "name"})
 
         if not isinstance(self.course_flag, bool):
-            valid = False
             messages.append({"type": "alert", "content": "Course flag must be a boolean.", "identifier": "course_flag"})
         '''
-        return valid, messages
+        return messages
 
 '''
 ToDo:
