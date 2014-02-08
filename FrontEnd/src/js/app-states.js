@@ -1,10 +1,10 @@
 var ktStates = angular.module('ktStates', ['ui.router',
-                                           'ktControllers']);
+                                           'ktControllers', 'ktAPI']);
 
 ktStates.config(function($stateProvider, $urlRouterProvider) {
 
   $urlRouterProvider
-    .when('/', '/login')
+    .when('/', '/popular')
     .otherwise('/');
 
   var tdir = '../templates/';
@@ -24,6 +24,20 @@ ktStates.config(function($stateProvider, $urlRouterProvider) {
       url: '/forgot',
       templateUrl: tdir + 'loginmaster.forgot.html'
     })
+    .state('logout', {
+      url: '/logout',
+      controller: function($location, AuthAPI, $rootScope, $log) {
+        AuthAPI.logout()
+        .success(function() {
+          $log.info("User " + $rootScope.user.username + " logged out");
+          $rootScope.messages = "";
+          $location.path('/login');
+        })
+        .error(function(data, status) {
+          $log.error("User " + $rootScope.user.username + " could not be logged out")
+        });
+      }
+    })
 
     .state('master', {
       abstract: true,
@@ -35,6 +49,21 @@ ktStates.config(function($stateProvider, $urlRouterProvider) {
       templateUrl: tdir + 'question.html',
       controller: 'BrowsePopularController'
     })
+    .state('master.questions', {
+      url: '/questions',
+      templateUrl: tdir + 'questions.all.html',
+      controller: 'BrowseQuestionsController'
+    })
+    .state('master.question', {
+      url: '/question/:messageId',
+      templateUrl: tdir + 'question.html',
+      controller: 'SingleQuestionController'
+    })
+    .state('master.createQuestion', {
+      url: '/question/new',
+      templateUrl: tdir + 'create_question.html',
+      controller: 'CreateQuestionController'
+    });
 });
 
 

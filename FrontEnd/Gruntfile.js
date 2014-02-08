@@ -15,6 +15,9 @@ module.exports = function (grunt) {
   // Time how long tasks take. Can help when optimizing build times
   require('time-grunt')(grunt);
 
+  // modRewrite for middleware to redirect all requests to root (AngularJS HTML5 mode)
+  var modRewrite = require('connect-modrewrite');
+
   // Define the configuration for all the tasks
   grunt.initConfig({
 
@@ -66,7 +69,27 @@ module.exports = function (grunt) {
         base: '<%= app.src %>',
         // change this to '0.0.0.0' to access the server from outside
         hostname: '0.0.0.0',
-        livereload: 35729
+        livereload: 35729,
+        middleware: function (connect, options) {
+          var middlewares = [];
+          var directory = options.directory || options.base[options.base.length - 1];
+
+          // enable Angular's HTML5 mode
+          middlewares.push(modRewrite(['!\\.html|\\.js|\\.svg|\\.css|\\.png$ /index.html [L]']));
+
+          if (!Array.isArray(options.base)) {
+            options.base = [options.base];
+          }
+          options.base.forEach(function(base) {
+            // Serve static files.
+            middlewares.push(connect.static(base));
+          });
+
+          // Make directory browse-able.
+          middlewares.push(connect.directory(directory));
+
+          return middlewares;
+        }
       },
       livereload: {
         options: {

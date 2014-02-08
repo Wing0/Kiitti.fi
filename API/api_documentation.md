@@ -74,7 +74,7 @@ Saves question to database.
 	{
 		"topic": string,
 		"content": string,
-		"userId": int,
+        "messageId": integer, #put this only if you are updating old message, otherwise delete this row
 		"tags": [string, string, ...]
 	}
 
@@ -87,7 +87,7 @@ Saves answer to database.
 	{
 		"questionId": int,
 		"content": string,
-		"userId": int
+		"messageId": int #put this only if you are updating old message, otherwise delete this row
 	}
 
 ## Comments
@@ -99,7 +99,6 @@ Saves comment to database.
 	{
 		"content": string,
 		"username": string,
-		"userId": int,
 		"messageId": int
 	}
 

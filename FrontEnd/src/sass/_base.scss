@@ -1,29 +1,57 @@
 @import "compass/css3";
 @import "compass/typography/text/nowrap";
+@import "compass/utilities/general/clearfix";
+@import url(http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700,300italic|Open+Sans:400italic,600italic,300,400,700|Arvo:400,700,400italic,700italic|Droid+Sans+Mono);
 
-$break-narrow: 540px;
+/* MIXINS */
+
+@mixin input-placeholder {
+  &.placeholder { @content; }
+  &:-moz-placeholder { @content; }
+  &::-moz-placeholder { @content; }
+  &:-ms-input-placeholder { @content; }
+  &::-webkit-input-placeholder { @content; }
+}
+
+/* VARIABLES */
+
+$break-narrow: 480px;
 $break-full: 1060px;
 
-$page-max-width: 900px;
-$page-min-width: 480px;
+$page-max-width: 1200px;
+$page-min-width: 320px;
+$page-padding-horizontal: 20px;
 
-$color-main-emphasis: rgb(80,110,140);
-$color-link: rgb(30, 140, 230);
-$color-text: rgb(30,30,30);
-$color-text-muted: rgb(160,160,160);
+$color-text-muted: rgb(187,180,161);
 $color-light-text: rgb(255,255,255);
 $color-nav: rgb(10,10,10);
-$color-tag: lighten($color-main-emphasis, 52);
-$color-background: white;
+
 $color-positive: rgb(75,150,50);
 $color-negative: rgb(220,50,45);
 $color-separator: rgb(200,200,200);
 
-$block-padding-vertical: 40px;
-$block-padding-horizontal: 30px;
+$color-text: rgb(79,73,61); // dark brown
+$color-background: rgb(255,251,242); // light brown
+$color-background-light: $color-background;
+$color-background-dark: rgb(224,215,195); // (a bit) darker brown
+$color-emphasis-1: rgb(63,135,94); // green
+$color-emphasis-2: rgb(220,93,88); // red
+$color-emphasis-3: rgb(40,140,190); // blue
+$color-main-emphasis: $color-emphasis-1; // deprecated
+$color-tag: $color-emphasis-3;
+$color-link: $color-emphasis-3;
+$color-input-border: lighten($color-background-dark, 5);
 
-$font-stack: 'Arial', sans-serif;
-$font-header: $font-stack;
-$font-paragraph: $font-stack;
+$block-padding-vertical: 40px; // deprecated
+$block-padding-horizontal: 30px; // deprecated
+
+$font-stack: 'Open Sans', sans-serif;
+$font-header: 'Open Sans Condensed', sans-serif;
+$font-paragraph: 'Arvo', serif;
+$font-code: 'Droid Sans Mono', monospace;
 
 $header-height: 60px;
+
+$default-border-radius: 3px;
+
+$color-button: red;
