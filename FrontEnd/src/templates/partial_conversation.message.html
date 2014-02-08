@@ -1,0 +1,28 @@
+<div class="message-block">
+  <div class="votes cell">
+    <div>
+      <div class="vote up" title="Äänestä viestiä hyväksi"><i class="fa fa-chevron-up"></i></div>
+      <div class="votes-amount" title="Saatujen äänien summa">18</div>
+      <div class="vote down" title="Äänestä viestiä huonoksi"><i class="fa fa-chevron-down"></i></div>
+    </div>
+  </div>
+
+  <div class="cell message-stack">
+    <div class="content">
+      <p ng-bind="question.content"></p>
+    </div>
+
+    <div class="comment-block">
+      <div class="comments">
+        <div class="comment" ng-repeat="comment in message.comments">
+          <span class="content" ng-bind="comment.content"></span>
+          <span class="username"><a href="#" ng-bind="comment.username"></a></span>
+          <span class="date" ng-bind="comment.date"></span>
+        </div>
+      </div>
+      <div class="buttons">
+        <div class="button-alt" ng-click="addComment()"><i class="fa fa-pencil"></i><span>Lisää kommentti</span></div>
+      </div>
+    </div>
+  </div>
+</div><!--/message-block-->
