@@ -67,6 +67,9 @@ class User(AbstractUser):
     reputation = models.IntegerField(default=0)
     organization = models.ForeignKey(Organization, to_field='organization_id')
 
+    def __unicode__(self):
+        return "%s - %s" % (self.username, self.organization.name)
+
     def serialize(self):
         jsondict = {
             'username': self.username,
@@ -99,25 +102,19 @@ class User(AbstractUser):
         super(User, self).save(*args, **kwargs)
 
     def validate(self):
-        valid = True
         messages = []
 
         if not isinstance(self.username, basestring):
-            valid = False
             messages.append(compose_message("Username has to be a string.","username"))
         if not len(self.username) <= 255:
-            valid = False
             messages.append(compose_message("Username has to be a shorter than 256 characters.","username"))
         if not len(self.username) >= 3:
-            valid = False
             messages.append(compose_message("Username has to be a longer than 2 characters.","username"))
 
         if not isinstance(self.email, basestring):
-            valid = False
             messages.append(compose_message("Email has to be a string.","email"))
         else:
             if not re.match("[^@]+@[^@]+\.[^@]+",self.email):
-                valid = False
                 messages.append(compose_message("Give a valid email address.","email"))
             else:
                 retrieved_user = False
@@ -126,46 +123,33 @@ class User(AbstractUser):
                 except:
                     retrieved_user = False
                 if retrieved_user:
-                    valid = False
                     messages.append(compose_message("Email already in use.","email"))
 
         if not isinstance(self.first_name, basestring):
-            valid = False
             messages.append(compose_message("First name has to be a string.","first_name"))
         if not len(self.first_name) <= 255:
-            valid = False
             messages.append(compose_message("First name has to be a shorter than 256 characters.","first_name"))
         if not len(self.first_name) >= 1:
-            valid = False
             messages.append(compose_message("First name has to be at least 1 character.","first_name"))
 
         if not isinstance(self.last_name, basestring):
-            valid = False
             messages.append(compose_message("Last name has to be a string.","last_name"))
         if not len(self.last_name) <= 255:
-            valid = False
             messages.append(compose_message("Last name has to be a shorter than 256 characters.","last_name"))
         if not len(self.last_name) >= 1:
-            valid = False
             messages.append(compose_message("Last name has to be at least 1 character.","last_name"))
 
         if not isinstance(self.password, basestring):
-            valid = False
             messages.append(compose_message("Password has to be a string.","password"))
         if not len(self.password) <= 255:
-            valid = False
             messages.append(compose_message("Password has to be a shorter than 256 characters.","password"))
         if not len(self.password) >= 4:
-            valid = False
             messages.append(compose_message("Password has to be at least 4 character.","password"))
 
-        if not isinstance(self.organization_id, int):
-            valid = False
-            messages.append(compose_message("Organization id has to be a integer.","organization_id"))
-        else:
-            Organization.objects.get()
+        if not isinstance(self.organization, Organization):
+            messages.append(compose_message("Organization object is not valid.","organization"))
 
-        return valid, messages
+        return messages
 
 
 class AbstractMessage(models.Model):
@@ -229,6 +213,13 @@ class Answer(AbstractMessage):
     '''
     question_id = models.PositiveIntegerField() #this is the message_id of the question this answer is response to
     accepted = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        text = self.content
+        size = len(text)
+        if size > 100:
+            text = text[0:97] + "..."
+        return "Message id: %s, Question id: %s, Is accepted: %s, Content: %s" % (str(self.message_id), str(self.question_id), str(self.accepted), text)
 
     def serialize(self):
         jsondict = super(Answer, self).serialize()
@@ -324,6 +315,14 @@ class Comment(AbstractMessage):
     '''
     is_question_comment = models.BooleanField(default=False) #if true, this is a comment to a Question. If False, it is comment to an Answer.
     parent_id = models.PositiveIntegerField() #this is the message_id of the message to which this comment is for
+
+    def __unicode__(self):
+        text = self.content
+        size = len(text)
+        if size > 100:
+            text = text[0:97] + "..."
+        return "Message id: %s, Parent id: %s, Is question: %s, Content: %s" % (str(self.message_id), str(self.parent_id), str(self.is_question_comment), text)
+
     def serialize(self):
         jsondict = super(Comment, self).serialize()
         jsondict['parentId'] = self.parent_id

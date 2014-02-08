@@ -53,6 +53,7 @@ class UserAPI(APIView):
             }
         '''
         data = json.loads(request.body)
+        messages = []
         if ("username" in data
             and "email" in data
             and "firstName" in data
@@ -67,21 +68,22 @@ class UserAPI(APIView):
                         organization_id=data["organizationId"],
                         password=data["password"])
 
-            valid, messages = user.validate()
-            if valid:
+            messages = user.validate()
+            if len(messages) == 0:
                 user.set_password(user.password)
                 try :
                     user.save()
+                    return Response({"messages": "New user created."}, 201)
                 except IntegrityError, e:
                     valid = False
                     if e.message == "column username is not unique":
-                        messages.append({"type":"alert", "content": "Username already in use.", "identifier":"username"})
+                        messages.append(compose_message("Username already in use."))
                     else:
-                        messages.append({"type":"alert", "content": e.message, "identifier":""})
+                        messages.append(compose_message(e.message))
         else:
-            messages = [{"type":"Alert","content":"Something is missing","identifier":""}]
-            valid = False
-        return Response({"messages":messages},200)
+            messages.append(compose_message("Something is missing"))
+        return Response({"messages": messages}, 400)
+
 
     def get_by_id(self, userid):
         '''
