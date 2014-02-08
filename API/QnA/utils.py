@@ -45,8 +45,6 @@ def string_to_int(value):
         None: If given string cannot be converted to integer.
     '''
     try:
-        if not isinstance(value, basestring):
-            raise ValueError()
         return int(value)
     except ValueError:
         return None

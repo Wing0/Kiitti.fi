@@ -188,9 +188,12 @@ class AnswerAPI(APIView):
                     answers = order_messages(answers, order)
                     answer_list = []
                     for ans in answers[:limit]:
+                        json = ans.serialize()
                         comments = Comment.objects.filter(parent_id=ans.message_id)
+                        comment_list = []
                         for comment in comments:
-                            json["comments"] = comment.serialize()
+                            comment_list.append(comment.serialize())
+                        json["comments"] = comment_list
                         answer_list.append(json)
                     return Response({"answers": answer_list, "messages":messages}, 200)
 
@@ -293,8 +296,10 @@ class AnswerAPI(APIView):
                     for ans in answers[:limit]:
                         json = ans.serialize()
                         comments = Comment.objects.filter(parent_id=ans.message_id)
+                        comment_list = []
                         for comment in comments:
-                            json["comments"] = comment.serialize()
+                            comment_list.append(comment.serialize())
+                        json["comments"] = comment_list
                         answer_list.append(json)
                     return Response({"answers": answer_list, "messages":messages}, 200)
 
