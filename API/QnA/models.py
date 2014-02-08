@@ -181,14 +181,17 @@ class AbstractMessage(models.Model):
     #modified = models.DateTimeField(auto_now=True)
     message_id = models.PositiveIntegerField()
 
+    class Meta:
+        abstract = True
+
     def serialize(self):
         jsondict = {
             'content': self.content,
             'version': self.version,
-            'userId': self.user.user_id,
             'organizationId': self.organization.organization_id,
             'created': format_date(self.created),
-            'messageId': self.message_id
+            'messageId': self.message_id,
+            'user': self.user.serialize()
         }
 
         return jsondict
@@ -248,7 +251,7 @@ class Answer(AbstractMessage):
         '''
             The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
         '''
-        if self.pk is None:
+        if not isinstance(self.version , int):
             # When created
             all_objects = Answer.objects.all()
             largest_id = max([0] + [obj.message_id for obj in all_objects])
@@ -285,12 +288,11 @@ class Question(AbstractMessage):
         '''
             The default save method is overridden to be able to generate appropriate message_id that is unique and ascending.
         '''
-        if self.pk is None:
+        if not isinstance(self.version , int):
             # When created
             all_objects = Question.objects.all()
             largest_id = max([0] + [obj.message_id for obj in all_objects])
             self.message_id = largest_id + 1
-        # Just save
         super(Question, self).save(*args, **kwargs)
 
     def save_changes(self, *args, **kwargs):
@@ -310,7 +312,7 @@ class Comment(AbstractMessage):
     '''
 
     '''
-    is_question_comment = models.BooleanField(default=False)
+    is_question_comment = models.BooleanField(default=False) #if true, this is a comment to a Question. If False, it is comment to an Answer.
     parent_id = models.PositiveIntegerField() #this is the message_id of the message to which this comment is for
     def serialize(self):
         jsondict = super(Comment, self).serialize()
@@ -329,7 +331,7 @@ class Comment(AbstractMessage):
         '''
             The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
         '''
-        if self.pk is None:
+        if not isinstance(self.version , int):
             # When created
             all_objects = Comment.objects.all()
             largest_id = max([0] + [obj.message_id for obj in all_objects])
@@ -339,7 +341,7 @@ class Comment(AbstractMessage):
 
 class Vote(models.Model):
 
-    rate = models.SmallIntegerField(default=0)
+    direction = models.SmallIntegerField(default=1)
     user = models.ForeignKey(User, to_field="user_id")
     message_id = models.PositiveIntegerField(default=0)
     created = models.DateField(auto_now_add=True)
@@ -408,7 +410,7 @@ class Tag(models.Model):
         # Just save
         super(Tag, self).save(*args, **kwargs)
 
-    def validate(self, messages):
+    def validate(self):
         messages = []
         if not isinstance(self.name, basestring):
             messages.append(compose_message("Tag name has to be a string.", "name"))
@@ -416,11 +418,11 @@ class Tag(models.Model):
             messages.append(compose_message("Tag name has to be longer than 3 characters.", "name"))
         elif len(self.name) > 255:
             messages.append(compose_message("Tag name has to be shorter than 255 characters.", "name"))
-        if self.course_flag not in [True, False]:
+        if not isinstance(self.course_flag, bool):
             messages.append(compose_message("Course flag has to be a boolean value.", "courseFlag"))
         if not isinstance(self.organization, Organization):
             messages.append(compose_message("Organization has to be an Organization instance.", "organization"))
-        if not isinstance(self.creator, User):
+        if not isinstance(self.user, User):
             messages.append(compose_message("Creator has to be an User instance.", "creator"))
         return messages
 

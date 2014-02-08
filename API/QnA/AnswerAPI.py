@@ -66,6 +66,7 @@ class AnswerAPI(APIView):
         ans = post_abstract_message(Answer(), data)
         if request.user.is_authenticated():
             ans.user = request.user
+            ans.organization = request.user.organization
         else:
             messages.append(compose_message("User must be logged in.", "user"))
             return Response({"messages":messages}, 401)
@@ -105,7 +106,7 @@ class AnswerAPI(APIView):
             limit, integer (optional): The maximum number of answers retriveved. Default = 10
             order, string (optional): The method for ordering the retrieved answers. "votes" or "latest". Default="latest".
         @example
-            /answers/?questionId=123&limit=4&order="votes"
+            /answers/?questionId=123&limit=4&order=votes
         @perm
             member: All answer information can be given only for members of the organization
         @return
@@ -185,8 +186,16 @@ class AnswerAPI(APIView):
 
                     answers = exclude_old_versions(answers)
                     answers = order_messages(answers, order)
-
-                    return Response({"answers":[ans.serialize() for ans in answers[:limit]], "messages":messages}, 200)
+                    answer_list = []
+                    for ans in answers[:limit]:
+                        json = ans.serialize()
+                        comments = Comment.objects.filter(parent_id=ans.message_id)
+                        comment_list = []
+                        for comment in comments:
+                            comment_list.append(comment.serialize())
+                        json["comments"] = comment_list
+                        answer_list.append(json)
+                    return Response({"answers": answer_list, "messages":messages}, 200)
 
             except ValueError:
                 messages.append({"content":"The question id has to be a positive integer.","identifier":"questionId"})
@@ -202,7 +211,7 @@ class AnswerAPI(APIView):
             limit, integer (optional): The maximum number of answers retriveved. Default = 10
             order, string (optional): The method for ordering the retrieved answers. "votes" or "latest". Default="latest".
         @example
-            /answers/?authorId=123&limit=4&order="votes"
+            /answers/?authorId=123&limit=4&order=votes
         @perm
             member: All answer information can be given only for members of the organization.
         @return
@@ -283,8 +292,16 @@ class AnswerAPI(APIView):
 
                     answers = exclude_old_versions(answers)
                     answers = order_messages(answers, order)
-
-                    return Response({"answers":[ans.serialize() for ans in answers[:limit]], "messages":messages}, 200)
+                    answer_list = []
+                    for ans in answers[:limit]:
+                        json = ans.serialize()
+                        comments = Comment.objects.filter(parent_id=ans.message_id)
+                        comment_list = []
+                        for comment in comments:
+                            comment_list.append(comment.serialize())
+                        json["comments"] = comment_list
+                        answer_list.append(json)
+                    return Response({"answers": answer_list, "messages":messages}, 200)
 
             except ValueError:
                 messages.append({"content":"The author id has to be a positive integer.","identifier":"questionId"})
