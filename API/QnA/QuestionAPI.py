@@ -12,15 +12,13 @@ class QuestionAPI(APIView):
     def post(self, request):
         '''
         This method saves new question into database
-        @params (this means body parameters, not autoinserted by django)
-            version, positive integer: version number of the question.
+        @params (this means body parameters, not autoinserted by django or other methods)
             title, string: title of the Question
             content, string: content text of the Question
             messageId, positive integer: message id of the Question. For client: set this only if you are updating old message. save() method
             will give new messageId for new messages!
         @example:
             {
-                "version":1,
                 "title": "Why does the sun go down every night?",
                 "content":"Why does the sun go down every night? I don't understand!",
                 "messageId":3,
@@ -56,32 +54,26 @@ class QuestionAPI(APIView):
         q.organization = request.user.organization
         q.user = request.user
         messages = q.validate()
-        '''
-        # save tags functionality. This should be part of modify question post() command
-        # Similar functionality should be implemented when question is created
         if len(messages) == 0:
-            # Save tags
-            taglist = data.get("tags")
-            if taglist and isinstance(taglist,list):
-                existing_tags = [tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=q.message_id)]
-                tagnames = []
-                for tag in list(set(taglist)): #List(set()) thing removes duplicates
-                    if tag not in existing_tags:
-                        tagnames.append(tag)
-                for tagname in tagnames:
-                    #try:
-                    tag = Tag.objects.get(name=tagname)
-                    entry = TagEntry(tag=tag, message_id=q.message_id, creator=q.user)
-                    entry.save()
-                    #except:
-                    #    messages.append(compose_message("Tag %s was not found." % tagname, "tags"))
-                    '''
-        if len(messages) == 0:
+
+            # Save question
             if q.message_id:
                 q.save_changes()
             else:
                 q.save()
-            return Response({"messages": messages}, 201)
+
+            # Save tags
+            taglist = data.get("tags")
+            if taglist and isinstance(taglist,list):
+                tagnames = list(set(taglist)) #List(set()) removes duplicates
+                for tagname in tagnames:
+                    try:
+                        tag = Tag.objects.get(name=tagname)
+                        entry = TagEntry(tag=tag, message_id=q.message_id, creator=q.user)
+                        entry.save()
+                    except:
+                        messages.append(compose_message("Tag %s was not found." % tagname, "tags"))
+            return Response(create_message("success", "question_post"), 201)
 
         return Response({"messages":messages},400)
 
