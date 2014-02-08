@@ -43,17 +43,98 @@ class TagAPI(APIView):
 
 
     def get(self, request):
+
+        '''
+        This method mediates the task to correct function.
+        Further information in helper method docstring
+        '''
+        if not request.user.is_authenticated():
+            return Response({"messages":create_message("User must be logged in.")}, 401)
+        else:
+            if request.GET.get("tagId") != None:
+                return self.by_id(request, request.GET.get("tagId"))
+            elif request.GET.get("authorId") != None:
+                return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
+            else:
+                return self.get_all(request, request.GET.get("limit"), request.GET.get("order"))
+
+    def by_id(self, request, tag_id):
         '''
         Retrieves all tags, tags by id or by creator
 
         @params
             request: the request parameter from get function
-            authorId, integer (optional): The id of the tag author.
             tagId, integer (optional): The ide of the tag to be retriveved.
+        @example
+            /tags/?tagId=123
+        @perm
+            member: All tag information can be given only for members of the organization.
+        @return
+            200:
+                list of retrieved tags
+                example: {
+                            "tags":[{
+                                        "courseFlag": false,
+                                        "name": "exampletag",
+                                        "created": "2014-02-02T00:00:00",
+                                        "organizationId": 0,
+                                        "tagId": 3,
+                                        "creator": 1,
+                                        "modified": "2014-02-02T00:00:00"
+                                    }]
+                        }
+            404: No content found
+                list of appropriate error messages
+                example: {
+                            "messages":[{"content":"An example error message.","identifier":"example"}]
+                        }
+            400: Bad request, parameters were missing or wrong type
+                list of appropriate error messages
+                example: {
+                            "messages":[{"content":"An example error message.","identifier":"example"}]
+                        }
+            401: Unauthorized, the user has to be logged in to perform this action
+                list of appropriate error messages
+                example: {
+                            "messages":[{"content":"An example error message.","identifier":"example"}]
+        '''
+        messages = []
+        if tag_id == None:
+            messages.append({"content":"A tag id must be provided.","identifier":"tagId"})
+        else:
+            try:
+                # Parameter check and default values
+                tag_id = int(tag_id)
+                if tag_id < 0:
+                    raise ValueError("Value is not positive integer")
+
+                try:
+                    tag = Tag.objects.get(tag_id=tag_id)
+                    if not tag.organization == request.user.organization:
+                        messages.append(compose_message("You are not allowed to perform this action."))
+                        return Response({"messages":messages}, 403)
+                except:
+                    messages.append({"content":"The tag was not found.","identifier":"tagId"})
+                    return Response({"messages":messages}, 404)
+
+                if len(messages) == 0:
+                    return Response({"tags":tag.serialize(), "messages":messages}, 200)
+
+            except ValueError:
+                messages.append({"content":"The tag id has to be a positive integer.","identifier":"tagId"})
+        return Response({"messages":messages}, 400)
+
+    def by_author(self, request, author_id, limit=10, order="latest"):
+        '''
+        Retrieves tags written by user matching the authorId. Ordered and limited by given parameters
+
+        @params
+            request: the request parameter from get function
+            authorId, integer (optional): The id of the tag author.
             limit, integer (optional): The maximum number of tags retriveved. Default = 10
             order, string (optional): The method for ordering the retrieved tags. "popularity" or "latest". Default="latest".
         @example
-            /tags/?limit=5&order=latest
+            /tags/?authorId=123&limit=5&order=latest
         @perm
             member: All tag information can be given only for members of the organization.
         @return
@@ -85,49 +166,6 @@ class TagAPI(APIView):
                 example: {
                             "messages":[{"content":"An example error message.","identifier":"example"}]
         '''
-
-        '''
-        This method mediates the task to correct function.
-        Further information in helper method docstring
-        '''
-        if not request.user.is_authenticated():
-            return Response({"messages":create_message("User must be logged in.")}, 401)
-        else:
-            if request.GET.get("tagId") != None:
-                return self.by_id(request, request.GET.get("tagId"))
-            elif request.GET.get("authorId") != None:
-                return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
-            else:
-                return self.get_all(request, request.GET.get("limit"), request.GET.get("order"))
-
-    def by_id(self, request, tag_id):
-        messages = []
-        if tag_id == None:
-            messages.append({"content":"A tag id must be provided.","identifier":"tagId"})
-        else:
-            try:
-                # Parameter check and default values
-                tag_id = int(tag_id)
-                if tag_id < 0:
-                    raise ValueError("Value is not positive integer")
-
-                try:
-                    tag = Tag.objects.get(tag_id=tag_id)
-                    if not tag.organization == request.user.organization:
-                        messages.append(compose_message("You are not allowed to perform this action."))
-                        return Response({"messages":messages}, 403)
-                except:
-                    messages.append({"content":"The tag was not found.","identifier":"tagId"})
-                    return Response({"messages":messages}, 404)
-
-                if len(messages) == 0:
-                    return Response({"tags":tag.serialize(), "messages":messages}, 200)
-
-            except ValueError:
-                messages.append({"content":"The tag id has to be a positive integer.","identifier":"tagId"})
-        return Response({"messages":messages}, 400)
-
-    def by_author(self, request, author_id, limit=10, order="latest"):
         messages = []
         try:
             author_id = int(author_id)
@@ -175,6 +213,46 @@ class TagAPI(APIView):
         return Response({"messages":messages}, 400)
 
     def get_all(self, request, limit=10, order="latest"):
+        '''
+        Retrieves all tags limited and ordered according to given parameters
+
+        @params
+            request: the request parameter from get function
+            limit, integer (optional): The maximum number of tags retriveved. Default = 10
+            order, string (optional): The method for ordering the retrieved tags. "popularity" or "latest". Default="latest".
+        @example
+            /tags/?limit=5&order=latest
+        @perm
+            member: All tag information can be given only for members of the organization.
+        @return
+            200:
+                list of retrieved tags
+                example: {
+                            "tags":[{
+                                        "courseFlag": false,
+                                        "name": "exampletag",
+                                        "created": "2014-02-02T00:00:00",
+                                        "organizationId": 0,
+                                        "tagId": 3,
+                                        "creator": 1,
+                                        "modified": "2014-02-02T00:00:00"
+                                    },{...},{...}]
+                        }
+            404: No content found
+                list of appropriate error messages
+                example: {
+                            "messages":[{"content":"An example error message.","identifier":"example"}]
+                        }
+            400: Bad request, parameters were missing or wrong type
+                list of appropriate error messages
+                example: {
+                            "messages":[{"content":"An example error message.","identifier":"example"}]
+                        }
+            401: Unauthorized, the user has to be logged in to perform this action
+                list of appropriate error messages
+                example: {
+                            "messages":[{"content":"An example error message.","identifier":"example"}]
+        '''
         messages = []
         if limit == None:
             limit = 10
