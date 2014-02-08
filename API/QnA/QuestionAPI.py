@@ -547,4 +547,10 @@ class QuestionAPI(APIView):
         answers = list(Answer.objects.filter(question_id=question.message_id))
         if order:
             answers = order_messages(answers, order)
-        return [ans.serialize() for ans in exclude_old_versions(answers)]
+
+        answ_json = []
+
+        for ans in exclude_old_versions(answers):
+            answ_json.append(ans.serialize())
+
+        return answ_json
