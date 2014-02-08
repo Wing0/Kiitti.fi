@@ -98,3 +98,25 @@ def post_abstract_message(abstractmessage, data):
     else:
         abstractmessage.content = ""
     return abstractmessage
+
+
+def serialize_answers(answers):
+    '''
+    Serializes given array filled with Answer objects.
+    Adds serialized comments also.
+
+    @params
+        answers, array: List of answers to serialize.
+    @return
+        List of serialized answers.
+    '''
+    answer_list = []
+    for ans in answers:
+        json = ans.serialize()
+        comments = Comment.objects.filter(parent_id=ans.message_id)
+        comment_list = []
+        for comment in comments:
+            comment_list.append(comment.serialize())
+        json["comments"] = comment_list
+        answer_list.append(json)
+    return answer_list
