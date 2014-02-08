@@ -179,7 +179,7 @@ class AbstractMessage(models.Model):
     organization = models.ForeignKey(Organization, to_field="organization_id")
     created = models.DateTimeField(auto_now_add=True)
     #modified = models.DateTimeField(auto_now=True)
-    message_id = models.PositiveIntegerField(unique=True)
+    message_id = models.PositiveIntegerField()
 
     def serialize(self):
         jsondict = {
