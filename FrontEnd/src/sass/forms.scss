@@ -25,24 +25,25 @@ form {
     color: $color-emphasis-2;
     font-weight: bold;
     display: block;
-    margin-top: 10px;
+    margin-top: 15px;
     margin-bottom: 4px;
   }
 
-  input, textarea, .input {
+  input:not([type="submit"]), textarea, .input {
     @include box-sizing(border-box);
-    @include box-shadow(white 0 0 0);
+    @include box-shadow(#e7e7e7 0 1px 3px inset);
 
     min-width: 200px;
-    max-width: 400px;
     width: 100%;
     margin: 4px 0;
 
     border: 1px solid $color-input-border;
 
-    outline-color: $color-emphasis-2;
+    outline: none;
+    outline-color: lighten($color-emphasis-2, 20);
+    outline-offset: 0;
 
-    padding: 4px 5px;
+    padding: 10px 10px;
     font-size: 1.1em;
     font-weight: 300;
     color: $color-text;
@@ -52,6 +53,12 @@ form {
       color: $color-text;
       font-weight: 300;
     }
+  }
+
+  p.input-help {
+    margin: 2px 0 4px 0;
+    font-size: 0.8em;
+    color: $color-background-dark;
   }
 }
 

@@ -1,6 +1,6 @@
 @import "_base";
 
-button, .button {
+button, .button, input[type="submit"] {
   display: inline-block;
 
   background-color: $color-emphasis-1;
@@ -25,7 +25,7 @@ button, .button {
   }
 }
 
-.button-alt {
+.button-alt, input[type="submit"].alt {
   display: inline-block;
 
   color: $color-emphasis-1;

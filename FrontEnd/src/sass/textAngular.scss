@@ -3,6 +3,7 @@
 /* textAngular */
 
 .ta-root {
+  margin: 5px 0;
   button {
     @include transition(background-color 0.2s ease-in-out);
 
@@ -20,11 +21,13 @@
   }
 
   .ta-text {
-    padding: 5px;
-    margin: 10px 0;
+    padding: 10px 10px;
+    margin: 10px 0 0 0;
     min-height: 200px;
     background-color: white;
     border: 1px solid $color-input-border;
+    @include box-shadow(#e7e7e7 0 1px 3px inset);
+
     i { font-style: italic; }
 
     &:focus {
