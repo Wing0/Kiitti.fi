@@ -29,8 +29,7 @@ JSON example:
                 "date": timestamp,
                 "user": {
                 	"userId": int,
-                	"username": string,
-                	"avatar": url
+                	"username": string
                 },
                 "comments": [
                 	{

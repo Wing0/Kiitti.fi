@@ -106,7 +106,7 @@ class QuestionAPI(APIView):
             limit, integer (optional): The maximum number of questions retriveved. Default = 10
             order, string (optional): The method for ordering the retrieved questions. "votes" or "latest". Default="latest".
         @example
-            /questions/?authorId=123&limit=4&order="votes"
+            /questions/?authorId=123&limit=4&order=votes
         @perm
             member: All question information can be given only for members of the organization.
         @return
@@ -186,7 +186,9 @@ class QuestionAPI(APIView):
 
                     question_data = []
 
-                    question_data = [q.serialize() for q in questions[:limit]]
+                    for q in questions[:limit]:
+                        json = q.serialize()
+                        question_data.append(json)
 
                     return Response({"questions":question_data, "messages":messages}, 200)
 
@@ -323,7 +325,7 @@ class QuestionAPI(APIView):
 
     def by_id(self, request, question_id, order="latest", history=False):
         '''
-        Retrieves the question and question history mathing the given question id.
+        Retrieves the question and question history matching the given question id.
         The order is for the answers.
 
         @params
@@ -331,7 +333,7 @@ class QuestionAPI(APIView):
             question_id: The message_id of the question
             order, string (optional): The method for ordering the retrieved answers for the question. "votes" or "latest". Default="latest".
         @example
-            /questions/?questionId=123&order="votes"
+            /questions/?questionId=123&order=votes
         @perm
             member: All question information can be given only for members of the organization.
         @return
@@ -488,7 +490,7 @@ class QuestionAPI(APIView):
                 messages.append({"content":"There are no questions in the organization.","identifier":""})
                 return Response({"messages":messages}, 404)
 
-            print questions
+            #print questions
             questions = exclude_old_versions(questions)
             questions = order_messages(questions, order)
 

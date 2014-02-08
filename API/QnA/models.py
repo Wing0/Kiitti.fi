@@ -188,10 +188,10 @@ class AbstractMessage(models.Model):
         jsondict = {
             'content': self.content,
             'version': self.version,
-            'userId': self.user.user_id,
             'organizationId': self.organization.organization_id,
             'created': format_date(self.created),
-            'messageId': self.message_id
+            'messageId': self.message_id,
+            'user': self.user.serialize()
         }
 
         return jsondict

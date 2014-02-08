@@ -1,0 +1,10 @@
+request.GET.get("jotain") = url-parametri, tyyliin: /questions/?jotain=123&limit=4&order=votes
+
+
+request.body = body-parametrit, mitkä annetaan http-viestin body-osiossa, meillä jsonina.
+
+
+django lähettää sessio_id:n front-endistä
+
+request.user = django kattoo sessio_id:stä, että onko useri sessiossa, ja lataa backendin puolella user objektin
+request.user parametriin. Eli request.useria ei lähetetä suoraan front-endistä back-endiin

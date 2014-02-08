@@ -20,7 +20,7 @@ class AnswerAPI(APIView):
         if request.GET.get("questionId") != None:
             return self.by_question_id(request, request.GET.get("questionId"), request.GET.get("limit"), request.GET.get("order"))
         elif request.GET.get("authorId") != None:
-            return self.by_author_id(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
+            return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
         # ToDo: get all latest/best answers?
         else:
             return Response({"user":request.user.serialize(), "questionId":request.GET.get("questionId")},404)
@@ -106,7 +106,7 @@ class AnswerAPI(APIView):
             limit, integer (optional): The maximum number of answers retriveved. Default = 10
             order, string (optional): The method for ordering the retrieved answers. "votes" or "latest". Default="latest".
         @example
-            /answers/?questionId=123&limit=4&order="votes"
+            /answers/?questionId=123&limit=4&order=votes
         @perm
             member: All answer information can be given only for members of the organization
         @return
@@ -188,9 +188,12 @@ class AnswerAPI(APIView):
                     answers = order_messages(answers, order)
                     answer_list = []
                     for ans in answers[:limit]:
+                        json = ans.serialize()
                         comments = Comment.objects.filter(parent_id=ans.message_id)
+                        comment_list = []
                         for comment in comments:
-                            json["comments"] = comment.serialize()
+                            comment_list.append(comment.serialize())
+                        json["comments"] = comment_list
                         answer_list.append(json)
                     return Response({"answers": answer_list, "messages":messages}, 200)
 
@@ -208,7 +211,7 @@ class AnswerAPI(APIView):
             limit, integer (optional): The maximum number of answers retriveved. Default = 10
             order, string (optional): The method for ordering the retrieved answers. "votes" or "latest". Default="latest".
         @example
-            /answers/?authorId=123&limit=4&order="votes"
+            /answers/?authorId=123&limit=4&order=votes
         @perm
             member: All answer information can be given only for members of the organization.
         @return
@@ -293,8 +296,10 @@ class AnswerAPI(APIView):
                     for ans in answers[:limit]:
                         json = ans.serialize()
                         comments = Comment.objects.filter(parent_id=ans.message_id)
+                        comment_list = []
                         for comment in comments:
-                            json["comments"] = comment.serialize()
+                            comment_list.append(comment.serialize())
+                        json["comments"] = comment_list
                         answer_list.append(json)
                     return Response({"answers": answer_list, "messages":messages}, 200)
 
