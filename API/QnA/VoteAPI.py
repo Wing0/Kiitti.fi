@@ -20,6 +20,7 @@ class VoteAPI(APIView):
         This method saves a vote for a question or answer matching the given message_id
         @params
             direction, integer: vote value, can be either 1 or -1
+            type, string: target message type. "question" or "answer"
             messageId, positive integer: message id of the target
         @example:
             {
@@ -40,7 +41,7 @@ class VoteAPI(APIView):
                 example: {
                             "messages":[{"content":"An example error message.","identifier":"example"}]
         '''
-        messgaes = []
+        messages = []
         if not request.user.is_authenticated():
             return Response({"messages":create_message("User must be logged in.")}, 401)
         else:
@@ -51,14 +52,30 @@ class VoteAPI(APIView):
             if not vote.direction in [1,-1]:
                 messages.append(compose_message("Vote direction must be either 1 or -1.","direction"))
 
+            parent_type = data.get("type")
+            if not parent_type in ["answer", "question"]:
+                messages.append(compose_message("Vote direction must be either 'answer' or 'question'.","direction"))
+
             vote.message_id = data.get("messageId")
             if not isinstance(vote.message_id, int) or vote.message_id < 0:
                 messages.append(compose_message("Message id must be a positive integer.","direction"))
-            else:
-                message =
-                return Response({"messages": {
-                    "type": "alert",
-                    "content": "Message id has to be a positive integer",
-                    "identifier": "message_id"}}, 200)
-            vote.save()
-            return Response(200)
+            elif len(messages) == 0:
+                if parent_type == "question":
+                    try:
+                        Question.objects.get(message_id = vote.message_id)
+                        vote.is_question = True
+                    except:
+                        messages.append(compose_message("No question was found with given message id.","messageId"))
+                elif parent_type == "answer":
+                    try:
+                        Answer.objects.get(message_id = vote.message_id)
+                        vote.is_question = False
+                    except:
+                        messages.append(compose_message("No answer was found with given message id.","messageId"))
+
+            if len(messages) == 0:
+                vote.user = request.user
+                vote.save()
+                return Response({"messages":create_message("Voting successful!")}, 201)
+
+        return Response({"messages":messages}, 400)
