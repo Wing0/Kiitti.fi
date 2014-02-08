@@ -12,10 +12,11 @@
 
     background-color: $color-background-dark;
     color: $color-text;
-    &:hover {
+    &:hover, &.active {
       background-color: $color-text;
       color: white;
     }
+
   }
 
   .ta-text {
@@ -24,6 +25,7 @@
     min-height: 200px;
     background-color: white;
     border: 1px solid $color-input-border;
+    i { font-style: italic; }
 
     &:focus {
       outline: none;
