@@ -159,12 +159,12 @@ class TagAPI(APIView):
 
             if len(messages) == 0:
                 if order == "latest":
-                    tags = Tag.objects.filter(user = author).order_by("created")[:limit]
+                    tags = Tag.objects.filter(user = author).order_by("-created")[:limit]
                     tags = [tag.serialize() for tag in tags]
                 else:
                     tags = Tag.objects.filter(user = author)
                     tags = [tag.serialize() for tag in tags]
-                    tags.sort(key = lambda x: x["count"])
+                    tags.sort(key = lambda x: -x["count"])
                     tags = tags[:limit]
 
                 return Response({"tags": tags, "messages":messages}, 200)
@@ -192,12 +192,12 @@ class TagAPI(APIView):
 
         if len(messages) == 0:
             if order == "latest":
-                tags = Tag.objects.filter(organization = request.user.organization).order_by("created")[:limit]
+                tags = Tag.objects.filter(organization = request.user.organization).order_by("-created")[:limit]
                 tags = [tag.serialize() for tag in tags]
             else:
                 tags = Tag.objects.filter(organization = request.user.organization)
                 tags = [tag.serialize() for tag in tags]
-                tags.sort(key= lambda x: x["count"])
+                tags.sort(key= lambda x: -x["count"])
                 tags = tags[:limit]
 
             return Response({"tags": tags, "messages":messages}, 200)
