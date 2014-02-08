@@ -306,7 +306,7 @@ class Comment(AbstractMessage):
     '''
 
     '''
-    is_question_comment = models.BooleanField(default=False)
+    is_question_comment = models.BooleanField(default=False) #if true, this is a comment to a Question. If False, it is comment to an Answer.
     parent_id = models.PositiveIntegerField() #this is the message_id of the message to which this comment is for
     def serialize(self):
         jsondict = super(Comment, self).serialize()

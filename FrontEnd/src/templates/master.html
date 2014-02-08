@@ -1,32 +1,46 @@
-<div id="wrapper">
-  <header class="main block">
-    <div class="container">
-      <div class="app-header">
-        <a href="/">
-          <h2 class="app-name">Kiitti Q&amp;A</h2>
-        </a>
+<header id="main-header" class="block">
+  <div class="table">
+    <div class="container row">
+      <div class="cell">
+        <div class="logo">
+          <a href="/"><img src="images/logo_kiitti.png" alt="Kiitti"></a>
+        </div>
       </div>
-      <div id="user-panel">
-        <img src="" class="avatar" alt="Wingo">
-        <p class="activity">16</p>
-        <p class="username">Wingo</p>
+      <div class="cell" style="text-align: right;">
+        <nav>
+          <ul>
+            <li>
+              <a href="/questions">
+                <span><i class="fa fa-bars"></i> Selaa</span>
+              </a>
+            </li
+            ><li>
+              <a href="/question/new">
+                <span><i class="fa fa-pencil"></i> Uusi kysymys</span>
+              </a>
+            </li
+            ><li>
+              <a href="">
+                <span><i class="fa fa-user"></i> <span ng-bind="user.username"></span> <i class="fa fa-angle-down"></i></span>
+              </a>
+              <div class="dropdown">
+                <ul>
+                  <li><a href=""><i class="fa fa-pencil-square-o"></i> Omat kysymykset</a></li>
+                  <li><a href=""><i class="fa fa-reply-all"></i> Omat vastaukset</a></li>
+                  <li><a href=""><i class="fa fa-gear"></i> Asetukset</a></li>
+                  <li><a href="/logout"><i class="fa fa-unlock-alt"></i> Kirjaudu ulos</a></li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
-    <div style="clear:both"></div>
-  </header>
+  </div>
+</header>
 
-  <nav class="block">
-    <div class="container">
-      <ul>
-        <li><a href="popular" class="active">Suositut</a></li
-        ><li><a href="new">Uudet</a></li
-        ><li><a href="interesting">Kiinnostavat</a></li
-        ><li><a href="browse">Selaa</a></li>
-      </ul>
-    </div>
-  </nav>
-
-  <section id="main-content">
+<section id="main-content" class="block">
+  <div class="container">
     <div ui-view></div>
-  </section>
-</div>
+  </div>
+</section>
