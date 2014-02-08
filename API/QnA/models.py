@@ -218,10 +218,6 @@ class AbstractMessage(models.Model):
             # When created
             if not isinstance(self.version , int):
                 self.version = 0
-            # When created
-            all_objects = AbstractMessage.objects.all()
-            largest_id = max([0] + [obj.message_id for obj in all_objects])
-            self.message_id = largest_id + 1
         # Just save
         super(AbstractMessage, self).save(*args, **kwargs)
 
@@ -255,6 +251,11 @@ class Answer(AbstractMessage):
         '''
             The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
         '''
+        if not isinstance(self.version , int):
+            # When created
+            all_objects = Answer.objects.all()
+            largest_id = max([0] + [obj.message_id for obj in all_objects])
+            self.message_id = largest_id + 1
         # Just save
         super(Answer, self).save(*args, **kwargs)
 
@@ -287,6 +288,11 @@ class Question(AbstractMessage):
         '''
             The default save method is overridden to be able to generate appropriate message_id that is unique and ascending.
         '''
+        if not isinstance(self.version , int):
+            # When created
+            all_objects = Question.objects.all()
+            largest_id = max([0] + [obj.message_id for obj in all_objects])
+            self.message_id = largest_id + 1
         super(Question, self).save(*args, **kwargs)
 
     def save_changes(self, *args, **kwargs):
@@ -325,6 +331,11 @@ class Comment(AbstractMessage):
         '''
             The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
         '''
+        if not isinstance(self.version , int):
+            # When created
+            all_objects = Comment.objects.all()
+            largest_id = max([0] + [obj.message_id for obj in all_objects])
+            self.message_id = largest_id + 1
         # Just save
         super(Comment, self).save(*args, **kwargs)
 
