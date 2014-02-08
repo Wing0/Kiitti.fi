@@ -187,9 +187,6 @@ class AnswerAPI(APIView):
                     answers = order_messages(answers, order)
                     answer_list = []
                     for ans in answers[:limit]:
-                        json = ans.serialize()
-                        del json["userId"]
-                        json["user"] = ans.user.serialize()
                         comments = Comment.objects.filter(parent_id=ans.message_id)
                         for comment in comments:
                             json["comments"] = comment.serialize()
