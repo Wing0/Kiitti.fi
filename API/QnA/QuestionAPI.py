@@ -388,7 +388,6 @@ class QuestionAPI(APIView):
                                         "accepted":false
                                         }, {...}, {...}]
                             "comments":[{
-
                                         "userId": int,
                                         "username": string,
                                         "content": string,
@@ -431,7 +430,7 @@ class QuestionAPI(APIView):
 
                 if len(messages) == 0:
                     try:
-                        questions = list(Question.objects.filter(message_id=question_id).order_by("-version"))
+                        questions = list(Question.objects.filter(message_id=question_id).order_by("-version")) #casting to list if only one is returned
                         question = exclude_old_versions(questions)[0]
                         if not question.organization == request.user.organization:
                             messages.append(compose_message("You are not allowed to perform this action."))
@@ -444,8 +443,20 @@ class QuestionAPI(APIView):
                     answers = self.get_answers(question, order)
 
 
+                    comments = list(Comment.objects.filter(is_question_comment=True, parent_id=question.message_id))
+
                     questions = [q.serialize() for q in questions]
                     question = questions[0]
+
+
+                    comments_json = []
+
+                    for comment in comments:
+
+                        comments_json.append(comment.serialize())
+
+                    question["comments"] = comments_json
+
                     question["answers"] = answers
                     if history:
                         question["history"] = questions[1:]
@@ -547,10 +558,4 @@ class QuestionAPI(APIView):
         answers = list(Answer.objects.filter(question_id=question.message_id))
         if order:
             answers = order_messages(answers, order)
-
-        answ_json = []
-
-        for ans in exclude_old_versions(answers):
-            answ_json.append(ans.serialize())
-
-        return answ_json
+        return serialize_answers(exclude_old_versions(answers))
