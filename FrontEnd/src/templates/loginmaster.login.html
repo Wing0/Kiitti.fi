@@ -1,15 +1,13 @@
 <h2>Kirjaudu sisään</h2>
-<form ng-submit="login()">
+<form>
   <input type="text" id="username" name="username" placeholder="Käyttäjänimi" ng-model="user.username" required>
 
-  <br>
-  <input type="password" id="password" name="password" ng-model="user.password" placeholder="Salasana" required><br>
 
-  <div ng-show="error" class="error message">
-    <p>Käyttäjänimi tai salasana oli väärin.</p>
-  </div>
+  <input type="password" id="password" name="password" ng-model="user.password" placeholder="Salasana" required>
 
-  <input class="button green" type="submit" id="submit" name="submit" value="Kirjaudu">
+  <div ng-include src="'templates/messages.html'"></div>
+
+  <button class="button emphasis-1" id="submit" name="submit" ng-click="login(user)">Kirjaudu</button>
 </form>
 <hr />
 <footer>

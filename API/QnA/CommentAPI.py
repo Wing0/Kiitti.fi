@@ -35,19 +35,11 @@ class CommentAPI(APIView):
         data = json.loads(request.body)
         messages = []
         abs_data = post_abstract_message(Comment(), data)
-        parent_id = data["parentId"]
+        parent_id = string_to_int(data.get("parentId"))
         if parent_id is None:
-            raise Exception()
-        try:
-            parent_id = int(parent_id)
-        except Exception:
             messages.append(compose_message("Parent id must be positive integer.", "parentId"))
-        question = data["isQuestion"]
-        if question == "True" or question == "true":
-            question = True
-        elif question == "False" or question == "false":
-            question = False
-        else:
+        question = string_to_boolean(data.get("isQuestion"))
+        if question is None:
             messages.append(compose_message("Is question must be boolean.", "isQuestion"))
         if len(messages) == 0:
             abs_data.is_question_comment = question

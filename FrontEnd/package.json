@@ -26,7 +26,8 @@
     "grunt-svgmin": "~0.2.0",
     "grunt-usemin": "~2.0.0",
     "load-grunt-tasks": "~0.2.0",
-    "time-grunt": "~0.2.1"
+    "time-grunt": "~0.2.1",
+    "connect-modrewrite": "~0.5.11"
   },
   "engines": {
     "node": ">=0.8.0"

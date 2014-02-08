@@ -1,0 +1,45 @@
+@import "_base";
+
+button, .button, input[type="submit"] {
+  display: inline-block;
+
+  background-color: $color-emphasis-1;
+  color: $color-text;
+  font-weight: bold;
+  font-size: 0.8em;
+  padding: 10px 15px;
+  text-transform: uppercase;
+  border: 1px solid darken($color-emphasis-1, 5);
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &.emphasis-1 {
+    color: white;
+    background-color: $color-emphasis-1;
+  }
+  &.emphasis-2 {
+    color: white;
+    background-color: $color-emphasis-2;
+  }
+}
+
+.button-alt, input[type="submit"].alt {
+  display: inline-block;
+
+  color: $color-emphasis-1;
+  padding: 5px 0;
+  i {
+    font-size: 1.2em;
+    margin-right: 7px;
+  }
+  &:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  &:not(:first-of-type) { margin-left: 10px; }
+  &:not(:last-of-type) { margin-right: 10px; }
+}
+

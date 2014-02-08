@@ -1,13 +1,12 @@
-var ktControllers = angular.module('ktControllers', []);
+var ktControllers = angular.module('ktControllers', ['ktAPI']);
 
-ktControllers.controller('MainController', function($rootScope) {
+ktControllers.controller('MainController', function($rootScope, $location, $log) {
   $rootScope.$on('event:auth-loginRequired', function() {
-    console.log("! login required");
-    $state.go('login');
+    $log.warn("Login required for access");
+    $location.path('/login');
   });
   $rootScope.$on('event:auth-loginConfirmed', function() {
-    console.log("login confirmed");
-    $state.go('master.popular');
+    $log.info("Login successful");
   });
 });
 
@@ -29,17 +28,30 @@ ktControllers.controller('SubmitAnswerController', function($scope, QuestionFact
   };
 });
 
-ktControllers.controller('BrowsePopularController', function($scope, QuestionFactory) {
+ktControllers.controller('CreateQuestionController', function($scope, QuestionFactory) {
+  $scope.send = function() {
+    console.log($scope.question);
+    QuestionFactory.save($scope.question);
+  }
+});
+
+ktControllers.controller('BrowseQuestionsController', function($scope, QuestionFactory) {
+  $scope.data = QuestionFactory.get();
+});
+
+ktControllers.controller('SingleQuestionController', function($scope, QuestionFactory) {
+  console.log($scope.messageId);
+});
+
+ktControllers.controller('BrowsePopularController', function($scope, QuestionFactory, AnswerFactory) {
+
+  //$scope.questions = AnswerFactory.get({"questionId": 1});
 
   /*var questions = QuestionFactory.get(function(data) {
   $scope.questions = data.questions;
   });*/
 
   $scope.question = QuestionFactory.get();
-
-  /*var questions = QuestionFactory.get(function(data) {
-  console.log(data);
-  });*/
 
 });
 
