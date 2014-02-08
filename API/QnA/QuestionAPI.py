@@ -409,10 +409,13 @@ class QuestionAPI(APIView):
 
 
                     questions = [q.serialize() for q in questions]
+                    question = questions[0]
+                    question["answers"] = answers
                     if history:
-                        return Response({"questions":questions, "answers":answers,"messages":messages}, 200)
+                        question["history"] = questions[1:]
+                        return Response({"questions":question, "messages":messages}, 200)
                     else:
-                        return Response({"questions":questions[0], "answers":answers, "messages":messages}, 200)
+                        return Response({"questions":question, "messages":messages}, 200)
 
             except ValueError:
                 messages.append({"content":"The question id has to be a positive integer.","identifier":"questionId"})
