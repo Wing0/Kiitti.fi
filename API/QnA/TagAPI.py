@@ -23,11 +23,12 @@ class TagAPI(APIView):
             401: If user is not logged in.
         '''
         messages = []
-        course_flag = request.GET.get("courseFlag")
-        name = request.GET.get("name")
+        data = json.loads(request.body)
+        course_flag = string_to_boolean(data["courseFlag"])
+        name = data["name"]
         if not request.user.is_authenticated():
             return Response(create_message("You must be logged in to request comments."), 401)
-        if string_to_boolean(course_flag) == None:
+        if not isinstance(course_flag, bool):
             messages.append(compose_message("Course flag must be a boolean value.", "courseFlag"))
         if name == None or len(name) == 0:
             messages.append(compose_message("Name must be non-empty string.", "name"))

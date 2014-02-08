@@ -408,7 +408,7 @@ class Tag(models.Model):
         # Just save
         super(Tag, self).save(*args, **kwargs)
 
-    def validate(self, messages):
+    def validate(self):
         messages = []
         if not isinstance(self.name, basestring):
             messages.append(compose_message("Tag name has to be a string.", "name"))
@@ -416,11 +416,11 @@ class Tag(models.Model):
             messages.append(compose_message("Tag name has to be longer than 3 characters.", "name"))
         elif len(self.name) > 255:
             messages.append(compose_message("Tag name has to be shorter than 255 characters.", "name"))
-        if self.course_flag not in [True, False]:
+        if not isinstance(self.course_flag, bool):
             messages.append(compose_message("Course flag has to be a boolean value.", "courseFlag"))
         if not isinstance(self.organization, Organization):
             messages.append(compose_message("Organization has to be an Organization instance.", "organization"))
-        if not isinstance(self.creator, User):
+        if not isinstance(self.user, User):
             messages.append(compose_message("Creator has to be an User instance.", "creator"))
         return messages
 
