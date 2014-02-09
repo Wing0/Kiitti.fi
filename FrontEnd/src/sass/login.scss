@@ -90,8 +90,12 @@
 }
 
 #login header {
+  padding: 12px 0;
+  background-color: $color-emphasis-1;
+  @include border-top-left-radius;
+  @include border-top-right-radius;
   #logo {
-    width: 100px;
+    height: 40px;
   }
 }
 
