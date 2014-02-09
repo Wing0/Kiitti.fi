@@ -39,8 +39,7 @@
 /* LOGIN STYLE */
 
 #login {
-
-  padding: 60px 0;
+  background-color: $color-background-light;
 
   h2 {
     font-size: 1.8em;
@@ -52,7 +51,8 @@
   }
 
   @media (min-width: $break-narrow+1) {
-    //background: image-url("background-login.jpg") no-repeat center center fixed;
+    padding: 60px 0;
+    background: image-url("background-login.jpg") no-repeat center center fixed;
     @include background-size(cover);
   }
 }
@@ -60,15 +60,12 @@
 #login #content {
   @media (min-width: $break-narrow+1) {
     padding: 30px;
-    @include border-radius;
-    @include box-shadow(rgba(0,0,0,0.5) 0 0 50px);
   }
 
   @media (max-width: $break-narrow) {
     padding: 30px 0 30px 0;
   }
-  background-color: white;
-  //background-color: $color-background-light;
+
 }
 
 #login .middle-content {
@@ -76,6 +73,9 @@
   @media (min-width: $break-narrow+1) {
     max-width: 400px;
     margin-top: -60px;
+
+    @include border-radius;
+    @include box-shadow(rgba(0,0,0,0.3) 0 0 60px);
   }
 
   @media (max-width: $break-narrow) {
@@ -84,13 +84,13 @@
 
   hr {
     margin: 15px 0;
-    border-color: darken($color-background-light, 20);
+    border-color: $color-background-dark;
   }
+  background-color: $color-background-light;
 }
 
 #login header {
   #logo {
-    margin: 10px auto;
     width: 100px;
   }
 }
