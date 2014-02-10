@@ -4,7 +4,7 @@ var ktStates = angular.module('ktStates', ['ui.router',
 ktStates.config(function($stateProvider, $urlRouterProvider) {
 
   $urlRouterProvider
-    .when('/', '/popular')
+    .when('/', '/questions')
     .otherwise('/');
 
   var tdir = '../templates/';
@@ -52,6 +52,11 @@ ktStates.config(function($stateProvider, $urlRouterProvider) {
     .state('master.question', {
       url: '/question/:messageId',
       templateUrl: tdir + 'question.html',
+      resolve: {
+        data: function(QuestionFactory, $stateParams) {
+          return QuestionFactory.get({"messageId": $stateParams.messageId});
+        }
+      },
       controller: 'SingleQuestionController'
     });
 });

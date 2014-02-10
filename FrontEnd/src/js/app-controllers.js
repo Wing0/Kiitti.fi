@@ -85,8 +85,8 @@ ktControllers.controller('BrowseQuestionsController', function($scope, QuestionF
   $scope.data = QuestionFactory.get();
 });
 
-ktControllers.controller('SingleQuestionController', function($scope, QuestionFactory) {
-  console.log($scope.messageId);
+ktControllers.controller('SingleQuestionController', function($scope, data) {
+  $scope.question = data;
 });
 
 ktControllers.controller('BrowsePopularController', function($scope, QuestionFactory, AnswerFactory) {

@@ -23,6 +23,6 @@ module.factory('AnswerFactory', function($resource, APIUrl) {
 });
 
 module.factory('QuestionFactory', function($resource, APIUrl) {
-  return $resource(APIUrl + '/questions', {},
+  return $resource(APIUrl + '/questions/:messageId', {},
     { 'get': {method: 'GET', isArray: false} });
 });
