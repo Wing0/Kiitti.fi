@@ -28,7 +28,11 @@ ALLOWED_HOSTS = ['*']
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication'
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
     )
 }
 
@@ -41,10 +45,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'QnA',
     'Kiitti',
-    'south',
+    'QnA',
     'rest_framework',
+    'rest_framework.authtoken',
+    'south',
+    'corsheaders',
 )
 
 AUTH_USER_MODEL = "QnA.User"
@@ -55,10 +61,10 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware'
 ]
 
-#if not DEBUG:
-MIDDLEWARE_CLASSES.append('django.middleware.csrf.CsrfViewMiddleware')
 
 ROOT_URLCONF = 'Kiitti.urls'
 
@@ -93,3 +99,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+if DEBUG:
+    CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOW_HEADERS = (
+    'x-requested-with',
+    'content-type',
+    'accept',
+    'origin',
+    'authorization',
+    'X-CSRFToken',
+    'Authorization'
+)

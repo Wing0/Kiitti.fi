@@ -12,9 +12,10 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
     url(r'^$', UserAPI.as_view()),
-    url(r'^auth/login/?$', LoginAPI.as_view()),
+
+    url(r'^auth/login/?$', 'rest_framework.authtoken.views.obtain_auth_token'),
+    url(r'^auth/load/?$', LoginAPI.as_view()),
     url(r'^auth/logout/?$', LogoutAPI.as_view()),
     # url(r'^$', 'Kiitti.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
