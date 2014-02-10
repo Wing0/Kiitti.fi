@@ -8,7 +8,8 @@ from QnA.view_utils import *
 from QnA.utils import *
 import json
 
-from view_utils import post_abstract_message, exclude_old_versions
+from view_utils import *
+
 
 class AnswerAPI(APIView):
 
@@ -20,7 +21,7 @@ class AnswerAPI(APIView):
         if request.GET.get("questionId") != None:
             return self.by_question_id(request, request.GET.get("questionId"), request.GET.get("limit"), request.GET.get("order"))
         elif request.GET.get("authorId") != None:
-            return self.by_author_id(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
+            return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
         # ToDo: get all latest/best answers?
         else:
             return Response({"user":request.user.serialize(), "questionId":request.GET.get("questionId")},404)
@@ -116,7 +117,16 @@ class AnswerAPI(APIView):
                             "answers":[{
                                         "content":"An example answer",
                                         "version":1,
-                                        "userId":123,
+                                        "user": {
+                                            "username": "test",
+                                            "reputation": 0,
+                                            "lastLogin": "2014-02-02T19:00:31.568Z",
+                                            "firstName": "test",
+                                            "created": "2014-01-25T18:34:35Z",
+                                            "lastName": "test",
+                                            "userId": 2,
+                                            "email": "test@test.test"
+                                        },
                                         "created": "2014-01-08T11:05:16",
                                         "modified": "2014-01-08T11:05:16",
                                         "messageId": 4,
@@ -186,16 +196,7 @@ class AnswerAPI(APIView):
 
                     answers = exclude_old_versions(answers)
                     answers = order_messages(answers, order)
-                    answer_list = []
-                    for ans in answers[:limit]:
-                        json = ans.serialize()
-                        comments = Comment.objects.filter(parent_id=ans.message_id)
-                        comment_list = []
-                        for comment in comments:
-                            comment_list.append(comment.serialize())
-                        json["comments"] = comment_list
-                        answer_list.append(json)
-                    return Response({"answers": answer_list, "messages":messages}, 200)
+                    return Response({"answers": serialize_answers(answers), "messages":messages}, 200)
 
             except ValueError:
                 messages.append({"content":"The question id has to be a positive integer.","identifier":"questionId"})
@@ -221,7 +222,16 @@ class AnswerAPI(APIView):
                             "answers":[{
                                         "content":"An example answer",
                                         "version":1,
-                                        "userId":123,
+                                        "user": {
+                                            "username": "test",
+                                            "reputation": 0,
+                                            "lastLogin": "2014-02-02T19:00:31.568Z",
+                                            "firstName": "test",
+                                            "created": "2014-01-25T18:34:35Z",
+                                            "lastName": "test",
+                                            "userId": 2,
+                                            "email": "test@test.test"
+                                        },
                                         "created": "2014-01-08T11:05:16",
                                         "modified": "2014-01-08T11:05:16",
                                         "messageId": 4,
@@ -292,16 +302,7 @@ class AnswerAPI(APIView):
 
                     answers = exclude_old_versions(answers)
                     answers = order_messages(answers, order)
-                    answer_list = []
-                    for ans in answers[:limit]:
-                        json = ans.serialize()
-                        comments = Comment.objects.filter(parent_id=ans.message_id)
-                        comment_list = []
-                        for comment in comments:
-                            comment_list.append(comment.serialize())
-                        json["comments"] = comment_list
-                        answer_list.append(json)
-                    return Response({"answers": answer_list, "messages":messages}, 200)
+                    return Response({"answers": serialize_answers(answers), "messages":messages}, 200)
 
             except ValueError:
                 messages.append({"content":"The author id has to be a positive integer.","identifier":"questionId"})

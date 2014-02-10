@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from QnA.utils import *
 import re
+import hashlib
 
 def format_date(date):
     return date.strftime('%Y-%m-%dT%H:%M:%S')
@@ -40,7 +41,7 @@ class Organization(models.Model):
             # Create user actions
             orgobjects = Organization.objects.all()
             largest_id = max([0] + [org.organization_id for org in orgobjects])
-            self.organization_id = largest_id
+            self.organization_id = largest_id + 1
         # Just save
         super(Organization, self).save(*args, **kwargs)
 
@@ -66,6 +67,9 @@ class User(AbstractUser):
     user_id = models.PositiveIntegerField(unique=True)
     reputation = models.IntegerField(default=0)
     organization = models.ForeignKey(Organization, to_field='organization_id')
+
+    def __unicode__(self):
+        return "%s - %s" % (self.username, self.organization.name)
 
     def serialize(self):
         jsondict = {
@@ -99,25 +103,19 @@ class User(AbstractUser):
         super(User, self).save(*args, **kwargs)
 
     def validate(self):
-        valid = True
         messages = []
 
         if not isinstance(self.username, basestring):
-            valid = False
             messages.append(compose_message("Username has to be a string.","username"))
         if not len(self.username) <= 255:
-            valid = False
             messages.append(compose_message("Username has to be a shorter than 256 characters.","username"))
         if not len(self.username) >= 3:
-            valid = False
             messages.append(compose_message("Username has to be a longer than 2 characters.","username"))
 
         if not isinstance(self.email, basestring):
-            valid = False
             messages.append(compose_message("Email has to be a string.","email"))
         else:
             if not re.match("[^@]+@[^@]+\.[^@]+",self.email):
-                valid = False
                 messages.append(compose_message("Give a valid email address.","email"))
             else:
                 retrieved_user = False
@@ -126,46 +124,33 @@ class User(AbstractUser):
                 except:
                     retrieved_user = False
                 if retrieved_user:
-                    valid = False
                     messages.append(compose_message("Email already in use.","email"))
 
         if not isinstance(self.first_name, basestring):
-            valid = False
             messages.append(compose_message("First name has to be a string.","first_name"))
         if not len(self.first_name) <= 255:
-            valid = False
             messages.append(compose_message("First name has to be a shorter than 256 characters.","first_name"))
         if not len(self.first_name) >= 1:
-            valid = False
             messages.append(compose_message("First name has to be at least 1 character.","first_name"))
 
         if not isinstance(self.last_name, basestring):
-            valid = False
             messages.append(compose_message("Last name has to be a string.","last_name"))
         if not len(self.last_name) <= 255:
-            valid = False
             messages.append(compose_message("Last name has to be a shorter than 256 characters.","last_name"))
         if not len(self.last_name) >= 1:
-            valid = False
             messages.append(compose_message("Last name has to be at least 1 character.","last_name"))
 
         if not isinstance(self.password, basestring):
-            valid = False
             messages.append(compose_message("Password has to be a string.","password"))
         if not len(self.password) <= 255:
-            valid = False
             messages.append(compose_message("Password has to be a shorter than 256 characters.","password"))
         if not len(self.password) >= 4:
-            valid = False
             messages.append(compose_message("Password has to be at least 4 character.","password"))
 
-        if not isinstance(self.organization_id, int):
-            valid = False
-            messages.append(compose_message("Organization id has to be a integer.","organization_id"))
-        else:
-            Organization.objects.get()
+        if not isinstance(self.organization, Organization):
+            messages.append(compose_message("Organization object is not valid.","organization"))
 
-        return valid, messages
+        return messages
 
 
 class AbstractMessage(models.Model):
@@ -230,10 +215,22 @@ class Answer(AbstractMessage):
     question_id = models.PositiveIntegerField() #this is the message_id of the question this answer is response to
     accepted = models.BooleanField(default=False)
 
+    def __unicode__(self):
+        text = self.content
+        size = len(text)
+        if size > 100:
+            text = text[0:97] + "..."
+        return "Message id: %s, Question id: %s, Is accepted: %s, Content: %s" % (str(self.message_id), str(self.question_id), str(self.accepted), text)
+
     def serialize(self):
         jsondict = super(Answer, self).serialize()
         jsondict['questionId'] = self.question_id
         jsondict['accepted'] = self.accepted
+        jsondict['meta'] = {
+                            "commentsNumber": len(exclude_old_versions(list(Comment.objects.filter(parent_id = self.message_id, is_question_comment = False)))),
+                            "votesNumber": len(Vote.objects.filter(message_id = self.message_id, is_question=False)),
+                            "votes": sum([vote.direction for vote in list(Vote.objects.filter(message_id = self.message_id, is_question=False))])
+                            }
 
         return jsondict
 
@@ -273,7 +270,12 @@ class Question(AbstractMessage):
         jsondict = super(Question, self).serialize()
         jsondict['title'] = self.title
         jsondict['tags'] = [tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=self.message_id)]
-        jsondict['meta'] = {"number_of_answers":len(exclude_old_versions(list(Answer.objects.filter(question_id=self.message_id))))} #ToDo
+        jsondict['meta'] = {
+                            "commentsNumber": len(exclude_old_versions(list(Comment.objects.filter(parent_id = self.message_id, is_question_comment = True)))),
+                            "answersNumber":len(exclude_old_versions(list(Answer.objects.filter(question_id=self.message_id)))),
+                            "votesNumber": len(Vote.objects.filter(message_id = self.message_id, is_question=True)),
+                            "votes": sum([vote.direction for vote in list(Vote.objects.filter(message_id = self.message_id, is_question=True))])
+                            }
         return jsondict
 
     def validate(self):
@@ -314,6 +316,14 @@ class Comment(AbstractMessage):
     '''
     is_question_comment = models.BooleanField(default=False) #if true, this is a comment to a Question. If False, it is comment to an Answer.
     parent_id = models.PositiveIntegerField() #this is the message_id of the message to which this comment is for
+
+    def __unicode__(self):
+        text = self.content
+        size = len(text)
+        if size > 100:
+            text = text[0:97] + "..."
+        return "Message id: %s, Parent id: %s, Is question: %s, Content: %s" % (str(self.message_id), str(self.parent_id), str(self.is_question_comment), text)
+
     def serialize(self):
         jsondict = super(Comment, self).serialize()
         jsondict['parentId'] = self.parent_id
@@ -343,15 +353,17 @@ class Vote(models.Model):
 
     direction = models.SmallIntegerField(default=1)
     user = models.ForeignKey(User, to_field="user_id")
+    is_question = models.BooleanField()
     message_id = models.PositiveIntegerField(default=0)
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
 
     def serialize(self):
         jsondict = {
-            'rate': self.rate,
+            'direction': self.direction,
             'userId': self.user.user_id,
             'messageId': self.message_id,
+            'isQuestion': self.is_question,
             'created': format_date(self.created),
             'modified': format_date(self.modified)
         }
@@ -434,7 +446,7 @@ class TagEntry(models.Model):
 
     created = models.DateField(auto_now_add=True)
     modified = models.DateField(auto_now=True)
-    creator = models.ForeignKey(User, to_field="user_id")
+    user = models.ForeignKey(User, to_field="user_id")
 
     def __unicode__(self):
         return self.tag.name
@@ -444,7 +456,7 @@ class TagEntry(models.Model):
             'tagEntryId':self.tag_entry_id,
             'tagId':self.tag.tag_id,
             'messageId': self.message_id,
-            'creator': self.creator.user_id,
+            'user': self.user.user_id,
             'created': format_date(self.created),
             'modified': format_date(self.modified),
         }
@@ -483,6 +495,24 @@ class TagEntry(models.Model):
         '''
         return messages
 
+class ResetEntry(models.Model):
+    user = models.ForeignKey(User, to_field="user_id")
+    salt = models.CharField(max_length = 5)
+
+    created = models.DateField(auto_now_add=True)
+
+    def is_valid(self, has):
+        if self.create() == has:
+            return True
+        else:
+            return False
+
+    def create(self):
+        secret = "supercoderz"
+        m = hashlib.sha256()
+        m.update(self.user.email+self.salt+self.user.username+secret)
+        has = m.hexdigest()
+        return has[:10]
 '''
 ToDo:
     User object
