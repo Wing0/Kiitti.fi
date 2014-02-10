@@ -13,14 +13,13 @@ class LoginAPI(APIView):
                 return user object serlialization
                 @example:
                     {
-                        "user":{
-                                  "username":"test",
-                                  "password":"test",
-                                  "organizationId":1,
-                                  "email":"test@test.test",
-                                  "firstName":"test",
-                                  "lastName":"test"
-                                }
+                        "user": {
+                          "username": "test",
+                          "organizationId": 1,
+                          "email": "test@test.test",
+                          "firstName": "test",
+                          "lastName": "test"
+                        }
                     }
 
             401: Unauthorized, the user has to be logged in to perform this action
