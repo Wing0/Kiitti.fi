@@ -19,7 +19,7 @@
                 <span><i class="fa fa-pencil"></i> Uusi kysymys</span>
               </a>
             </li
-            ><li>
+            ><li ng-if="user">
               <a href="">
                 <span><i class="fa fa-user"></i> <span ng-bind="user.username"></span> <i class="fa fa-angle-down"></i></span>
               </a>
@@ -31,6 +31,11 @@
                   <li><a href="/logout"><i class="fa fa-unlock-alt"></i> Kirjaudu ulos</a></li>
                 </ul>
               </div>
+            </li
+            ><li ng-if="!user">
+              <a href="/login">
+                <span><i class="fa fa-lock"></i> <span>Kirjaudu</span></span>
+              </a>
             </li>
           </ul>
         </nav>

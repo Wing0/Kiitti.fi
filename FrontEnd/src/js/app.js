@@ -1,6 +1,6 @@
 var app = angular.module('app', ['ngResource', 'ngAnimate', 'ngSanitize', 'ngCookies',
                                  'textAngular',
-                                 'ktStates', 'ktAuth', 'ktControllers', 'ktAPI']);
+                                 'ktStates', 'ktControllers', 'ktAPI']);
 
 /* CONFIG */
 
@@ -14,9 +14,9 @@ app.config(function($locationProvider, $httpProvider, $cookiesProvider) {
 
   // $httpProvider.defaults.xsrfCookieName = 'csrftoken';
   // $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-
   // $httpProvider.defaults.headers.common['X-CSRFToken'] = $cookiesProvider.csrftoken;
-  $httpProvider.defaults.withCredentials = true;
+
+  // $httpProvider.defaults.withCredentials = true;
 
   // Messages interceptor
   $httpProvider.interceptors.push(function($rootScope, $q, httpBuffer) {
@@ -28,7 +28,6 @@ app.config(function($locationProvider, $httpProvider, $cookiesProvider) {
               value.type = "success";
             });
           }
-
           return response || $q.when(response); // default behaviour
         },
       'responseError': function(rejection) {
@@ -38,28 +37,23 @@ app.config(function($locationProvider, $httpProvider, $cookiesProvider) {
             value.type = "error";
           });
         }
-
         return $q.reject(rejection); // default behaviour
       }
     };
   });
 });
 
-app.run(function($rootScope, AuthAPI, $cookies, $http, $location) {
-  AuthAPI.load()
-  .success(function(data) {
-    $rootScope.user = data.user;
-    $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
-  });
+app.run(function($rootScope, $cookieStore, $http, AuthAPI) {
+
+  /* Get user if already logged in */
+  if ($cookieStore.get('tursas')) {
+    $http.defaults.headers.common['Authorization'] = 'Token ' + $cookieStore.get('tursas');
+    AuthAPI.load().success(function(data) {
+      $rootScope.user = data.user;
+    });
+  }
 })
 
-/* RESOURCES */
-
-app.factory('QuestionFactory', function($resource, APIUrl) {
-  //return $resource('/testdata/single_question.json', {},
-  return $resource(APIUrl + '/questions', {},
-    { 'get': {method: 'GET', isArray: false} });
-});
 
 /* DIRECTIVES */
 

@@ -4,12 +4,12 @@
   "dependencies": {
     "json3": "~3.2.6",
     "html5shiv": "~3.7.0",
-    "angular": "1.2.10",
-    "angular-resource": "1.2.10",
-    "angular-cookies": "1.2.10",
-    "angular-sanitize": "1.2.10",
-    "angular-touch": "1.2.10",
-    "angular-animate": "1.2.10",
+    "angular": "1.2.12",
+    "angular-resource": "1.2.12",
+    "angular-cookies": "1.2.12",
+    "angular-sanitize": "1.2.12",
+    "angular-touch": "1.2.12",
+    "angular-animate": "1.2.12",
     "angular-http-auth": "1.2.1",
     "textAngular": "~1.1.2"
   }

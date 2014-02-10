@@ -1,6 +1,6 @@
-var ktControllers = angular.module('ktControllers', ['ktAPI']);
+var ktControllers = angular.module('ktControllers', ['http-auth-interceptor', 'ktAPI']);
 
-ktControllers.controller('MainController', function($rootScope, $location, $log) {
+ktControllers.controller('MainController', function($rootScope, $location, $log, $http, $cookieStore) {
   $rootScope.$on('event:auth-loginRequired', function() {
     $log.warn("Login required for access");
     $location.path('/login');
@@ -8,6 +8,48 @@ ktControllers.controller('MainController', function($rootScope, $location, $log)
   $rootScope.$on('event:auth-loginConfirmed', function() {
     $log.info("Login successful");
   });
+});
+
+ktControllers.controller('LoginController', function($rootScope, $scope, $http, authService, AuthAPI, $location, $cookieStore) {
+
+  $scope.login = function(user) {
+    AuthAPI.login(user)
+      .success(function(data, status, headers, config) {
+        /* set token into cookies */
+        $cookieStore.put('tursas', data.token);
+        $http.defaults.headers.common['Authorization'] = 'Token ' + data.token;
+
+        /* confirm login */
+        authService.loginConfirmed();
+
+        /* load user data */
+        AuthAPI.load().success(function(data) {
+          $rootScope.user = data.user;
+
+          /* redirect */
+          $location.path('/');
+        }).error(function(response) {
+          $rootScope.messages = [{"content": "Odottamaton virhe. Ole hyvä ja yritä uudelleen.", "type": "error"}];
+        });
+      })
+      .error(function(data, status, headers, config) {
+        $rootScope.messages = [{"content": "Väärä käyttäjänimi ja/tai salasana.", "type": "error"}];
+      });
+  }
+});
+
+ktControllers.controller('LogoutController', function(AuthAPI, $rootScope, $log, $location, $cookieStore) {
+  AuthAPI.logout()
+    .success(function() {
+      $log.info("User " + $rootScope.user.username + " logged out");
+      $cookieStore.remove('tursas');
+      $rootScope.user = "";
+      $rootScope.messages = "";
+      $location.path('/');
+    })
+    .error(function(data, status) {
+      $log.error("User " + $rootScope.user.username + " could not be logged out")
+    });
 });
 
 ktControllers.controller('SubmitAnswerController', function($scope, QuestionFactory) {

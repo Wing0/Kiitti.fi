@@ -68,8 +68,8 @@ module.exports = function (grunt) {
         port: 9000,
         base: '<%= app.src %>',
         // change this to '0.0.0.0' to access the server from outside
-        hostname: '0.0.0.0',
-        livereload: 35729,
+        hostname: '127.0.0.1',
+        //livereload: 35729,
         middleware: function (connect, options) {
           var middlewares = [];
           var directory = options.directory || options.base[options.base.length - 1];
@@ -330,15 +330,18 @@ module.exports = function (grunt) {
     //     }
     //   }
     // },
-    // uglify: {
-    //   dist: {
-    //     files: {
-    //       '<%= app.dist %>/scripts/scripts.js': [
-    //         '<%= app.dist %>/scripts/scripts.js'
-    //       ]
-    //     }
-    //   }
-    // },
+    uglify: {
+      options: {
+        mangle: false
+      }
+      // dist: {
+      //   files: {
+      //     '<%= app.dist %>/scripts/scripts.js': [
+      //       '<%= app.dist %>/scripts/scripts.js'
+      //     ]
+      //   }
+      // }
+    },
     // concat: {
     //   dist: {}
     // },
