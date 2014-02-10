@@ -12,6 +12,9 @@ ktControllers.controller('MainController', function($rootScope, $location, $log,
 
 ktControllers.controller('LoginController', function($rootScope, $scope, $http, authService, AuthAPI, $location, $cookieStore) {
 
+  /* do not show messages from redirect errors */
+  delete $rootScope.messages;
+
   $scope.login = function(user) {
     AuthAPI.login(user)
       .success(function(data, status, headers, config) {
@@ -38,13 +41,14 @@ ktControllers.controller('LoginController', function($rootScope, $scope, $http, 
   }
 });
 
-ktControllers.controller('LogoutController', function(AuthAPI, $rootScope, $log, $location, $cookieStore) {
+ktControllers.controller('LogoutController', function(AuthAPI, $http, $rootScope, $log, $location, $cookieStore) {
   AuthAPI.logout()
     .success(function() {
       $log.info("User " + $rootScope.user.username + " logged out");
       $cookieStore.remove('tursas');
-      $rootScope.user = "";
-      $rootScope.messages = "";
+      delete $http.defaults.headers.common['Authorization'];
+      delete $rootScope.user;
+      delete $rootScope.messages;
       $location.path('/');
     })
     .error(function(data, status) {
