@@ -76,7 +76,7 @@ class QuestionAPI(APIView):
 
         return Response({"messages":messages},400)
 
-    def get(self, request, criterion="latest"):
+    def get(self, request, criterion="latest", question_id=None):
         '''
         This method mediates the task to correct function.
         Further information in helper method docstring
@@ -85,14 +85,25 @@ class QuestionAPI(APIView):
         if not request.user.is_authenticated():
             return Response({"messages":create_message("User must be logged in.")}, 401)
 
-        if request.GET.get("authorId") != None:
-            return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
-        elif request.GET.get("tags"):
-            return self.by_tags(request, request.GET.get("tags"), request.GET.get("searchMethod"), request.GET.get("limit"), request.GET.get("order"))
-        elif request.GET.get("questionId") != None:
-            return self.by_id(request, request.GET.get("questionId"), request.GET.get("order"), request.GET.get("history"))
-        else:
-            return self.get_all(request, request.GET.get("limit"), request.GET.get("order"))
+        if question_id:
+            try:
+                question = Question.objects.get(message_id=int(question_id))
+            except Question.DoesNotExist:
+                return Response({"messages": create_message("Requested question cannot be found")}, 404)
+            return Response(question.serialize_single(), 200)
+
+        questions = Question.objects.all()
+        return Response({"questions": [question.serialize() for question in questions]}, 200)
+
+
+        # if request.GET.get("authorId") != None:
+        #     return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
+        # elif request.GET.get("tags"):
+        #     return self.by_tags(request, request.GET.get("tags"), request.GET.get("searchMethod"), request.GET.get("limit"), request.GET.get("order"))
+        # elif request.GET.get("questionId") != None:
+        #     return self.by_id(request, request.GET.get("questionId"), request.GET.get("order"), request.GET.get("history"))
+        # else:
+        #     return self.get_all(request, request.GET.get("limit"), request.GET.get("order"))
 
 
     def by_author(self, request, author_id, limit=10, order="latest"):
