@@ -2,8 +2,9 @@ from django.shortcuts import render
 from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from QnA.models import *
-from QnA.view_utils import *
+from QnA.view_utils import order_messages, get_message_by_id, post_abstract_message
 from QnA.utils import *
 import json
 
@@ -39,37 +40,35 @@ class QuestionAPI(APIView):
                             "messages":[{"content":"An example error message.","identifier":"example"}]
         '''
 
-        data = json.loads(request.body)
-
         messages = []
 
         if not request.user.is_authenticated():
             messages.append(compose_message("User must be logged in.", "user"))
             return Response({"messages":messages}, 401)
 
-        q = post_abstract_message(Question(), data)
+        question = post_abstract_message(Question(), request.DATA)
 
-        title = data.get('title')
-        q.title = title
-        q.organization = request.user.organization
-        q.user = request.user
-        messages = q.validate()
+        title = request.DATA.get('title')
+        question.title = title
+        question.organization = request.user.organization
+        question.user = request.user
+        messages = question.validate()
         if len(messages) == 0:
 
             # Save question
-            if q.message_id:
-                q.save_changes()
+            if question.message_id:
+                question.save_changes()
             else:
-                q.save()
+                question.save()
 
             # Save tags
-            taglist = data.get("tags")
+            taglist = request.DATA.get("tags")
             if taglist and isinstance(taglist,list):
                 tagnames = list(set(taglist)) #List(set()) removes duplicates
                 for tagname in tagnames:
                     try:
                         tag = Tag.objects.get(name=tagname)
-                        entry = TagEntry(tag=tag, message_id=q.message_id, creator=q.user)
+                        entry = TagEntry(tag=tag, message_id=question.message_id, creator=question.user)
                         entry.save()
                     except:
                         messages.append(compose_message("Tag %s was not found." % tagname, "tags"))
@@ -85,15 +84,15 @@ class QuestionAPI(APIView):
 
         if not request.user.is_authenticated():
             return Response({"messages":create_message("User must be logged in.")}, 401)
+
+        if request.GET.get("authorId") != None:
+            return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
+        elif request.GET.get("tags"):
+            return self.by_tags(request, request.GET.get("tags"), request.GET.get("searchMethod"), request.GET.get("limit"), request.GET.get("order"))
+        elif request.GET.get("questionId") != None:
+            return self.by_id(request, request.GET.get("questionId"), request.GET.get("order"), request.GET.get("history"))
         else:
-            if request.GET.get("authorId") != None:
-                return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
-            elif request.GET.get("tags"):
-                return self.by_tags(request, request.GET.get("tags"), request.GET.get("searchMethod"), request.GET.get("limit"), request.GET.get("order"))
-            elif request.GET.get("questionId") != None:
-                return self.by_id(request, request.GET.get("questionId"), request.GET.get("order"), request.GET.get("history"))
-            else:
-                return self.get_all(request, request.GET.get("limit"), request.GET.get("order"))
+            return self.get_all(request, request.GET.get("limit"), request.GET.get("order"))
 
 
     def by_author(self, request, author_id, limit=10, order="latest"):
@@ -481,8 +480,8 @@ class QuestionAPI(APIView):
             messages.append({"content":"The order parameter can be only 'latest' or 'votes'","identifier":"order"})
 
         if len(messages) == 0:
-
-            questions = list(Question.objects.filter(organization = request.user.organization.organization_id))
+            #questions = Question.objects.all()
+            questions = list(Question.objects.filter(organization=request.user.organization.organization_id))
             if len(questions) == 0:
                 messages.append({"content":"There are no questions in the organization.","identifier":""})
                 return Response({"messages":messages}, 404)
