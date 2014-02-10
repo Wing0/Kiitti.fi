@@ -6,3 +6,4 @@ FrontEnd/node_modules/
 FrontEnd/.tmp/
 FrontEnd/src/bower_components/
 FrontEnd/dist
+API/debugdb.sqlite3
