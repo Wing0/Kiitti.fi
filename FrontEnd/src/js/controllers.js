@@ -10,34 +10,18 @@ ktControllers.controller('MainController', function($rootScope, $location, $log,
   });
 });
 
-ktControllers.controller('LoginController', function($rootScope, $scope, $http, authService, AuthAPI, $location, $cookieStore) {
-
-  /* do not show messages from redirect errors */
-  delete $rootScope.messages;
+ktControllers.controller('LoginController', function(MessageFactory, AuthAPI, $rootScope, $scope, $location) {
 
   $scope.login = function(user) {
     AuthAPI.login(user)
       .success(function(data, status, headers, config) {
-        /* set token into cookies */
-        $cookieStore.put('tursas', data.token);
-        $http.defaults.headers.common['Authorization'] = 'Token ' + data.token;
-
-        /* confirm login */
-        authService.loginConfirmed();
-
-        /* load user data */
-        AuthAPI.load().success(function(data) {
-          $rootScope.user = data.user;
-
-          /* redirect */
-          $location.path('/');
-        }).error(function(response) {
-          $rootScope.messages = [{"content": "Odottamaton virhe. Ole hyvä ja yritä uudelleen.", "type": "error"}];
-        });
+        $rootScope.user = AuthAPI.user();
+        $location.path('/');
       })
       .error(function(data, status, headers, config) {
-        $rootScope.messages = [{"content": "Väärä käyttäjänimi ja/tai salasana.", "type": "error"}];
+        MessageFactory.add("error", "Väärä käyttäjänimi ja/tai salasana.");
       });
+    $scope.messages = MessageFactory.get();
   }
 });
 
@@ -56,7 +40,7 @@ ktControllers.controller('LogoutController', function(AuthAPI, $http, $rootScope
     });
 });
 
-ktControllers.controller('SubmitAnswerController', function($scope, QuestionFactory) {
+ktControllers.controller('SubmitAnswerController', function($scope, QuestionAPI) {
 
   var answertest = {
     "id": 2,
@@ -74,30 +58,31 @@ ktControllers.controller('SubmitAnswerController', function($scope, QuestionFact
   };
 });
 
-ktControllers.controller('CreateQuestionController', function($scope, QuestionFactory) {
+ktControllers.controller('CreateQuestionController', function($scope, QuestionAPI, $location) {
   $scope.send = function() {
-    console.log($scope.question);
-    QuestionFactory.save($scope.question);
+    QuestionAPI.save($scope.question, function(data) {
+      $location.path('/question/'+data.messageId);
+    });
   }
 });
 
-ktControllers.controller('BrowseQuestionsController', function($scope, QuestionFactory) {
-  $scope.data = QuestionFactory.get();
+ktControllers.controller('BrowseQuestionsController', function($scope, QuestionAPI) {
+  $scope.data = QuestionAPI.get();
 });
 
 ktControllers.controller('SingleQuestionController', function($scope, data) {
   $scope.question = data;
 });
 
-ktControllers.controller('BrowsePopularController', function($scope, QuestionFactory, AnswerFactory) {
+ktControllers.controller('BrowsePopularController', function($scope, QuestionAPI, AnswerAPI) {
 
-  //$scope.questions = AnswerFactory.get({"questionId": 1});
+  //$scope.questions = AnswerAPI.get({"questionId": 1});
 
-  /*var questions = QuestionFactory.get(function(data) {
+  /*var questions = QuestionAPI.get(function(data) {
   $scope.questions = data.questions;
   });*/
 
-  $scope.question = QuestionFactory.get();
+  $scope.question = QuestionAPI.get();
 
 });
 
