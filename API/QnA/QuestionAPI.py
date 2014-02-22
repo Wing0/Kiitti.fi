@@ -72,7 +72,7 @@ class QuestionAPI(APIView):
                         entry.save()
                     except:
                         messages.append(compose_message("Tag %s was not found." % tagname, "tags"))
-            return Response(create_message("success", "question_post"), 201)
+            return Response(question.serialize(), 201)
 
         return Response({"messages":messages},400)
 
