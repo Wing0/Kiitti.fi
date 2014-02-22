@@ -4,12 +4,11 @@ from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from QnA.models import *
-from QnA.view_utils import *
 from QnA.utils import *
 import json
 import re
 
-from view_utils import post_abstract_message, exclude_old_versions
+from QnA.view_utils import post_abstract_message, exclude_old_versions
 
 from django.core.mail import send_mail
 import random
