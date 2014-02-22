@@ -231,6 +231,8 @@ class Answer(AbstractMessage):
                             "votesNumber": len(Vote.objects.filter(message_id = self.message_id, is_question=False)),
                             "votes": sum([vote.direction for vote in list(Vote.objects.filter(message_id = self.message_id, is_question=False))])
                             }
+        comments = Comment.objects.filter(parent_id=self.message_id)
+        jsondict['comments'] = [comment.serialize() for comment in comments]
 
         return jsondict
 
@@ -276,6 +278,14 @@ class Question(AbstractMessage):
                             "votesNumber": len(Vote.objects.filter(message_id = self.message_id, is_question=True)),
                             "votes": sum([vote.direction for vote in list(Vote.objects.filter(message_id = self.message_id, is_question=True))])
                             }
+        return jsondict
+
+    def serialize_single(self):
+        jsondict = self.serialize()
+        comments = Comment.objects.filter(parent_id=self.message_id)
+        jsondict['comments'] = [comment.serialize() for comment in comments]
+        answers = Answer.objects.filter(question_id=self.message_id)
+        jsondict['answers'] = [answer.serialize() for answer in answers]
         return jsondict
 
     def validate(self):

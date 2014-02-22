@@ -30,7 +30,7 @@ class LoginAPI(APIView):
 
         '''
         if request.user.is_authenticated():
-            return Response({"user": request.user.serialize()}, 200)
+            return Response(request.user.serialize(), 200)
         else:
             return Response(create_message("User is not logged in."), 401)
 

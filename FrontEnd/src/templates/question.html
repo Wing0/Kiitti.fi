@@ -1,11 +1,11 @@
 <div class="table">
   <section class="conversation cell">
     <div class="question">
-      <h1 class="topic" ng-bind="question.topic"></h1>
+      <h1 class="title" ng-bind="question.title"></h1>
       <div ng-include src="'templates/partial_conversation.message.html'" ng-init="message=question"></div>
     </div>
 
-    <div class="answers">
+    <div class="answers" ng-if="question.answers">
       <h2>Vastaukset</h2>
       <div ng-repeat="message in question.answers">
         <div ng-include src="'templates/partial_conversation.message.html'"></div>

@@ -50,7 +50,7 @@ form {
     background-color: white;
 
     @include input-placeholder {
-      color: $color-text;
+      color: lighten($color-text, 50);
       font-weight: 300;
     }
   }
