@@ -2,13 +2,14 @@ from django.shortcuts import render
 from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from QnA.models import *
 from QnA.view_utils import order_messages, get_message_by_id, post_abstract_message
 from QnA.utils import *
 import json
 
 class QuestionAPI(APIView):
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         '''
@@ -72,7 +73,7 @@ class QuestionAPI(APIView):
                         entry.save()
                     except:
                         messages.append(compose_message("Tag %s was not found." % tagname, "tags"))
-            return Response(create_message("success", "question_post"), 201)
+            return Response({"messages":compose_message("success", "question_post"),"question":question.serialize()}, 201)
 
         return Response({"messages":messages},400)
 
