@@ -2,7 +2,7 @@ from rest_framework.test import APITestCase
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
 
-from QnA.API import LoginAPI
+from QnA.API.LoginAPI import LoginAPI
 from QnA.models import User, Organization
 
 
