@@ -6,7 +6,6 @@ from rest_framework.permissions import AllowAny
 from QnA.utils import *
 import json
 
-from view_utils import *
 
 class LogoutAPI(APIView):
 

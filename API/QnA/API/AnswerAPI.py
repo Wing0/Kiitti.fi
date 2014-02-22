@@ -8,8 +8,6 @@ from QnA.view_utils import *
 from QnA.utils import *
 import json
 
-from view_utils import *
-
 
 class AnswerAPI(APIView):
 
