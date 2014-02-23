@@ -1,0 +1,6 @@
+<div ng-if="messages" ng-repeat="message in messages" class="{{message.type}} message">
+  <p>
+    <i class="fa fa-exclamation-triangle" ng-if="message.type=='error'"></i>
+    <span ng-bind="message.content"></span>
+  </p>
+</div>

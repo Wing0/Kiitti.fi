@@ -43,6 +43,8 @@ module.factory('AuthAPI', function($http, APIUrl, authService, $cookieStore, $lo
           Methods.load(function() {
             /* confirm login */
             authService.loginConfirmed();
+          }, function() {
+            $log.error("Unexpected error in loading user")
           });
         }
       });

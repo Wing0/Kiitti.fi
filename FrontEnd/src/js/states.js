@@ -53,7 +53,7 @@ ktStates.config(function($stateProvider, $urlRouterProvider) {
       url: '/question/:messageId',
       templateUrl: tdir + 'question.html',
       resolve: {
-        data: function(QuestionAPI, $stateParams) {
+        question: function(QuestionAPI, $stateParams) {
           return QuestionAPI.get({"messageId": $stateParams.messageId});
         }
       },

@@ -2,23 +2,24 @@
   <section class="conversation cell">
     <div class="question">
       <h1 class="title" ng-bind="question.title"></h1>
-      <div ng-include src="'templates/partial_conversation.message.html'" ng-init="message=question"></div>
+      <div kt-conversation-message message="question"></div>
     </div>
 
     <div class="answers" ng-if="question.answers">
       <h2>Vastaukset</h2>
-      <div ng-repeat="message in question.answers">
-        <div ng-include src="'templates/partial_conversation.message.html'"></div>
+      <div ng-repeat="answer in question.answers">
+        <div kt-conversation-message message="answer"></div>
       </div>
     </div><!--/answers-->
 
     <div class="new-answer">
       <h2>Lisää vastaus</h2>
       <hr>
-      <form class="add-answer" ng-controller="SubmitAnswerController">
+      <div ng-if="submitMessage" ng-bind="submitMessage.content" class="submitMessage {{submitMessage.type}}"></div>
+      <form class="add-answer">
         <label for="message">Vastauksesi</label>
-        <div text-angular ng-model="htmlVariable"></div>
-        <button ng-click="send()" class="emphasis-1">Lähetä vastaus</button>
+        <div text-angular ng-model="answer.content"></div>
+        <button ng-click="submitAnswer()" class="emphasis-1">Lähetä vastaus</button>
       </form>
     </div>
   </section>
@@ -34,8 +35,8 @@
     <div class="related">
       <h2 title="Tähän kysymykseen liittyvät muut kysymykset">Vastaavat</h2>
       <ul>
-        <li><a href="">joku samankaltainen aihe</a></li>
-        <li><a href="">joku toinen aihe</a></li>
+        <li><a href="">joku samankaltainen aihe (dummy)</a></li>
+        <li><a href="">joku toinen aihe (dummy)</a></li>
       </ul>
     </div>
   </aside>

@@ -1,7 +1,7 @@
 var app = angular.module('app', [
   'ngResource', 'ngAnimate', 'ngSanitize', 'ngCookies', // Angular
   'textAngular', // 3rd party
-  'ktStates', 'ktControllers', 'ktServices', 'ktAPI' // Kiitti
+  'ktStates', 'ktControllers', 'ktServices', 'ktDirectives', 'ktAPI' // Kiitti
 ]);
 
 /* CONFIG */

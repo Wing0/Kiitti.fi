@@ -1,32 +1,27 @@
 var module = angular.module('ktControllers', ['http-auth-interceptor', 'ktAPI']);
 
 // master controller
-module.controller('MainController', function($rootScope, $scope, AuthAPI, MessageFactory, $state) {
+module.controller('MainController', function($rootScope, $scope, AuthAPI, MessageFactory, $state, $log) {
 
   /* Bind scope user to authenticated user */
   $scope.$watch(function() { return AuthAPI.user(); }, function(data) {
     $scope.user = data;
   }, true);
 
-  /* Bind scope messages to message factory */
-  $scope.$watch(function() { return MessageFactory.get(); }, function(data) {
-    $scope.messages = data;
-  }, true);
-
   /* Authentication handling */
   $rootScope.$on('event:auth-loginRequired', function() {
-    console.log("! login required");
+    $log.warn("Login required");
     $state.go('login.login');
   });
   $rootScope.$on('event:auth-loginConfirmed', function() {
-    console.log("login confirmed");
+    $log.success("Login confirmed");
     $state.go('master.popular');
   });
 });
 
 module.controller('LoginController', function(MessageFactory, AuthAPI, $scope, $location) {
 
-  // check if user has already logged in and redirect
+  /* Check if user has already logged in and redirect */
   AuthAPI.load().success(function() {
     $location.path('/');
   });
@@ -44,6 +39,7 @@ module.controller('LoginController', function(MessageFactory, AuthAPI, $scope, $
 });
 
 module.controller('LogoutController', function(AuthAPI, $log, $location, MessageFactory) {
+
   AuthAPI.logout()
     .success(function() {
       MessageFactory.clear()
@@ -53,24 +49,6 @@ module.controller('LogoutController', function(AuthAPI, $log, $location, Message
       $log.error("User could not be logged out");
       $location.path('/');
     });
-});
-
-module.controller('SubmitAnswerController', function($scope, QuestionAPI) {
-
-  var answertest = {
-    "id": 2,
-    "content": "Uuskommenti asglkjgsdlakjgs",
-    "user_id": 125,
-    "username": "Zorro",
-    "votes_up": 12,
-    "votes_down": 0,
-    "date": "2014-01-02T14:00:00.000Z"
-  }
-
-  $scope.send = function() {
-    console.log("User: ", $scope.user.name, "Message: ", $scope.message);
-    $scope.question.answers.push(answertest);
-  };
 });
 
 module.controller('CreateQuestionController', function($scope, QuestionAPI, $location) {
@@ -85,19 +63,29 @@ module.controller('BrowseQuestionsController', function($scope, QuestionAPI) {
   $scope.data = QuestionAPI.get();
 });
 
-module.controller('SingleQuestionController', function($scope, data) {
-  $scope.question = data;
+module.controller('SingleQuestionController', function($scope, question, AnswerAPI, MessageFactory) {
+
+  $scope.question = question;
+  $scope.answer = {};
+  $scope.submitMessage = {};
+
+  $scope.submitAnswer = function() {
+    $scope.answer.questionId = $scope.question.messageId;
+
+    AnswerAPI.save($scope.answer, function(data) {
+      $scope.question.answers.push(data);
+      $scope.submitMessage.type = "success";
+      $scope.submitMessage.content = "Vastaus lisätty onnistuneesti.";
+      $scope.answer.content = "";
+    }, function(response) {
+      $scope.submitMessage.type = "error";
+      $scope.submitMessage.content = "Vastauksen lisääminen ei onnistunut.";
+      MessageFactory.addList(response.data.messages);
+    });
+  }
 });
 
 module.controller('BrowsePopularController', function($scope, QuestionAPI, AnswerAPI) {
-
-  //$scope.questions = AnswerAPI.get({"questionId": 1});
-
-  /*var questions = QuestionAPI.get(function(data) {
-  $scope.questions = data.questions;
-  });*/
-
-  $scope.question = QuestionAPI.get();
 
 });
 
