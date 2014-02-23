@@ -91,8 +91,12 @@ class AnswerAPI(APIView):
             messages.append(compose_message("Please provide question id.", "questionId"))
         messages = ans.validate()
         if len(messages) == 0:
-            ans.save()
-            return Response({"messages": messages}, 201)
+            if ans.message_id is None:
+                ans.save()
+                return Response(ans.serialize(), 201)
+            else:
+                ans.save_changes()
+                return Response(ans.serialize(), 201)
         return Response({"messages":messages}, 400)
 
     def by_question_id(self, request, question_id, limit=10, order="latest"):

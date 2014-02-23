@@ -16,6 +16,20 @@ class Organization(models.Model):
     address = models.TextField()
     #image = models.ImageField()
 
+    @staticmethod
+    def get_default():
+        '''
+        Get default Organization.
+
+        @return
+            Global Organization-object with name and address set to DEFAULT.
+        '''
+        try:
+            return Organization.objects.get(name="DEFAULT")
+        except:
+            #Default object does not exist yet, it will be created without validation.
+            return Organization.objects.create(name="DEFAULT", address="DEFAULT")
+
     def __unicode__(self):
         return self.name
 
@@ -60,6 +74,8 @@ class Organization(models.Model):
             messages.append(compose_message("Address has to be a string.", "address"))
         if len(self.address) < 3:
             messages.append(compose_message("Address has to be at least 3 character long.", "address"))
+        if name == "DEFAULT" or address == "DEFAULT":
+            messages.append(compose_message("Address and name must not equal global organization object values.", "name/address"))
         return messages
 
 class User(AbstractUser):
@@ -258,6 +274,18 @@ class Answer(AbstractMessage):
         # Just save
         super(Answer, self).save(*args, **kwargs)
 
+    def save_changes(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate version number that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_versions = Answer.objects.filter(message_id=self.message_id)
+            largest_version = max([0] + [obj.version for obj in all_versions])
+            self.version = largest_version + 1
+        # Just save
+        super(Answer, self).save(*args, **kwargs)
+
 
 class Question(AbstractMessage):
     '''
@@ -337,6 +365,7 @@ class Comment(AbstractMessage):
     def serialize(self):
         jsondict = super(Comment, self).serialize()
         jsondict['parentId'] = self.parent_id
+        jsondict['isQuestion'] = self.is_question_comment
         return jsondict
 
     def validate(self):
@@ -356,6 +385,18 @@ class Comment(AbstractMessage):
             all_objects = Comment.objects.all()
             largest_id = max([0] + [obj.message_id for obj in all_objects])
             self.message_id = largest_id + 1
+        # Just save
+        super(Comment, self).save(*args, **kwargs)
+
+    def save_changes(self, *args, **kwargs):
+        '''
+            The default save method is overridden to be able to generate appropriate version number that is unique and ascending.
+        '''
+        if self.pk is None:
+            # When created
+            all_versions = Comment.objects.filter(message_id=self.message_id)
+            largest_version = max([0] + [obj.version for obj in all_versions])
+            self.version = largest_version + 1
         # Just save
         super(Comment, self).save(*args, **kwargs)
 

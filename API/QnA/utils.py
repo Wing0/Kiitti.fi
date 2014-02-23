@@ -46,7 +46,7 @@ def string_to_int(value):
     '''
     try:
         return int(value)
-    except ValueError:
+    except (ValueError, TypeError), e:
         return None
 
 
