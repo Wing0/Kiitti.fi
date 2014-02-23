@@ -57,12 +57,15 @@ module.factory('AuthAPI', function($http, APIUrl, authService, $cookieStore, $lo
   return Methods;
 });
 
-module.factory('AnswerAPI', function($resource, APIUrl) {
-  return $resource(APIUrl + '/answers', {},
-    { 'get': {method: 'GET', isArray: false} });
-});
-
 module.factory('QuestionAPI', function($resource, APIUrl) {
   return $resource(APIUrl + '/questions/:messageId', {},
     { 'get': {method: 'GET', isArray: false} });
+});
+
+module.factory('AnswerAPI', function($resource, APIUrl) {
+  return $resource(APIUrl + '/answers');
+});
+
+module.factory('CommentAPI', function($resource, APIUrl) {
+  return $resource(APIUrl + '/comments');
 });

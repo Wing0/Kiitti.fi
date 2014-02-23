@@ -72,8 +72,8 @@ module.controller('SingleQuestionController', function($scope, question, AnswerA
   $scope.submitAnswer = function() {
     $scope.answer.questionId = $scope.question.messageId;
 
-    AnswerAPI.save($scope.answer, function(data) {
-      $scope.question.answers.push(data);
+    AnswerAPI.save($scope.answer, function(answer) {
+      $scope.question.answers.push(answer);
       $scope.submitMessage.type = "success";
       $scope.submitMessage.content = "Vastaus lisätty onnistuneesti.";
       $scope.answer.content = "";

@@ -23,7 +23,25 @@ module.directive('ktConversationMessage', function() {
       message: '=message'
     },
     transclude: false,
-    templateUrl: '../templates/partial_conversation.message.html'
+    templateUrl: '../templates/partial_conversation.message.html',
+    controller: function($scope, CommentAPI) {
+      $scope.comment = {};
+      $scope.submitMessage = {};
+
+      $scope.submitComment = function() {
+        $scope.comment.parentId = $scope.message.messageId;
+
+        CommentAPI.save($scope.comment, function(comment) {
+          $scope.message.comments.push(comment);
+          $scope.comment.content = "";
+          $scope.submitMessage.type = "success";
+          $scope.submitMessage.content = "Kommentin lisääminen onnistui.";
+        }, function() {
+          $scope.submitMessage.type = "error";
+          $scope.submitMessage.content = "Kommentin lisääminen ei onnistunut.";
+        });
+      }
+    }
   }
 });
 
