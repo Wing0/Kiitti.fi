@@ -1,7 +1,7 @@
 var app = angular.module('app', [
   'ngResource', 'ngAnimate', 'ngSanitize', 'ngCookies', // Angular
   'textAngular', // 3rd party
-  'ktStates', 'ktControllers', 'ktFactories', 'ktAPI' // Kiitti
+  'ktStates', 'ktControllers', 'ktServices', 'ktAPI' // Kiitti
 ]);
 
 /* CONFIG */
@@ -14,30 +14,28 @@ app.config(function($locationProvider, $httpProvider, $cookiesProvider) {
     .html5Mode(true)
     .hashPrefix('!');
 
-  // $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-  // $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-  // $httpProvider.defaults.headers.common['X-CSRFToken'] = $cookiesProvider.csrftoken;
-
-  // $httpProvider.defaults.withCredentials = true;
-
   // Messages interceptor
-  $httpProvider.interceptors.push(function($rootScope, $q, httpBuffer) {
+  $httpProvider.interceptors.push(function($q, httpBuffer, MessageFactory) {
     return {
       'response': function(response) {
           if (response.data.messages) {
-            $rootScope.messages = response.data.messages;
-            angular.forEach($rootScope.messages, function(value, key) {
+            var messages = response.data.messages;
+            // set type for messages
+            angular.forEach(messages, function(value, key) {
               value.type = "success";
             });
+            MessageFactory.addList(messages);
           }
           return response || $q.when(response); // default behaviour
         },
       'responseError': function(rejection) {
         if (rejection.data.messages) {
-          $rootScope.messages = rejection.data.messages;
-          angular.forEach($rootScope.messages, function(value, key) {
+          var messages = rejection.data.messages;
+          // set type for messages
+          angular.forEach(messages, function(value, key) {
             value.type = "error";
           });
+          MessageFactory.addList(messages);
         }
         return $q.reject(rejection); // default behaviour
       }
@@ -45,7 +43,11 @@ app.config(function($locationProvider, $httpProvider, $cookiesProvider) {
   });
 });
 
-app.run(function($rootScope, $cookieStore, $http, AuthAPI) {
+app.run(function($rootScope, $cookieStore, $http, AuthAPI, MessageFactory) {
+
+  $rootScope.$on('$stateChangeStart', function() {
+    MessageFactory.clear();
+  });
 
   /* Get user if already logged in */
   if ($cookieStore.get('tursas')) {
@@ -55,30 +57,3 @@ app.run(function($rootScope, $cookieStore, $http, AuthAPI) {
     });
   }
 })
-
-
-/* DIRECTIVES */
-
-app.directive('qnaComment', function() {
-  return {
-    restrict: 'A',
-    scope: {
-      comment: '=comment'
-    },
-    templateUrl: '../templates/qna-comment.html',
-    replace: true
-  }
-})
-
-app.directive('qnaVotes', function() {
-  return {
-    restrict: 'A',
-    scope: {
-      votes_up: '=votesUp',
-      votes_down: '=votesDown'
-    },
-    templateUrl: '../templates/qna-votes.html',
-    replace: true
-  }
-})
-

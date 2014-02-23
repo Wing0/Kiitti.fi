@@ -1,21 +1,39 @@
-var ktControllers = angular.module('ktControllers', ['http-auth-interceptor', 'ktAPI']);
+var module = angular.module('ktControllers', ['http-auth-interceptor', 'ktAPI']);
 
-ktControllers.controller('MainController', function($rootScope, $location, $log, $http, $cookieStore) {
+// master controller
+module.controller('MainController', function($rootScope, $scope, AuthAPI, MessageFactory, $state) {
+
+  /* Bind scope user to authenticated user */
+  $scope.$watch(function() { return AuthAPI.user(); }, function(data) {
+    $scope.user = data;
+  }, true);
+
+  /* Bind scope messages to message factory */
+  $scope.$watch(function() { return MessageFactory.get(); }, function(data) {
+    $scope.messages = data;
+  }, true);
+
+  /* Authentication handling */
   $rootScope.$on('event:auth-loginRequired', function() {
-    $log.warn("Login required for access");
-    $location.path('/login');
+    console.log("! login required");
+    $state.go('login.login');
   });
   $rootScope.$on('event:auth-loginConfirmed', function() {
-    $log.info("Login successful");
+    console.log("login confirmed");
+    $state.go('master.popular');
   });
 });
 
-ktControllers.controller('LoginController', function(MessageFactory, AuthAPI, $rootScope, $scope, $location) {
+module.controller('LoginController', function(MessageFactory, AuthAPI, $scope, $location) {
+
+  // check if user has already logged in and redirect
+  AuthAPI.load().success(function() {
+    $location.path('/');
+  });
 
   $scope.login = function(user) {
     AuthAPI.login(user)
       .success(function(data, status, headers, config) {
-        $rootScope.user = AuthAPI.user();
         $location.path('/');
       })
       .error(function(data, status, headers, config) {
@@ -25,22 +43,19 @@ ktControllers.controller('LoginController', function(MessageFactory, AuthAPI, $r
   }
 });
 
-ktControllers.controller('LogoutController', function(AuthAPI, $http, $rootScope, $log, $location, $cookieStore) {
+module.controller('LogoutController', function(AuthAPI, $log, $location, MessageFactory) {
   AuthAPI.logout()
     .success(function() {
-      $log.info("User " + $rootScope.user.username + " logged out");
-      $cookieStore.remove('tursas');
-      delete $http.defaults.headers.common['Authorization'];
-      delete $rootScope.user;
-      delete $rootScope.messages;
+      MessageFactory.clear()
       $location.path('/');
     })
     .error(function(data, status) {
-      $log.error("User " + $rootScope.user.username + " could not be logged out")
+      $log.error("User could not be logged out");
+      $location.path('/');
     });
 });
 
-ktControllers.controller('SubmitAnswerController', function($scope, QuestionAPI) {
+module.controller('SubmitAnswerController', function($scope, QuestionAPI) {
 
   var answertest = {
     "id": 2,
@@ -58,7 +73,7 @@ ktControllers.controller('SubmitAnswerController', function($scope, QuestionAPI)
   };
 });
 
-ktControllers.controller('CreateQuestionController', function($scope, QuestionAPI, $location) {
+module.controller('CreateQuestionController', function($scope, QuestionAPI, $location) {
   $scope.send = function() {
     QuestionAPI.save($scope.question, function(data) {
       $location.path('/question/'+data.messageId);
@@ -66,15 +81,15 @@ ktControllers.controller('CreateQuestionController', function($scope, QuestionAP
   }
 });
 
-ktControllers.controller('BrowseQuestionsController', function($scope, QuestionAPI) {
+module.controller('BrowseQuestionsController', function($scope, QuestionAPI) {
   $scope.data = QuestionAPI.get();
 });
 
-ktControllers.controller('SingleQuestionController', function($scope, data) {
+module.controller('SingleQuestionController', function($scope, data) {
   $scope.question = data;
 });
 
-ktControllers.controller('BrowsePopularController', function($scope, QuestionAPI, AnswerAPI) {
+module.controller('BrowsePopularController', function($scope, QuestionAPI, AnswerAPI) {
 
   //$scope.questions = AnswerAPI.get({"questionId": 1});
 

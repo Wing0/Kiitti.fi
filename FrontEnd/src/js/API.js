@@ -1,40 +1,58 @@
 var module = angular.module('ktAPI', ['ngResource', 'ngCookies']);
 
-module.factory('AuthAPI', function($http, APIUrl, authService, $cookieStore) {
+module.factory('AuthAPI', function($http, APIUrl, authService, $cookieStore, $log) {
   var user;
-  return {
+  var Methods = {
     load: function() {
       return $http.get(APIUrl + '/auth/load')
         .success(function(data) {
           user = data;
-        });
-    },
-    login: function(user) {
-      return $http.post(APIUrl + '/auth/login', user)
-        .success(function(data) {
-          /* confirm login */
-          authService.loginConfirmed();
-
-          /* set token into cookies */
-          $cookieStore.put('tursas', data.token);
-          $http.defaults.headers.common['Authorization'] = 'Token ' + data.token;
-
-          user = data;
+        })
+        .error(function(response) {
+          $log.error("Could not load user");
         });
     },
     logout: function() {
       return $http.get(APIUrl + '/auth/logout')
         .success(function(data) {
+          $cookieStore.remove('tursas');
+          delete $http.defaults.headers.common['Authorization'];
           delete user;
         });
     },
     register: function(user) {
       return $http.post(APIUrl + '/auth/register', user);
-    },
-    user: function() {
-      return user;
     }
-  }
+  };
+
+  Methods.login = function(user) {
+    return $http.post(APIUrl + '/auth/login', user)
+      .success(function(data) {
+        /* set token into cookies */
+        try { var authtoken = data.token; }
+        catch(TypeError) {
+          $log.info("Already logged in.")
+        };
+
+        if (authtoken) {
+          /* set token into cookies */
+          $cookieStore.put('tursas', authtoken);
+          $http.defaults.headers.common['Authorization'] = 'Token ' + authtoken;
+
+          // get user data
+          Methods.load(function() {
+            /* confirm login */
+            authService.loginConfirmed();
+          });
+        }
+      });
+  };
+
+  Methods.user = function() {
+    return user;
+  };
+
+  return Methods;
 });
 
 module.factory('AnswerAPI', function($resource, APIUrl) {
