@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from QnA.models import Question, User, Tag
 from QnA.view_utils import order_messages, get_message_by_id, post_abstract_message
-from QnA.utils import compose_message, create_message, exclude_old_versions
+from QnA.utils import compose_message, create_message, exclude_old_versions, intersect, unique
 import json
 
 class QuestionAPI(APIView):
@@ -144,30 +144,6 @@ class QuestionAPI(APIView):
                 example: {
                             "messages":[{"content":"An example error message.","identifier":"example"}]
         '''
-
-        def unique(a):
-            ''' return the list with duplicate elements removed '''
-            return list(set(a))
-
-        def intersect(a, b=False):
-            '''
-                return the intersection of two lists
-                If the second list is not provided, and a is a list of lists:
-                    return intersection of sublists in a
-            '''
-            if a and b:
-                return list(set(a) & set(b))
-            else:
-                a = [l for l in a if isinstance(l,list)]
-                if a:
-                    b = a[0]
-                    for l in a:
-                        b = intersect(l,b)
-                    return b
-
-        def union(a, b):
-            ''' return the union of two lists '''
-            return list(set(a) | set(b))
 
         if not request.user.is_authenticated():
             return Response(create_message("User must be logged in."), 401)
