@@ -158,8 +158,8 @@ class QuestionTests(APITestCase):
         #Try scandinavian
         url = "/questions/"
         data = {
-                "title": "Tämä on suomenkielinen kysymys, vai onko?",
-                "content":"Miksi ä, ö ja å -kirjamet eivät toimi",
+                "title": u"Tämä on suomenkielinen kysymys, vai onko?",
+                "content":u"Miksi ä, ö ja å -kirjamet eivät toimi",
                 "tags": ["tagFirst", "tagSecond"]
             }
         request = self.factory.post(url, data, format='json')

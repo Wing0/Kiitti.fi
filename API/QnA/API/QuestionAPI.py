@@ -3,9 +3,9 @@ from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from QnA.models import *
+from QnA.models import Question, User, Tag, TagEntry
 from QnA.view_utils import order_messages, get_message_by_id, post_abstract_message
-from QnA.utils import *
+from QnA.utils import compose_message, create_message, exclude_old_versions, intersect, unique
 import json
 
 class QuestionAPI(APIView):
@@ -56,64 +56,59 @@ class QuestionAPI(APIView):
         messages = question.validate()
         if len(messages) == 0:
 
-            # Save question
+            # Save edited question
             if question.message_id:
+                parent_question = Question.objects.filter(message_id=question.message_id).order_by("-version")[0]
                 question.save_changes()
             else:
-                question.save()
+                # Confirm uniqueness of the title within the organization before saving
+                try:
+                    Question.objects.get(title=question.title, organization=question.organization)
+                    return Response(create_message("The title is in use"), 400)
+                except:
+                    question.save()
 
             # Save tags
             taglist = request.DATA.get("tags")
             if taglist and isinstance(taglist,list):
-                tagnames = list(set(taglist)) #List(set()) removes duplicates
-                for tagname in tagnames:
+                taglist = unique(taglist) #List(set()) removes duplicates
+                # Delete existing tags
+                previous_taglist = TagEntry.objects.filter(message_id=question.message_id)
+                taglist = [tag for tag in taglist if tag not in previous_taglist]
+                for tag in previous_taglist:
+                    if tag not in taglist:
+                        tag.delete()
+                for tagname in taglist:
                     try:
                         tag = Tag.objects.get(name=tagname)
-                        entry = TagEntry(tag=tag, message_id=question.message_id, creator=question.user)
-                        entry.save()
-                    except:
-                        messages.append(compose_message("Tag %s was not found." % tagname, "tags"))
+                    except Tag.DoesNotExist:
+                        tag = Tag(name=tagname, user=request.user, organization=request.user.organization)
+                        tag.save()
+                    entry = TagEntry(tag=tag, message_id=question.message_id, user=question.user)
+                    entry.save()
             return Response(question.serialize(), 201)
 
         return Response({"messages":messages},400)
 
-    def get(self, request, criterion="latest", question_id=None):
+    def get(self, request, question_id=None):
         '''
-        This method mediates the task to correct function.
-        Further information in helper method docstring
-        '''
-
-        if not request.user.is_authenticated():
-            return Response({"messages":create_message("User must be logged in.")}, 401)
-
-        if question_id:
-            try:
-                question = Question.objects.get(message_id=int(question_id))
-            except Question.DoesNotExist:
-                return Response({"messages": create_message("Requested question cannot be found")}, 404)
-            return Response(question.serialize_single(), 200)
-
-        questions = Question.objects.all()
-        return Response({"questions": [question.serialize() for question in questions]}, 200)
-
-
-        # if request.GET.get("authorId") != None:
-        #     return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
-        # elif request.GET.get("tags"):
-        #     return self.by_tags(request, request.GET.get("tags"), request.GET.get("searchMethod"), request.GET.get("limit"), request.GET.get("order"))
-        # elif request.GET.get("questionId") != None:
-        #     return self.by_id(request, request.GET.get("questionId"), request.GET.get("order"), request.GET.get("history"))
-        # else:
-        #     return self.get_all(request, request.GET.get("limit"), request.GET.get("order"))
-
-
-    def by_author(self, request, author_id, limit=10, order="latest"):
-        '''
-        Retrieves all questions written by given author. The order and limit of questions can be chosen.
+        Retrieves questions according to request parameters (such as question id, author id and tags)
+        Functionality can be determined by providing different search parameters and searchInclusion method
 
         @params
             request: the request parameter from get function
-            author_id: The id of the author who has written the questions
+            question_id, integer (optional): The id of the question to be retrieved
+        @GETparams
+            authorId, integer (optional): The id of the author who has written the questions
+            authorName, string (optional): The name of the author who has written the questions
+            tags, string (optional): tag names separated by comma (eg. "asd1,asd2,asd3")
+            tagInclusion, string (optional): The method for selecting the set of required tags. "or" or "and". Default="or".
+                @example: lets have tags on, two and three
+                    - "and" requires that the retrieved questions have all tags one, two and three
+                    - "or" requires that the retrieved questions have one or more of the tags one, two and three
+            searchInclusion, string (optional): The method for selecting the set questions retrieved by different searches. "or" or "and". Default="or".
+                - "and" requires that the retrieved questions have all same (if provided) author, tags (according to previous setting) and id
+                - "or" retrieves all questions found by different search methods
             limit, integer (optional): The maximum number of questions retriveved. Default = 10
             order, string (optional): The method for ordering the retrieved questions. "votes" or "latest". Default="latest".
         @example
@@ -162,160 +157,45 @@ class QuestionAPI(APIView):
                 example: {
                             "messages":[{"content":"An example error message.","identifier":"example"}]
         '''
+
+        if not request.user.is_authenticated():
+            return Response(create_message("User must be logged in."), 401)
+
         messages = []
-        if author_id == None:
-            messages.append({"content":"A author id has to be provided.","identifier":"authorId"})
-        else:
+        question_sets = [] # list of question lists retrieved by different methods
+        get_all = True # Flag for default return if no search parameters were provided
+
+        if question_id:
+            get_all = False
             try:
-                # Parameter check and default values
-                author_id = int(author_id)
-                if author_id < 0:
-                    raise ValueError("Value is not positive integer")
-
-                if limit == None:
-                    limit = 10
-                try:
-                    limit = int(limit)
-                    if limit < 0:
-                        raise ValueError("Value is not positive integer")
-                except ValueError:
-                    messages.append({"content":"The limit has to be a positive integer.","identifier":"limit"})
-
-                if order == None:
-                    order = "latest"
-                if not order in ["latest","votes"]:
-                    messages.append({"content":"The order parameter can be only 'latest' or 'votes'","identifier":"order"})
-
-                if len(messages) == 0:
-                    try:
-                        author = User.objects.get(user_id=author_id)
-                        if not author.organization == request.user.organization:
-                            messages.append(compose_message("You are not allowed to perform this action."))
-                            return Response({"messages":messages}, 403)
-                    except:
-                        messages.append({"content":"The author was not found.","identifier":"authorId"})
-                        return Response({"messages":messages}, 404)
-
-                    questions = list(Question.objects.filter(user=author))
-                    if len(questions) == 0:
-                        messages.append({"content":"The user has not written any questions.","identifier":""})
-                        return Response({"messages":messages}, 404)
-
-                    questions = exclude_old_versions(questions)
-                    questions = order_messages(questions, order)
-
-                    question_data = []
-
-                    for q in questions[:limit]:
-                        json = q.serialize()
-                        question_data.append(json)
-
-                    return Response({"questions":question_data, "messages":messages}, 200)
-
+                question_sets.append([Question.objects.get(message_id=int(question_id), organization=request.user.organization)])
             except ValueError:
-                messages.append({"content":"The author id has to be a positive integer.","identifier":"authorId"})
-        return Response({"messages":messages}, 400)
+                return Response({"messages": create_message("Given question id was invalid")}, 400)
+            except Question.DoesNotExist:
+                question_sets.append([])
 
-    def by_tags(self, request, tags, search_method = "or", limit=10, order="latest"):
-        '''
-        Retrieves all questions that include one of the tags or all given tags depending on search method.
+        if request.GET.get("authorId"):
+            get_all = False
+            try:
+                author = User.objects.get(user_id=int(request.GET.get("authorId")))
+                question_sets.append(list(Question.objects.filter(user=author, organization=request.user.organization)))
+            except User.DoesNotExist:
+                question_sets.append([])
 
-        @params
-            request: the request parameter from get function
-            tags, string: tag names separated by comma (eg. "asd1,asd2,asd3")
-            search_method, string: The method for selecting the set of required tags. "or" or "and". Default="or".
-                @example: lets have tags on, two and three
-                    - "and" requires that the retrieved questions have all tags one, two and three
-                    - "or" requires that the retrieved questions have one or more of the tags one, two and three
-            limit, integer (optional): The maximum number of questions retriveved. Default = 10
-            order, string (optional): The method for ordering the retrieved questions. "votes" or "latest". Default="latest".
-        @example
-            /questions/?tags=one,two,three&searchMethod=and&limit=5&order=latest
-        @perm
-            member: All question information can be given only for members of the organization.
-        @return
-            200:
-                list of retrieved questions
-                example: {
-                            "questions":[{
-                                        "title":"What is the question?",
-                                        "content":"An example question",
-                                        "version":1,
-                                        "user": {
-                                            "username": "admin",
-                                            "reputation": 0,
-                                            "lastLogin": "2014-02-08T14:16:58.926Z",
-                                            "firstName": "Ville",
-                                            "created": "2014-01-05T19:53:55Z",
-                                            "lastName": "Tolonen",
-                                            "userId": 1,
-                                            "email": "admin@admin.fi"
-                                        },
-                                        "created": "2014-01-08T11:05:16",
-                                        "modified": "2014-01-08T11:05:16",
-                                        "messageId": 4,
-                                        },{...},{...}]
-                        }
-            404: No content found
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-                        }
-            400: Bad request, parameters were missing or wrong type
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-                        }
-            401: Unauthorized, the user has to be logged in to perform this action
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-        '''
-        # Helping methods for the tag search
-        def unique(a):
-            """ return the list with duplicate elements removed """
-            return list(set(a))
+        if request.GET.get("authorName"):
+            get_all = False
+            try:
+                author = User.objects.get(username=request.GET.get("authorName"))
+                question_sets.append(list(Question.objects.filter(user=author, organization=request.user.organization)))
+            except User.DoesNotExist:
+                question_sets.append([])
 
-        def intersect(a, b):
-            """ return the intersection of two lists """
-            return list(set(a) & set(b))
+        if request.GET.get("tags"):
+            get_all = False
+            tags = request.GET.get("tags").split(",")
+            tags = unique(tags)
 
-        def union(a, b):
-            """ return the union of two lists """
-            return list(set(a) | set(b))
-
-        messages = []
-
-        # Parameter check and default values
-        if limit == None:
-            limit = 10
-        try:
-            limit = int(limit)
-            if limit < 0:
-                raise ValueError("Value is not positive integer")
-        except ValueError:
-            messages.append({"content":"The limit has to be a positive integer.","identifier":"limit"})
-
-        if order == None:
-            order = "latest"
-        if not order in ["latest","votes"]:
-            messages.append({"content":"The order parameter can be only 'latest' or 'votes'","identifier":"order"})
-
-        if search_method == None:
-            search_method = "or"
-        if not search_method in ["or","and"]:
-            messages.append({"content":"The search method parameter can be only 'or' or 'and'","identifier":"searchMethod"})
-
-        tags = request.GET.get("tags").split(",")
-        tags = [tag for tag in tags if tag and isinstance(tag, basestring)]
-
-        if not len(tags):
-            messages.append({"content":"One or more valid tags required.", "identifier":"tags"})
-            return Response({"messages":messages}, 400)
-            # Filter tags of invalid form
-        else:
-            questions = []
-            question_sets = [[] for tag in tags]    # Lists of questions corresponding each tag in the same order
+            tag_question_sets = [[] for tag in tags]    # Lists of questions corresponding each tag in the same order
             for ind, tag in enumerate(tags):
                 # Get all tag entries for the tag
                 try:
@@ -324,270 +204,38 @@ class QuestionAPI(APIView):
                     tag_entries = []
                 # Fetch all questions corresponding the tag entries
                 for tag_entry in tag_entries:
-                    try:
-                        question = Question.objects.filter(message_id=tag_entry.message_id).order_by('-version')[0]
-                        if question:
-                            question_sets[ind].append(question)
-                    except:
-                        pass
+                    for question in Question.objects.filter(message_id=tag_entry.message_id):
+                        tag_question_sets[ind].append(question)
 
-            if search_method == "or":
-                questions = unique([q for subset in question_sets for q in subset])
-            elif search_method == "and":
-                if len(question_sets) == 1:
-                    questions = question_sets[0]
-                else:
-                    questions = question_sets[0]
-                    for ind, subset in enumerate(question_sets):
-                        if ind == 0:
-                            continue
-                        questions = intersect(questions, subset)
-        if not len(questions):
-            messages.append({"content":"No questions found for this query.", "identifier":""})
-            return Response({"messages":messages}, 404)
-        questions = exclude_old_versions(questions)
-        questions = order_messages(questions, order)
+            if request.GET.get("tagInclusion") in [None, "or"]:
+                question_sets.append(unique([q for subset in tag_question_sets for q in subset]))
+            else:
+                question_sets.append(intersect(tag_question_sets))
 
-        question_data = [q.serialize() for q in questions[:limit]]
+        if get_all:
+            question_sets.append(list(Question.objects.filter(organization=request.user.organization)))
 
-        return Response({"questions": question_data}, 200)
-
-    def by_id(self, request, question_id, order="latest", history=False):
-        '''
-        Retrieves the question and question history matching the given question id.
-        The order is for the answers.
-
-        @params
-            request: the request parameter from get function
-            question_id: The message_id of the question
-            order, string (optional): The method for ordering the retrieved answers for the question. "votes" or "latest". Default="latest".
-        @example
-            /questions/?questionId=123&order=votes
-        @perm
-            member: All question information can be given only for members of the organization.
-        @return
-            200:
-                list of retrieved questions
-                example: {
-                            "question":{
-                                        "title":"What is the question?",
-                                        "content":"An example question",
-                                        "version":1,
-                                        "user": {
-                                            "username": "admin",
-                                            "reputation": 0,
-                                            "lastLogin": "2014-02-08T14:16:58.926Z",
-                                            "firstName": "Ville",
-                                            "created": "2014-01-05T19:53:55Z",
-                                            "lastName": "Tolonen",
-                                            "userId": 1,
-                                            "email": "admin@admin.fi"
-                                        },
-                                        "created": "2014-01-08T11:05:16",
-                                        "modified": "2014-01-08T11:05:16",
-                                        "messageId": 5,
-                                        },
-
-                            "answers":[{
-                                        "content":"An example answer",
-                                        "version":1,
-                                        "user": {
-                                            "username": "admin",
-                                            "reputation": 0,
-                                            "lastLogin": "2014-02-08T14:16:58.926Z",
-                                            "firstName": "Ville",
-                                            "created": "2014-01-05T19:53:55Z",
-                                            "lastName": "Tolonen",
-                                            "userId": 1,
-                                            "email": "admin@admin.fi"
-                                        },
-                                        "created": "2014-01-08T11:05:16",
-                                        "modified": "2014-01-08T11:05:16",
-                                        "messageId": 4,
-                                        "questionId":5,
-                                        "accepted":false
-                                        }, {...}, {...}]
-                            "comments":[{
-                                        "user": {
-                                            "username": "admin",
-                                            "reputation": 0,
-                                            "lastLogin": "2014-02-08T14:16:58.926Z",
-                                            "firstName": "Ville",
-                                            "created": "2014-01-05T19:53:55Z",
-                                            "lastName": "Tolonen",
-                                            "userId": 1,
-                                            "email": "admin@admin.fi"
-                                        },
-                                        "created": "2014-02-08T15:11:59",
-                                        "organizationId": 0,
-                                        "parentId": 5,
-                                        "content": "dasfasdasfasdasdasfasfasdas",
-                                        "version": 1,
-                                        "messageId": 0
-                                        }, {...}, {...}]
-                        }
-            404: No content found
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-                        }
-            400: Bad request, parameters were missing or wrong type
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-                        }
-            401: Unauthorized, the user has to be logged in to perform this action
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-            403: Forbidden, the user does not have permission for the action
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-        '''
-        messages = []
-        if question_id == None:
-            messages.append({"content":"A question id must be provided.","identifier":"questionId"})
+        if request.GET.get("searchInclusion") in [None, "or"]:
+            questions = unique([q for subset in question_sets for q in subset])
         else:
-            try:
-                # Parameter check and default values
-                question_id = int(question_id)
-                if question_id < 0:
-                    raise ValueError("Value is not positive integer")
+            questions = intersect(question_sets)
 
-                if order == None:
-                    order = "latest"
-                if not order in ["latest","votes"]:
-                    messages.append({"content":"The order parameter can be only 'latest' or 'votes'","identifier":"order"})
+        if not questions or len(questions) == 0:
+            return Response(create_message("No questions found"), 404)
 
-                if len(messages) == 0:
-                    try:
-                        questions = list(Question.objects.filter(message_id=question_id).order_by("-version")) #casting to list if only one is returned
-                        question = exclude_old_versions(questions)[0]
-                        if not question.organization == request.user.organization:
-                            messages.append(compose_message("You are not allowed to perform this action."))
-                            return Response({"messages":messages}, 403)
-                    except:
-                        messages.append({"content":"The question was not found.","identifier":"questionId"})
-                        return Response({"messages":messages}, 404)
+        questions = exclude_old_versions(questions) # This should be modified, when we also want to retrieve question history
 
-
-                    answers = self.get_answers(question, order)
-
-
-                    comments = list(Comment.objects.filter(is_question_comment=True, parent_id=question.message_id))
-
-                    questions = [q.serialize() for q in questions]
-                    question = questions[0]
-
-
-                    comments_json = []
-
-                    for comment in comments:
-
-                        comments_json.append(comment.serialize())
-
-                    question["comments"] = comments_json
-
-                    question["answers"] = answers
-                    if history:
-                        question["history"] = questions[1:]
-                        return Response({"questions":question, "messages":messages}, 200)
-                    else:
-                        return Response({"questions":question, "messages":messages}, 200)
-
-            except ValueError:
-                messages.append({"content":"The question id has to be a positive integer.","identifier":"questionId"})
-        return Response({"messages":messages}, 400)
-
-
-    def get_all(self, request, limit=10, order="latest"):
-        '''
-        Retrieves all questions that include one of the tags or all given tags depending on search method.
-
-        @params
-            request: the request parameter from get function
-            limit, integer (optional): The maximum number of questions retriveved. Default = 10
-            order, string (optional): The method for ordering the retrieved questions. "votes" or "latest". Default="latest".
-            get_answers, boolean (optional): If this is True, the function will return serialized answers with
-        @example
-            /questions/?limit=5&order=latest
-        @perm
-            member: All question information can be given only for members of the organization.
-        @return
-            200:
-                list of retrieved questions
-                example: {
-                            "questions":[{
-                                        "title":"What is the question?",
-                                        "content":"An example question",
-                                        "version":1,
-                                        "user": {
-                                            "username": "admin",
-                                            "reputation": 0,
-                                            "lastLogin": "2014-02-08T14:16:58.926Z",
-                                            "firstName": "Ville",
-                                            "created": "2014-01-05T19:53:55Z",
-                                            "lastName": "Tolonen",
-                                            "userId": 1,
-                                            "email": "admin@admin.fi"
-                                        },
-                                        "created": "2014-01-08T11:05:16",
-                                        "modified": "2014-01-08T11:05:16",
-                                        "messageId": 4,
-                                        },{...},{...}]
-                        }
-            404: No content found
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-                        }
-            400: Bad request, parameters were missing or wrong type
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-                        }
-            401: Unauthorized, the user has to be logged in to perform this action
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-        '''
-        messages = []
-        # Parameter check and default values
-
-        if limit == None:
-            limit = 10
         try:
-            limit = int(limit)
-            if limit < 0:
-                raise ValueError("Value is not positive integer")
+            questions = order_messages(questions, request.GET.get("order"))
         except ValueError:
-            messages.append({"content":"The limit has to be a positive integer.","identifier":"limit"})
+            questions = order_messages(questions, "latest")
 
-        if order == None:
-            order = "latest"
-        if not order in ["latest","votes"]:
-            messages.append({"content":"The order parameter can be only 'latest' or 'votes'","identifier":"order"})
+        try:
+            questions = questions[:abs(int(request.GET.get("limit")))]
+        except (ValueError, TypeError):
+            questions = questions[:10]
 
-        if len(messages) == 0:
-            #questions = Question.objects.all()
-            questions = list(Question.objects.filter(organization=request.user.organization.organization_id))
-            if len(questions) == 0:
-                messages.append({"content":"There are no questions in the organization.","identifier":""})
-                return Response({"messages":messages}, 404)
-
-            #print questions
-            questions = exclude_old_versions(questions)
-            questions = order_messages(questions, order)
-
-            question_data = [q.serialize() for q in questions[:limit]]
-
-            return Response({"questions":question_data, "messages":messages}, 200)
-
-        return Response({"messages":messages}, 400)
-
-    def get_answers(self, question, order=False):
-        answers = list(Answer.objects.filter(question_id=question.message_id))
-        if order:
-            answers = order_messages(answers, order)
-        return serialize_answers(exclude_old_versions(answers))
+        if len(questions) == 1:
+            return Response({"questions": questions[0].serialize_single()}, 200)
+        else:
+            return Response({"questions": [question.serialize() for question in questions]}, 200)
