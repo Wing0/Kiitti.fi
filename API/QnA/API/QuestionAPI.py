@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from QnA.models import Question, User, Tag
+from QnA.models import Question, User, Tag, TagEntry
 from QnA.view_utils import order_messages, get_message_by_id, post_abstract_message
 from QnA.utils import compose_message, create_message, exclude_old_versions, intersect, unique
 import json
@@ -56,23 +56,36 @@ class QuestionAPI(APIView):
         messages = question.validate()
         if len(messages) == 0:
 
-            # Save question
+            # Save edited question
             if question.message_id:
+                parent_question = Question.objects.filter(message_id=question.message_id).order_by("-version")[0]
                 question.save_changes()
             else:
-                question.save()
+                # Confirm uniqueness of the title within the organization before saving
+                try:
+                    Question.objects.get(title=question.title, organization=question.organization)
+                    return Response(create_message("The title is in use"), 400)
+                except:
+                    question.save()
 
             # Save tags
             taglist = request.DATA.get("tags")
             if taglist and isinstance(taglist,list):
-                tagnames = list(set(taglist)) #List(set()) removes duplicates
-                for tagname in tagnames:
+                taglist = unique(taglist) #List(set()) removes duplicates
+                # Delete existing tags
+                previous_taglist = TagEntry.objects.filter(message_id=question.message_id)
+                taglist = [tag for tag in taglist if tag not in previous_taglist]
+                for tag in previous_taglist:
+                    if tag not in taglist:
+                        tag.delete()
+                for tagname in taglist:
                     try:
                         tag = Tag.objects.get(name=tagname)
-                        entry = TagEntry(tag=tag, message_id=question.message_id, creator=question.user)
-                        entry.save()
-                    except:
-                        messages.append(compose_message("Tag %s was not found." % tagname, "tags"))
+                    except Tag.DoesNotExist:
+                        tag = Tag(name=tagname, user=request.user, organization=request.user.organization)
+                        tag.save()
+                    entry = TagEntry(tag=tag, message_id=question.message_id, user=question.user)
+                    entry.save()
             return Response(question.serialize(), 201)
 
         return Response({"messages":messages},400)
