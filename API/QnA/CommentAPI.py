@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from django.db import IntegrityError
+from django.conf import settings
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from QnA.models import *
+from QnA.models import Comment
 from QnA.view_utils import *
-from QnA.utils import *
-import json
+from QnA.utils import create_message, compose_message, string_to_int, string_to_boolean
 
 class CommentAPI(APIView):
 
@@ -23,8 +23,6 @@ class CommentAPI(APIView):
                 "messageId": 2,
                 "parentId": 1
             }
-        @perm
-            No idea... Currently no perms.
         @return
             201: If sent data is valid and new Comment was created successfully. No messages returned.
             400: If sent data is not valid.
@@ -32,27 +30,34 @@ class CommentAPI(APIView):
         '''
         if not request.user.is_authenticated():
             return Response(create_message("You must log in to post comments."), 401)
-        data = json.loads(request.body)
-        messages = []
-        abs_data = post_abstract_message(Comment(), data)
-        parent_id = string_to_int(data.get("parentId"))
-        if parent_id is None:
-            messages.append(compose_message("Parent id must be positive integer.", "parentId"))
-        question = string_to_boolean(data.get("isQuestion"))
-        if question is None:
-            messages.append(compose_message("Is question must be boolean.", "isQuestion"))
-        if len(messages) == 0:
-            abs_data.is_question_comment = question
-            abs_data.organization = request.user.organization
-            abs_data.user = request.user
-            abs_data.parent_id = parent_id
-            msg = abs_data.validate()
-            if len(msg) == 0:
-                abs_data.save()
-                return Response(create_message("New comment was created successfully."), 201)
-            else:
-                return Response({"messages": msg}, 400)
-        return Response({"messages": messages}, 400)
+
+        commentdata = request.DATA
+
+        try:
+            if request.DATA.has_key('messageId'): # update existing message
+                comment = Comment.objects.get(message_id=request.DATA['messageId'])
+            else: # create new message
+                comment = Comment()
+                comment.parent_id=commentdata['parentId']
+                comment.user=request.user
+                comment.organization=request.user.organization
+
+            comment.content = commentdata['content']
+
+            # validation
+            validation_messages = comment.validate()
+            if len(validation_messages) > 0:
+                return Response(validation_messages, 400)
+
+            comment.save()
+
+            return Response(comment.serialize(), 201)
+
+        except Exception as e:
+            if settings.DEBUG:
+                return Response(create_message(str(e)), 500)
+            return Response(create_message("Unexpected error.", 500))
+
 
     def get(self, request):
         '''
