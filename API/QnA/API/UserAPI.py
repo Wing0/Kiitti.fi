@@ -1,11 +1,13 @@
-from django.shortcuts import render
+# -*- coding: utf-8 -*-
+
 from django.db import IntegrityError
-from rest_framework.response import Response
+
 from rest_framework.views import APIView
-from QnA.models import *
-from QnA.view_utils import *
-from QnA.utils import *
-import json
+from rest_framework.response import Response
+
+from QnA.models import User
+from QnA.utils import compose_message, create_message
+
 
 class UserAPI(APIView):
 
@@ -39,7 +41,7 @@ class UserAPI(APIView):
         else:
             return Response(create_message("Invalid sorting type.", "order"), 400)
 
-    #VALIDATE
+    # VALIDATE
     def post(self, request):
         '''
         @example:
@@ -52,7 +54,7 @@ class UserAPI(APIView):
               "lastName":"test"
             }
         '''
-        data = json.loads(request.body)
+        data = request.DATA
         messages = []
         if ("username" in data
             and "email" in data
@@ -71,18 +73,18 @@ class UserAPI(APIView):
             messages = user.validate()
             if len(messages) == 0:
                 user.set_password(user.password)
-                try :
+                try:
                     user.save()
                     return Response({"messages": "New user created."}, 201)
                 except IntegrityError, e:
                     if e.message == "column username is not unique":
-                        messages.append(compose_message("Username already in use."))
+                        messages.append(
+                            compose_message("Username already in use."))
                     else:
                         messages.append(compose_message(e.message))
         else:
             messages.append(compose_message("Something is missing"))
         return Response({"messages": messages}, 400)
-
 
     def get_by_id(self, userid):
         '''
@@ -120,14 +122,15 @@ class UserAPI(APIView):
         '''
         messages = []
         if not isinstance(userid, int) or userid < 0:
-           messages.append(compose_message("User id must be positive integer.", "userid"))
+            messages.append(
+                compose_message("User id must be positive integer.", "userid"))
         if len(messages) == 0:
             try:
                 return Response({"users": User.objects.get(user_id=usersid).serialize()}, 200)
             except:
-                messages.append(compose_message("No user with given id.", "userid"))
+                messages.append(
+                    compose_message("No user with given id.", "userid"))
         return Response({"messages": messages}, 400)
-
 
     def get_by_organization_id(self, orgid):
         '''
@@ -171,7 +174,8 @@ class UserAPI(APIView):
         '''
         messages = []
         if not isinstance(orgid, int) or orgid < 0:
-            messages.append(compose_message("Organization id must be positive integer.", "orgid"))
+            messages.append(
+                compose_message("Organization id must be positive integer.", "orgid"))
         if len(messages) == 0:
             try:
                 data = []
@@ -180,7 +184,8 @@ class UserAPI(APIView):
                     data.append(user.serialize())
                 return Response({"users": data}, 200)
             except:
-                messages.append(compose_message("No organization found.", "organization_id"))
+                messages.append(
+                    compose_message("No organization found.", "organization_id"))
         return Response({"messages": messages}, 400)
 
     def get_all(self):

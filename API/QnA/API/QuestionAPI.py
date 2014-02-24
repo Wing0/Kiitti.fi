@@ -1,14 +1,16 @@
-from django.shortcuts import render
-from django.db import IntegrityError
-from rest_framework.response import Response
+# -*- coding: utf-8 -*-
+
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
 from QnA.models import Question, User, Tag, TagEntry
 from QnA.view_utils import order_messages, get_message_by_id, post_abstract_message
 from QnA.utils import compose_message, create_message, exclude_old_versions, intersect, unique
-import json
+
 
 class QuestionAPI(APIView):
+
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
@@ -45,7 +47,7 @@ class QuestionAPI(APIView):
 
         if not request.user.is_authenticated():
             messages.append(compose_message("User must be logged in.", "user"))
-            return Response({"messages":messages}, 401)
+            return Response({"messages": messages}, 401)
 
         question = post_abstract_message(Question(), request.DATA)
 
@@ -58,23 +60,28 @@ class QuestionAPI(APIView):
 
             # Save edited question
             if question.message_id:
-                parent_question = Question.objects.filter(message_id=question.message_id).order_by("-version")[0]
+                parent_question = Question.objects.filter(
+                    message_id=question.message_id).order_by("-version")[0]
                 question.save_changes()
             else:
-                # Confirm uniqueness of the title within the organization before saving
+                # Confirm uniqueness of the title within the organization
+                # before saving
                 try:
-                    Question.objects.get(title=question.title, organization=question.organization)
+                    Question.objects.get(
+                        title=question.title, organization=question.organization)
                     return Response(create_message("The title is in use"), 400)
                 except:
                     question.save()
 
             # Save tags
             taglist = request.DATA.get("tags")
-            if taglist and isinstance(taglist,list):
-                taglist = unique(taglist) #List(set()) removes duplicates
+            if taglist and isinstance(taglist, list):
+                taglist = unique(taglist)  # List(set()) removes duplicates
                 # Delete existing tags
-                previous_taglist = TagEntry.objects.filter(message_id=question.message_id)
-                taglist = [tag for tag in taglist if tag not in previous_taglist]
+                previous_taglist = TagEntry.objects.filter(
+                    message_id=question.message_id)
+                taglist = [
+                    tag for tag in taglist if tag not in previous_taglist]
                 for tag in previous_taglist:
                     if tag not in taglist:
                         tag.delete()
@@ -82,13 +89,15 @@ class QuestionAPI(APIView):
                     try:
                         tag = Tag.objects.get(name=tagname)
                     except Tag.DoesNotExist:
-                        tag = Tag(name=tagname, user=request.user, organization=request.user.organization)
+                        tag = Tag(
+                            name=tagname, user=request.user, organization=request.user.organization)
                         tag.save()
-                    entry = TagEntry(tag=tag, message_id=question.message_id, user=question.user)
+                    entry = TagEntry(
+                        tag=tag, message_id=question.message_id, user=question.user)
                     entry.save()
             return Response(question.serialize(), 201)
 
-        return Response({"messages":messages},400)
+        return Response({"messages": messages}, 400)
 
     def get(self, request, question_id=None):
         '''
@@ -162,12 +171,15 @@ class QuestionAPI(APIView):
             return Response(create_message("User must be logged in."), 401)
 
         messages = []
-        question_sets = [] # list of question lists retrieved by different methods
-        get_all = True # Flag for default return if no search parameters were provided
+        # list of question lists retrieved by different methods
+        question_sets = []
+        # Flag for default return if no search parameters were provided
+        get_all = True
 
         if question_id:
             try:
-                question = Question.objects.get(message_id=int(question_id), organization=request.user.organization)
+                question = Question.objects.get(
+                    message_id=int(question_id), organization=request.user.organization)
                 return Response(question.serialize_single(), 200)
             except ValueError:
                 return Response({"messages": create_message("Given question id was invalid")}, 400)
@@ -177,16 +189,20 @@ class QuestionAPI(APIView):
         if request.GET.get("authorId"):
             get_all = False
             try:
-                author = User.objects.get(user_id=int(request.GET.get("authorId")))
-                question_sets.append(list(Question.objects.filter(user=author, organization=request.user.organization)))
+                author = User.objects.get(
+                    user_id=int(request.GET.get("authorId")))
+                question_sets.append(
+                    list(Question.objects.filter(user=author, organization=request.user.organization)))
             except User.DoesNotExist:
                 question_sets.append([])
 
         if request.GET.get("authorName"):
             get_all = False
             try:
-                author = User.objects.get(username=request.GET.get("authorName"))
-                question_sets.append(list(Question.objects.filter(user=author, organization=request.user.organization)))
+                author = User.objects.get(
+                    username=request.GET.get("authorName"))
+                question_sets.append(
+                    list(Question.objects.filter(user=author, organization=request.user.organization)))
             except User.DoesNotExist:
                 question_sets.append([])
 
@@ -195,7 +211,8 @@ class QuestionAPI(APIView):
             tags = request.GET.get("tags").split(",")
             tags = unique(tags)
 
-            tag_question_sets = [[] for tag in tags]    # Lists of questions corresponding each tag in the same order
+            # Lists of questions corresponding each tag in the same order
+            tag_question_sets = [[] for tag in tags]
             for ind, tag in enumerate(tags):
                 # Get all tag entries for the tag
                 try:
@@ -208,12 +225,14 @@ class QuestionAPI(APIView):
                         tag_question_sets[ind].append(question)
 
             if request.GET.get("tagInclusion") in [None, "or"]:
-                question_sets.append(unique([q for subset in tag_question_sets for q in subset]))
+                question_sets.append(
+                    unique([q for subset in tag_question_sets for q in subset]))
             else:
                 question_sets.append(intersect(tag_question_sets))
 
         if get_all:
-            question_sets.append(list(Question.objects.filter(organization=request.user.organization)))
+            question_sets.append(
+                list(Question.objects.filter(organization=request.user.organization)))
 
         if request.GET.get("searchInclusion") in [None, "or"]:
             questions = unique([q for subset in question_sets for q in subset])
@@ -223,7 +242,9 @@ class QuestionAPI(APIView):
         if not questions or len(questions) == 0:
             return Response(create_message("No questions found"), 404)
 
-        questions = exclude_old_versions(questions) # This should be modified, when we also want to retrieve question history
+        # This should be modified, when we also
+        # want to retrieve question history
+        questions = exclude_old_versions(questions)
 
         try:
             questions = order_messages(questions, request.GET.get("order"))

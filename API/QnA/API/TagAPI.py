@@ -1,8 +1,10 @@
-from rest_framework.response import Response
+# -*- coding: utf-8 -*-
+
 from rest_framework.views import APIView
+from rest_framework.response import Response
+
 from QnA.models import *
 from QnA.utils import *
-import json
 
 
 class TagAPI(APIView):
@@ -23,17 +25,20 @@ class TagAPI(APIView):
             401: If user is not logged in.
         '''
         messages = []
-        data = json.loads(request.body)
+        data = request.DATA
         course_flag = string_to_boolean(data.get("courseFlag"))
         name = data.get("name")
         if not request.user.is_authenticated():
             return Response(create_message("You must be logged in to request comments."), 401)
         if course_flag == None:
-            messages.append(compose_message("Course flag must be a boolean value.", "courseFlag"))
+            messages.append(
+                compose_message("Course flag must be a boolean value.", "courseFlag"))
         if name == None or len(name) == 0:
-            messages.append(compose_message("Name must be non-empty string.", "name"))
+            messages.append(
+                compose_message("Name must be non-empty string.", "name"))
         if len(messages) == 0:
-            tag = Tag(organization=request.user.organization, course_flag=course_flag, name=name)
+            tag = Tag(organization=request.user.organization,
+                      course_flag=course_flag, name=name)
             tag.user = request.user
             messages = tag.validate()
             if len(messages) == 0:
@@ -42,15 +47,13 @@ class TagAPI(APIView):
 
         return Response({"messages": messages}, 400)
 
-
     def get(self, request):
-
         '''
         This method mediates the task to correct function.
         Further information in helper method docstring
         '''
         if not request.user.is_authenticated():
-            return Response({"messages":create_message("User must be logged in.")}, 401)
+            return Response({"messages": create_message("User must be logged in.")}, 401)
         else:
             if request.GET.get("tagId") != None:
                 return self.by_id(request, request.GET.get("tagId"))
@@ -101,7 +104,8 @@ class TagAPI(APIView):
         '''
         messages = []
         if tag_id == None:
-            messages.append({"content":"A tag id must be provided.","identifier":"tagId"})
+            messages.append(
+                {"content": "A tag id must be provided.", "identifier": "tagId"})
         else:
             try:
                 # Parameter check and default values
@@ -112,18 +116,21 @@ class TagAPI(APIView):
                 try:
                     tag = Tag.objects.get(tag_id=tag_id)
                     if not tag.organization == request.user.organization:
-                        messages.append(compose_message("You are not allowed to perform this action."))
-                        return Response({"messages":messages}, 403)
+                        messages.append(
+                            compose_message("You are not allowed to perform this action."))
+                        return Response({"messages": messages}, 403)
                 except:
-                    messages.append({"content":"The tag was not found.","identifier":"tagId"})
-                    return Response({"messages":messages}, 404)
+                    messages.append(
+                        {"content": "The tag was not found.", "identifier": "tagId"})
+                    return Response({"messages": messages}, 404)
 
                 if len(messages) == 0:
-                    return Response({"tags":tag.serialize(), "messages":messages}, 200)
+                    return Response({"tags": tag.serialize(), "messages": messages}, 200)
 
             except ValueError:
-                messages.append({"content":"The tag id has to be a positive integer.","identifier":"tagId"})
-        return Response({"messages":messages}, 400)
+                messages.append(
+                    {"content": "The tag id has to be a positive integer.", "identifier": "tagId"})
+        return Response({"messages": messages}, 400)
 
     def by_author(self, request, author_id, limit=10, order="latest"):
         '''
@@ -180,38 +187,44 @@ class TagAPI(APIView):
                 if limit < 0:
                     raise ValueError("Value is not positive integer")
             except ValueError:
-                messages.append(compose_message("The limit has to be a positive integer.","limit"))
+                messages.append(
+                    compose_message("The limit has to be a positive integer.", "limit"))
 
             if order == None:
                 order = "latest"
-            if not order in ["latest","popularity"]:
-                messages.append(compose_message("The order parameter can be only 'latest' or 'popularity'","order"))
+            if not order in ["latest", "popularity"]:
+                messages.append(
+                    compose_message("The order parameter can be only 'latest' or 'popularity'", "order"))
 
             try:
-                author = User.objects.get(user_id = author_id)
+                author = User.objects.get(user_id=author_id)
             except:
-                messages.append(compose_message("The user id does not match any user.", "userId"))
+                messages.append(
+                    compose_message("The user id does not match any user.", "userId"))
 
             if not request.user.organization == author.organization:
-                messages.append(compose_message("You are not allowed to perform this action."))
-                return Response({"messages":messages}, 403)
+                messages.append(
+                    compose_message("You are not allowed to perform this action."))
+                return Response({"messages": messages}, 403)
 
             if len(messages) == 0:
                 if order == "latest":
-                    tags = Tag.objects.filter(user = author).order_by("-created")[:limit]
+                    tags = Tag.objects.filter(
+                        user=author).order_by("-created")[:limit]
                     tags = [tag.serialize() for tag in tags]
                 else:
-                    tags = Tag.objects.filter(user = author)
+                    tags = Tag.objects.filter(user=author)
                     tags = [tag.serialize() for tag in tags]
-                    tags.sort(key = lambda x: -x["count"])
+                    tags.sort(key=lambda x: -x["count"])
                     tags = tags[:limit]
 
-                return Response({"tags": tags, "messages":messages}, 200)
+                return Response({"tags": tags, "messages": messages}, 200)
 
         except ValueError:
-            messages.append({"content":"The author id has to be a positive integer.","identifier":"authorId"})
+            messages.append(
+                {"content": "The author id has to be a positive integer.", "identifier": "authorId"})
 
-        return Response({"messages":messages}, 400)
+        return Response({"messages": messages}, 400)
 
     def get_all(self, request, limit=10, order="latest"):
         '''
@@ -262,23 +275,27 @@ class TagAPI(APIView):
             if limit < 0:
                 raise ValueError("Value is not positive integer")
         except ValueError:
-            messages.append(compose_message("The limit has to be a positive integer.","limit"))
+            messages.append(
+                compose_message("The limit has to be a positive integer.", "limit"))
 
         if order == None:
             order = "latest"
-        if not order in ["latest","popularity"]:
-            messages.append(compose_message("The order parameter can be only 'latest' or 'popularity'","order"))
+        if not order in ["latest", "popularity"]:
+            messages.append(
+                compose_message("The order parameter can be only 'latest' or 'popularity'", "order"))
 
         if len(messages) == 0:
             if order == "latest":
-                tags = Tag.objects.filter(organization = request.user.organization).order_by("-created")[:limit]
+                tags = Tag.objects.filter(
+                    organization=request.user.organization).order_by("-created")[:limit]
                 tags = [tag.serialize() for tag in tags]
             else:
-                tags = Tag.objects.filter(organization = request.user.organization)
+                tags = Tag.objects.filter(
+                    organization=request.user.organization)
                 tags = [tag.serialize() for tag in tags]
-                tags.sort(key= lambda x: -x["count"])
+                tags.sort(key=lambda x: -x["count"])
                 tags = tags[:limit]
 
-            return Response({"tags": tags, "messages":messages}, 200)
+            return Response({"tags": tags, "messages": messages}, 200)
 
-        return Response({"messages":messages}, 400)
+        return Response({"messages": messages}, 400)

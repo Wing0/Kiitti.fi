@@ -1,11 +1,14 @@
-from django.shortcuts import render
-from django.db import IntegrityError
+# -*- coding: utf-8 -*-
+
 from django.conf import settings
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from QnA.models import Comment
-from QnA.view_utils import *
+from QnA.view_utils import *  # todo: clean this
 from QnA.utils import create_message, compose_message, string_to_int, string_to_boolean
+
 
 class CommentAPI(APIView):
 
@@ -34,13 +37,14 @@ class CommentAPI(APIView):
         commentdata = request.DATA
 
         try:
-            if request.DATA.has_key('messageId'): # update existing message
-                comment = Comment.objects.get(message_id=request.DATA['messageId'])
-            else: # create new message
+            if request.DATA.has_key('messageId'):  # update existing message
+                comment = Comment.objects.get(
+                    message_id=request.DATA['messageId'])
+            else:  # create new message
                 comment = Comment()
-                comment.parent_id=commentdata['parentId']
-                comment.user=request.user
-                comment.organization=request.user.organization
+                comment.parent_id = commentdata['parentId']
+                comment.user = request.user
+                comment.organization = request.user.organization
 
             comment.content = commentdata['content']
 
@@ -57,7 +61,6 @@ class CommentAPI(APIView):
             if settings.DEBUG:
                 return Response(create_message(str(e)), 500)
             return Response(create_message("Unexpected error.", 500))
-
 
     def get(self, request):
         '''
@@ -138,7 +141,7 @@ class CommentAPI(APIView):
                 history = False
             return self.get_by_id(request.GET.get("messageId"), request.user.organization.organization_id, history)
         else:
-           return self.get_all(request.user.organization.organization_id)
+            return self.get_all(request.user.organization.organization_id)
 
     def get_all(self, organization):
         '''
@@ -180,7 +183,7 @@ class CommentAPI(APIView):
                 data.append(comment.serialize())
             return Response({"comments": data}, 200)
         except:
-            return Response(create_message("No comments related to this organization", "organization_id"), 404);
+            return Response(create_message("No comments related to this organization", "organization_id"), 404)
 
     def get_by_id(self, comment, organization):
         '''
@@ -192,7 +195,6 @@ class CommentAPI(APIView):
             comment, string: Message id of comments to retrieve.
         '''
         return get_message_by_id(Comment, comment, organization)
-
 
     def get_by_parent(self, parent_id, is_question, organization_id, limit=3, order="latest"):
         '''
@@ -214,15 +216,19 @@ class CommentAPI(APIView):
         '''
         messages = []
         if not isinstance(parent_id, int) or parent_id < 0:
-            messages.append(compose_message("Parent id must be positive integer.", "parent_id"))
+            messages.append(
+                compose_message("Parent id must be positive integer.", "parent_id"))
         if not isinstance(limit, int) or limit < 0:
-            messages.append(compose_message("Limit value is not positive integer.", "limit"))
+            messages.append(
+                compose_message("Limit value is not positive integer.", "limit"))
         if not isinstance(organization_id, int) or organization_id < 0:
-            messages.append(compose_message("Organization id is not positive integer.", "organization_id"))
+            messages.append(
+                compose_message("Organization id is not positive integer.", "organization_id"))
         if not isinstance(order, basestring):
             messages.append(compose_message("Order is not string", "order"))
         if not isinstance(is_question, bool):
-            messages.append(compose_message("Is question value is not boolean.", "is_question"))
+            messages.append(
+                compose_message("Is question value is not boolean.", "is_question"))
         if len(messages) == 0:
             order_by = "-created"
             if order == "oldest":
@@ -239,7 +245,8 @@ class CommentAPI(APIView):
                 except Exception:
                     return Response(create_message("No messages found with given parent id.", "parent_id"), 404)
                 data = []
-                comments = Comment.objects.filter(parent_id=parent_id).order_by(order_by)[:limit]
+                comments = Comment.objects.filter(
+                    parent_id=parent_id).order_by(order_by)[:limit]
                 for comment in comments:
                     data.append(comment.serialize())
                 return Response({"comments": data}, 200)

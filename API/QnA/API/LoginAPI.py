@@ -1,6 +1,10 @@
-from rest_framework.response import Response
+# -*- coding: utf-8 -*-
+
 from rest_framework.views import APIView
+from rest_framework.response import Response
+
 from QnA.utils import create_message
+
 
 class LoginAPI(APIView):
 
@@ -33,4 +37,3 @@ class LoginAPI(APIView):
             return Response(request.user.serialize(), 200)
         else:
             return Response(create_message("User is not logged in."), 401)
-

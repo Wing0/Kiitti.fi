@@ -1,10 +1,11 @@
-from django.shortcuts import render
-from rest_framework.response import Response
+# -*- coding: utf-8 -*-
+
 from rest_framework.views import APIView
+from rest_framework.response import Response
+
 from QnA.models import Organization
 from QnA.view_utils import *
 from QnA.utils import *
-import json
 
 
 class OrganizationAPI(APIView):
@@ -21,22 +22,26 @@ class OrganizationAPI(APIView):
         elif order == "id":
             return self.get_by_id(request.GET.get("organizationId"))
 
-
     def post(self, request):
         messages = []
-        data = json.loads(request.body)
+        data = request.DATA
+
         if not request.user.is_authenticated():
             return Response(create_message("You must be logged in to request organizations."), 401)
         if not data.get("name"):
-            messages.append({"type": "alert","content": "Organization name must be provided.","identifier": "name"})
+            messages.append(
+                {"type": "alert", "content": "Organization name must be provided.", "identifier": "name"})
         if not data.get("address"):
-            messages.append({"type": "alert","content": "Organization address must be provided.","identifier": "address"})
+            messages.append(
+                {"type": "alert", "content": "Organization address must be provided.", "identifier": "address"})
         if len(messages) == 0:
-            org = Organization(name=data.get("name"), address=data.get("address"))
+            org = Organization(
+                name=data.get("name"), address=data.get("address"))
             messages = org.validate()
             if len(messages) == 0:
                 org.save()
                 return Response(create_message("New organization created."), 201)
+
         return Response({"messages": messages}, 400)
 
     def get_by_id(self, orgid):
@@ -74,16 +79,20 @@ class OrganizationAPI(APIView):
         messages = []
         try:
             if not isinstance(orgid, int) or orgid < 0:
-                messages.append(compose_message("Organization id must be positive integer.", "orgid"))
+                messages.append(
+                    compose_message("Organization id must be positive integer.", "orgid"))
             if len(messages) == 0:
                 return Response({"organizations": Organization.objects.get(organization_id=orgid).serialize()}, 200)
         except:
-            messages.append(compose_message("No Organization with given id exist.", "orgid"))
+            messages.append(
+                compose_message("No Organization with given id exist.", "orgid"))
+
         return Response({"messages": messages}, 400)
 
     def get_all(self):
         data = []
-        orgdata = Organization.objects.all();
+        orgdata = Organization.objects.all()
         for org in orgdata:
             data.append(org.serialize())
+
         return Response({"organizations": data}, 200)

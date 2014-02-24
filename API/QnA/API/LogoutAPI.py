@@ -1,11 +1,13 @@
+# -*- coding: utf-8 -*-
+
 from django.contrib.auth import logout
-from rest_framework.response import Response
+
 from rest_framework.views import APIView
+from rest_framework.response import Response
 
 
 class LogoutAPI(APIView):
 
-    #logout
     def post(self, request):
         try:
             logout(request)

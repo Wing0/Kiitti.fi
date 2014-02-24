@@ -15,5 +15,3 @@ class VoteSerializerPOST(ModelSerializer):
         if attrs['direction'] not in [1, -1]:
             raise ValidationError("Direction must be 1 or -1")
         return attrs
-
-

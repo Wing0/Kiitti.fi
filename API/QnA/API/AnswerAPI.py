@@ -1,12 +1,10 @@
-from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import render
-from django.db import IntegrityError
-from rest_framework.response import Response
+# -*- coding: utf-8 -*-
+
 from rest_framework.views import APIView
-from QnA.models import *
-from QnA.view_utils import *
-from QnA.utils import *
-import json
+from rest_framework.response import Response
+
+from QnA.models import Answer, User, Question
+from QnA.view_utils import post_abstract_message, serialize_answers, order_messages
 
 
 class AnswerAPI(APIView):
@@ -22,8 +20,7 @@ class AnswerAPI(APIView):
             return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
         # ToDo: get all latest/best answers?
         else:
-            return Response({"user":request.user.serialize(), "questionId":request.GET.get("questionId")},404)
-
+            return Response({"user": request.user.serialize(), "questionId": request.GET.get("questionId")}, 404)
 
     # ToDo: accept an answer -method
     def post(self, request):
@@ -78,16 +75,20 @@ class AnswerAPI(APIView):
                 answer.question_id = q_id
                 question = Question.objects.get(message_id=q_id)
                 if not question.organization == request.user.organization:
-                    messages.append(compose_message("You are not allowed to perform this action."))
-                    return Response({"messages":messages}, 403)
+                    messages.append(
+                        compose_message("You are not allowed to perform this action."))
+                    return Response({"messages": messages}, 403)
             except ValueError:
-                messages.append(compose_message("Question id must be positive integer","questionId"))
+                messages.append(
+                    compose_message("Question id must be positive integer", "questionId"))
             except Exception, e:
-                messages.append(compose_message("Question was not found.","questionId"))
-                return Response({"messages":messages}, 404)
+                messages.append(
+                    compose_message("Question was not found.", "questionId"))
+                return Response({"messages": messages}, 404)
 
         else:
-            messages.append(compose_message("Please provide question id.", "questionId"))
+            messages.append(
+                compose_message("Please provide question id.", "questionId"))
         messages = answer.validate()
         if len(messages) == 0:
             if answer.message_id is None:
@@ -96,7 +97,7 @@ class AnswerAPI(APIView):
             else:
                 answer.save_changes()
                 return Response(answer.serialize(), 201)
-        return Response({"messages":messages}, 400)
+        return Response({"messages": messages}, 400)
 
     def by_question_id(self, request, question_id, limit=10, order="latest"):
         '''
@@ -156,11 +157,13 @@ class AnswerAPI(APIView):
         '''
         messages = []
         if question_id == None:
-            messages.append({"content":"A question id has to be provided.","identifier":"questionId"})
+            messages.append(
+                {"content": "A question id has to be provided.", "identifier": "questionId"})
         else:
             if not request.user.is_authenticated():
-                messages.append({"content":"User must be logged in.", "identifier":"user"})
-                return Response({"messages":messages}, 401)
+                messages.append(
+                    {"content": "User must be logged in.", "identifier": "user"})
+                return Response({"messages": messages}, 401)
             try:
                 # Parameter check and default values
                 question_id = int(question_id)
@@ -174,34 +177,41 @@ class AnswerAPI(APIView):
                     if limit < 0:
                         raise ValueError("Value is not positive integer")
                 except ValueError:
-                    messages.append({"content":"The limit has to be a positive integer.","identifier":"limit"})
+                    messages.append(
+                        {"content": "The limit has to be a positive integer.", "identifier": "limit"})
 
                 try:
                     q = Question.objects.get(message_id=question_id)
                     if not q.organization == request.user.organization:
-                        messages.append(compose_message("You are not allowed to perform this action."))
-                        return Response({"messages":messages}, 403)
+                        messages.append(
+                            compose_message("You are not allowed to perform this action."))
+                        return Response({"messages": messages}, 403)
                 except Exception, e:
-                    messages.append({"content":"The question was not found. %s" %e,"identifier":"questionId"})
-                    return Response({"messages":messages}, 404)
+                    messages.append(
+                        {"content": "The question was not found. %s" % e, "identifier": "questionId"})
+                    return Response({"messages": messages}, 404)
                 if order == None:
                     order = "latest"
-                if not order in ["latest","votes"]:
-                    messages.append({"content":"The order parameter can be only 'latest' or 'votes'","identifier":"order"})
+                if not order in ["latest", "votes"]:
+                    messages.append(
+                        {"content": "The order parameter can be only 'latest' or 'votes'", "identifier": "order"})
 
                 if len(messages) == 0:
-                    answers = list(Answer.objects.filter(question_id=question_id))
+                    answers = list(
+                        Answer.objects.filter(question_id=question_id))
                     if len(answers) == 0:
-                        messages.append({"content":"The question does not have answers.","identifier":""})
-                        return Response({"messages":messages}, 404)
+                        messages.append(
+                            {"content": "The question does not have answers.", "identifier": ""})
+                        return Response({"messages": messages}, 404)
 
                     answers = exclude_old_versions(answers)
                     answers = order_messages(answers, order)
-                    return Response({"answers": serialize_answers(answers), "messages":messages}, 200)
+                    return Response({"answers": serialize_answers(answers), "messages": messages}, 200)
 
             except ValueError:
-                messages.append({"content":"The question id has to be a positive integer.","identifier":"questionId"})
-        return Response({"messages":messages}, 400)
+                messages.append(
+                    {"content": "The question id has to be a positive integer.", "identifier": "questionId"})
+        return Response({"messages": messages}, 400)
 
     def by_author(self, request, author_id, limit=10, order="latest"):
         '''
@@ -261,12 +271,14 @@ class AnswerAPI(APIView):
         '''
         messages = []
         if author_id == None:
-            messages.append({"content":"A author id has to be provided.","identifier":"questionId"})
+            messages.append(
+                {"content": "A author id has to be provided.", "identifier": "questionId"})
         else:
             try:
                 if not request.user.is_authenticated():
-                    messages.append({"content":"User must be logged in.", "identifier":"user"})
-                    return Response({"messages":messages}, 401)
+                    messages.append(
+                        {"content": "User must be logged in.", "identifier": "user"})
+                    return Response({"messages": messages}, 401)
                 # Parameter check and default values
                 author_id = int(author_id)
                 if author_id < 0:
@@ -279,32 +291,38 @@ class AnswerAPI(APIView):
                     if limit < 0:
                         raise ValueError("Value is not positive integer")
                 except ValueError:
-                    messages.append({"content":"The limit has to be a positive integer.","identifier":"limit"})
+                    messages.append(
+                        {"content": "The limit has to be a positive integer.", "identifier": "limit"})
 
                 if order == None:
                     order = "latest"
-                if not order in ["latest","votes"]:
-                    messages.append({"content":"The order parameter can be only 'latest' or 'votes'","identifier":"order"})
+                if not order in ["latest", "votes"]:
+                    messages.append(
+                        {"content": "The order parameter can be only 'latest' or 'votes'", "identifier": "order"})
 
                 if len(messages) == 0:
                     try:
                         author = User.objects.get(user_id=author_id)
                         if not author.organization == request.user.organization:
-                            messages.append(compose_message("You are not allowed to perform this action."))
-                            return Response({"messages":messages}, 403)
+                            messages.append(
+                                compose_message("You are not allowed to perform this action."))
+                            return Response({"messages": messages}, 403)
                     except:
-                        messages.append({"content":"The author was not found.","identifier":"questionId"})
-                        return Response({"messages":messages}, 404)
+                        messages.append(
+                            {"content": "The author was not found.", "identifier": "questionId"})
+                        return Response({"messages": messages}, 404)
 
                     answers = list(Answer.objects.filter(user=author))
                     if len(answers) == 0:
-                        messages.append({"content":"The user has not written any answers.","identifier":""})
-                        return Response({"messages":messages}, 404)
+                        messages.append(
+                            {"content": "The user has not written any answers.", "identifier": ""})
+                        return Response({"messages": messages}, 404)
 
                     answers = exclude_old_versions(answers)
                     answers = order_messages(answers, order)
-                    return Response({"answers": serialize_answers(answers), "messages":messages}, 200)
+                    return Response({"answers": serialize_answers(answers), "messages": messages}, 200)
 
             except ValueError:
-                messages.append({"content":"The author id has to be a positive integer.","identifier":"questionId"})
-        return Response({"messages":messages}, 400)
+                messages.append(
+                    {"content": "The author id has to be a positive integer.", "identifier": "questionId"})
+        return Response({"messages": messages}, 400)
