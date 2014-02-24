@@ -1,20 +1,21 @@
-from django.shortcuts import render
-from django.db import IntegrityError
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from QnA.models import *
-import json
+
+from QnA.models import *  # todo: clean this import
 
 
 def order_messages(msg_list, order):
-    if not order in ["latest","votes"]:
+    if not order in ["latest", "votes"]:
         raise ValueError("Invalid order value")
     if order == "latest":
         msg_list.sort(key=lambda x: x.created, reverse=True)
     elif order == "votes":
-        #questions.sort(key = lambda a: sum([vote.rate for vote in Vote.objects.filter(message_id=a.message_id)]))# - sum([vote.rate for vote in Vote.objects.filter(message_id=b.message_id)]))
+        # questions.sort(key = lambda a: sum([vote.rate for vote in
+        # Vote.objects.filter(message_id=a.message_id)]))# - sum([vote.rate for
+        # vote in Vote.objects.filter(message_id=b.message_id)]))
         pass
+
     return msg_list
+
 
 def get_message_by_id(model, msgid, organization, history=False):
     '''
@@ -56,13 +57,16 @@ def get_message_by_id(model, msgid, organization, history=False):
     if model is None:
         messages.append(compose_message("No model type provided.", "model"))
     if not isinstance(msgid, int) or msgid < 0:
-        messages.append(compose_message("Message id must be positive integer.", "msgid"))
+        messages.append(
+            compose_message("Message id must be positive integer.", "msgid"))
     if not isinstance(history, bool):
-        messages.append(compose_message("History must be boolean value.", "history"))
-    #if not isinstance(model, AbstractMessage):
-    #   return Response({"messages":[{"content":"Model must be class that subclasses abstractmessage.","identifier":"model"}]}, 400)
+        messages.append(
+            compose_message("History must be boolean value.", "history"))
+    # if not isinstance(model, AbstractMessage):
+    # return Response({"messages":[{"content":"Model must be class that
+    # subclasses abstractmessage.","identifier":"model"}]}, 400)
     if len(messages) == 0:
-        name = "%ss" %model.__name__.lower()
+        name = "%ss" % model.__name__.lower()
         try:
             data = []
             messagedata = model.objects.filter(message_id=msgid)
@@ -74,10 +78,12 @@ def get_message_by_id(model, msgid, organization, history=False):
                 return Response({name: data}, 200)
             else:
                 length = len(data)
-                return Response({name: data[length-1].serialize()}, 200)
+                return Response({name: data[length - 1].serialize()}, 200)
         except:
             messages.append(compose_message("Message id not found.", "msgid"))
+
     return Response({"messages": messages}, 400)
+
 
 def post_abstract_message(abstractmessage, data):
     '''
@@ -119,4 +125,5 @@ def serialize_answers(answers):
             comment_list.append(comment.serialize())
         json["comments"] = comment_list
         answer_list.append(json)
+
     return answer_list

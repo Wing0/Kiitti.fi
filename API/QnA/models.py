@@ -1,11 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from QnA.utils import *
+
+from QnA.utils import *  # todo: clean this
+
 import re
 import hashlib
 
+
 def format_date(date):
     return date.strftime('%Y-%m-%dT%H:%M:%S')
+
 
 class Organization(models.Model):
 
@@ -27,7 +31,8 @@ class Organization(models.Model):
         try:
             return Organization.objects.get(name="DEFAULT")
         except:
-            #Default object does not exist yet, it will be created without validation.
+            # Default object does not exist yet, it will be created without
+            # validation.
             return Organization.objects.create(name="DEFAULT", address="DEFAULT")
 
     def __unicode__(self):
@@ -42,7 +47,7 @@ class Organization(models.Model):
             'address': self.address,
             'created': format_date(self.created),
             'modified': format_date(self.modified),
-            'organizationId':self.organization_id
+            'organizationId': self.organization_id
         }
 
         return jsondict
@@ -69,14 +74,20 @@ class Organization(models.Model):
         if not isinstance(self.name, basestring):
             messages.append(compose_message("Name has to be a string", "name"))
         if len(self.name) < 3:
-            messages.append(compose_message("Name has to be at least 3 character long.", "name"))
+            messages.append(
+                compose_message("Name has to be at least 3 character long.", "name"))
         if not isinstance(self.address, basestring):
-            messages.append(compose_message("Address has to be a string.", "address"))
+            messages.append(
+                compose_message("Address has to be a string.", "address"))
         if len(self.address) < 3:
-            messages.append(compose_message("Address has to be at least 3 character long.", "address"))
+            messages.append(
+                compose_message("Address has to be at least 3 character long.", "address"))
         if name == "DEFAULT" or address == "DEFAULT":
-            messages.append(compose_message("Address and name must not equal global organization object values.", "name/address"))
+            messages.append(
+                compose_message("Address and name must not equal global organization object values.", "name/address"))
+
         return messages
+
 
 class User(AbstractUser):
 
@@ -103,6 +114,7 @@ class User(AbstractUser):
                 jsondict["organizationId"] = self.organization.organization_id
         except:
             pass
+
         return jsondict
 
     def save(self, *args, **kwargs):
@@ -113,7 +125,7 @@ class User(AbstractUser):
             # Create user actions
             userobjects = User.objects.all()
             largest_id = max([0] + [user.user_id for user in userobjects])
-            self.user_id = largest_id +1
+            self.user_id = largest_id + 1
             self.reputation = 0
         # Just save
         super(User, self).save(*args, **kwargs)
@@ -122,17 +134,22 @@ class User(AbstractUser):
         messages = []
 
         if not isinstance(self.username, basestring):
-            messages.append(compose_message("Username has to be a string.","username"))
+            messages.append(
+                compose_message("Username has to be a string.", "username"))
         if not len(self.username) <= 255:
-            messages.append(compose_message("Username has to be a shorter than 256 characters.","username"))
+            messages.append(
+                compose_message("Username has to be a shorter than 256 characters.", "username"))
         if not len(self.username) >= 3:
-            messages.append(compose_message("Username has to be a longer than 2 characters.","username"))
+            messages.append(
+                compose_message("Username has to be a longer than 2 characters.", "username"))
 
         if not isinstance(self.email, basestring):
-            messages.append(compose_message("Email has to be a string.","email"))
+            messages.append(
+                compose_message("Email has to be a string.", "email"))
         else:
-            if not re.match("[^@]+@[^@]+\.[^@]+",self.email):
-                messages.append(compose_message("Give a valid email address.","email"))
+            if not re.match("[^@]+@[^@]+\.[^@]+", self.email):
+                messages.append(
+                    compose_message("Give a valid email address.", "email"))
             else:
                 retrieved_user = False
                 try:
@@ -140,36 +157,48 @@ class User(AbstractUser):
                 except:
                     retrieved_user = False
                 if retrieved_user:
-                    messages.append(compose_message("Email already in use.","email"))
+                    messages.append(
+                        compose_message("Email already in use.", "email"))
 
         if not isinstance(self.first_name, basestring):
-            messages.append(compose_message("First name has to be a string.","first_name"))
+            messages.append(
+                compose_message("First name has to be a string.", "first_name"))
         if not len(self.first_name) <= 255:
-            messages.append(compose_message("First name has to be a shorter than 256 characters.","first_name"))
+            messages.append(
+                compose_message("First name has to be a shorter than 256 characters.", "first_name"))
         if not len(self.first_name) >= 1:
-            messages.append(compose_message("First name has to be at least 1 character.","first_name"))
+            messages.append(
+                compose_message("First name has to be at least 1 character.", "first_name"))
 
         if not isinstance(self.last_name, basestring):
-            messages.append(compose_message("Last name has to be a string.","last_name"))
+            messages.append(
+                compose_message("Last name has to be a string.", "last_name"))
         if not len(self.last_name) <= 255:
-            messages.append(compose_message("Last name has to be a shorter than 256 characters.","last_name"))
+            messages.append(
+                compose_message("Last name has to be a shorter than 256 characters.", "last_name"))
         if not len(self.last_name) >= 1:
-            messages.append(compose_message("Last name has to be at least 1 character.","last_name"))
+            messages.append(
+                compose_message("Last name has to be at least 1 character.", "last_name"))
 
         if not isinstance(self.password, basestring):
-            messages.append(compose_message("Password has to be a string.","password"))
+            messages.append(
+                compose_message("Password has to be a string.", "password"))
         if not len(self.password) <= 255:
-            messages.append(compose_message("Password has to be a shorter than 256 characters.","password"))
+            messages.append(
+                compose_message("Password has to be a shorter than 256 characters.", "password"))
         if not len(self.password) >= 4:
-            messages.append(compose_message("Password has to be at least 4 character.","password"))
+            messages.append(
+                compose_message("Password has to be at least 4 character.", "password"))
 
         if not isinstance(self.organization, Organization):
-            messages.append(compose_message("Organization object is not valid.","organization"))
+            messages.append(
+                compose_message("Organization object is not valid.", "organization"))
 
         return messages
 
 
 class AbstractMessage(models.Model):
+
     '''
     This is the Abstract message class for all the message classes. The other message classes
     will inherit this class.
@@ -205,24 +234,28 @@ class AbstractMessage(models.Model):
                                            user=self.user,
                                            direction__gt=0))
         jsondict['meta']['votedDown'] = bool(Vote.objects.filter(
-                                           message_id=self.message_id,
-                                           user=self.user,
-                                           direction__lt=0))
+                                             message_id=self.message_id,
+                                             user=self.user,
+                                             direction__lt=0))
 
         return jsondict
 
     def validate(self):
         messages = []
         if not isinstance(self.content, basestring):
-            messages.append(compose_message("Content must be a string.","content"))
+            messages.append(
+                compose_message("Content must be a string.", "content"))
         if len(self.content) < 1:
-            messages.append(compose_message("Content is missing or its length is zero.", "content"))
+            messages.append(
+                compose_message("Content is missing or its length is zero.", "content"))
 
         if not isinstance(self.user, User):
-            messages.append(compose_message("User id must be an user object.","user_id"))
+            messages.append(
+                compose_message("User id must be an user object.", "user_id"))
 
         if self.message_id != None and (not isinstance(self.message_id, int) or self.message_id < 0):
-            messages.append(compose_message("Message id must be a positive number.","message_id"))
+            messages.append(
+                compose_message("Message id must be a positive number.", "message_id"))
         return messages
 
     def save(self, *args, **kwargs):
@@ -231,18 +264,20 @@ class AbstractMessage(models.Model):
         '''
         if self.pk is None:
             # When created
-            if not isinstance(self.version , int):
+            if not isinstance(self.version, int):
                 self.version = 0
         # Just save
         super(AbstractMessage, self).save(*args, **kwargs)
 
 
 class Answer(AbstractMessage):
+
     '''
     Represents an Answer for Question.
 
     '''
-    question_id = models.PositiveIntegerField() #this is the message_id of the question this answer is response to
+    #this is the message_id of the question this answer is response to
+    question_id = models.PositiveIntegerField()
     accepted = models.BooleanField(default=False)
 
     def __unicode__(self):
@@ -265,17 +300,19 @@ class Answer(AbstractMessage):
         messages = super(Answer, self).validate()
         if not isinstance(self.question_id, int) or self.question_id < 0:
             valid = False
-            messages.append(compose_message("Question id must be a positive integer.", "question_id"))
+            messages.append(
+                compose_message("Question id must be a positive integer.", "question_id"))
         if not isinstance(self.accepted, bool):
             valid = False
-            messages.append(compose_message("Accepted value must be a boolean.", "accepted"))
+            messages.append(
+                compose_message("Accepted value must be a boolean.", "accepted"))
         return messages
 
     def save(self, *args, **kwargs):
         '''
             The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
         '''
-        if not isinstance(self.version , int):
+        if not isinstance(self.version, int):
             # When created
             all_objects = Answer.objects.all()
             largest_id = max([0] + [obj.message_id for obj in all_objects])
@@ -297,6 +334,7 @@ class Answer(AbstractMessage):
 
 
 class Question(AbstractMessage):
+
     '''
 
     '''
@@ -308,7 +346,8 @@ class Question(AbstractMessage):
     def serialize(self):
         jsondict = super(Question, self).serialize()
         jsondict['title'] = self.title
-        jsondict['tags'] = [tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=self.message_id)]
+        jsondict['tags'] = [
+            tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=self.message_id)]
 
         return jsondict
 
@@ -323,16 +362,18 @@ class Question(AbstractMessage):
     def validate(self):
         messages = super(Question, self).validate()
         if not isinstance(self.title, basestring):
-            messages.append(compose_message("Title has to be a string.", "title"))
+            messages.append(
+                compose_message("Title has to be a string.", "title"))
         if self.title and len(self.title) < 5:
-            messages.append(compose_message("Title must be atleast five characters long.",  "title"))
+            messages.append(
+                compose_message("Title must be atleast five characters long.",  "title"))
         return messages
 
     def save(self, *args, **kwargs):
         '''
             The default save method is overridden to be able to generate appropriate message_id that is unique and ascending.
         '''
-        if not isinstance(self.version , int):
+        if not isinstance(self.version, int):
             # When created
             all_objects = Question.objects.all()
             largest_id = max([0] + [obj.message_id for obj in all_objects])
@@ -353,11 +394,15 @@ class Question(AbstractMessage):
 
 
 class Comment(AbstractMessage):
+
     '''
 
     '''
-    is_question_comment = models.BooleanField(default=False) #if true, this is a comment to a Question. If False, it is comment to an Answer.
-    parent_id = models.PositiveIntegerField() #this is the message_id of the message to which this comment is for
+    # if true, this is a comment to a Question. If False, it is comment to an
+    # Answer.
+    is_question_comment = models.BooleanField(default=False)
+    #this is the message_id of the message to which this comment is for
+    parent_id = models.PositiveIntegerField()
 
     def __unicode__(self):
         text = self.content
@@ -374,17 +419,19 @@ class Comment(AbstractMessage):
 
     def validate(self):
         messages = super(Comment, self).validate()
-        if not isinstance(self.parent_id, int) or self.parent_id < 0 :
-            messages.append(compose_message("Parent id has to be a integer.", "parent_id"))
+        if not isinstance(self.parent_id, int) or self.parent_id < 0:
+            messages.append(
+                compose_message("Parent id has to be a integer.", "parent_id"))
         if not isinstance(self.is_question_comment, bool):
-            messages.append(compose_message("Is question value is not boolean.", "is_question_comment"))
+            messages.append(
+                compose_message("Is question value is not boolean.", "is_question_comment"))
         return messages
 
     def save(self, *args, **kwargs):
         '''
             The default save method is overridden to be able to generate appropriate tag_entry_id that is unique and ascending.
         '''
-        if not isinstance(self.version , int):
+        if not isinstance(self.version, int):
             # When created
             all_objects = Comment.objects.all()
             largest_id = max([0] + [obj.message_id for obj in all_objects])
@@ -403,6 +450,7 @@ class Comment(AbstractMessage):
             self.version = largest_version + 1
         # Just save
         super(Comment, self).save(*args, **kwargs)
+
 
 class Vote(models.Model):
 
@@ -424,6 +472,7 @@ class Vote(models.Model):
         }
         return jsondict
 
+
 class Tag(models.Model):
     tag_id = models.PositiveIntegerField(unique=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -441,16 +490,15 @@ class Tag(models.Model):
         count = 0
         count = TagEntry.objects.filter(tag=self.tag_id).count()
         jsondict = {
-            'tagId':self.tag_id,
+            'tagId': self.tag_id,
             'user': self.user.user_id,
             'created': format_date(self.created),
             'modified': format_date(self.modified),
-            'organizationId':self.organization.organization_id,
-            'name':self.name,
-            'courseFlag':self.course_flag,
+            'organizationId': self.organization.organization_id,
+            'name': self.name,
+            'courseFlag': self.course_flag,
             'count': count
         }
-
         return jsondict
 
     def save(self, *args, **kwargs):
@@ -461,24 +509,31 @@ class Tag(models.Model):
             # When created
             all_objects = Tag.objects.all()
             largest_id = max([0] + [obj.tag_id for obj in all_objects])
-            self.tag_id = largest_id +1
+            self.tag_id = largest_id + 1
         # Just save
         super(Tag, self).save(*args, **kwargs)
 
     def validate(self):
         messages = []
         if not isinstance(self.name, basestring):
-            messages.append(compose_message("Tag name has to be a string.", "name"))
+            messages.append(
+                compose_message("Tag name has to be a string.", "name"))
         elif len(self.name) < 3:
-            messages.append(compose_message("Tag name has to be longer than 3 characters.", "name"))
+            messages.append(
+                compose_message("Tag name has to be longer than 3 characters.", "name"))
         elif len(self.name) > 255:
-            messages.append(compose_message("Tag name has to be shorter than 255 characters.", "name"))
+            messages.append(
+                compose_message("Tag name has to be shorter than 255 characters.", "name"))
         if not isinstance(self.course_flag, bool):
-            messages.append(compose_message("Course flag has to be a boolean value.", "courseFlag"))
+            messages.append(
+                compose_message("Course flag has to be a boolean value.", "courseFlag"))
         if not isinstance(self.organization, Organization):
-            messages.append(compose_message("Organization has to be an Organization instance.", "organization"))
+            messages.append(
+                compose_message("Organization has to be an Organization instance.", "organization"))
         if not isinstance(self.user, User):
-            messages.append(compose_message("Creator has to be an User instance.", "creator"))
+            messages.append(
+                compose_message("Creator has to be an User instance.", "creator"))
+
         return messages
 
 
@@ -496,14 +551,13 @@ class TagEntry(models.Model):
 
     def serialize(self):
         jsondict = {
-            'tagEntryId':self.tag_entry_id,
-            'tagId':self.tag.tag_id,
+            'tagEntryId': self.tag_entry_id,
+            'tagId': self.tag.tag_id,
             'messageId': self.message_id,
             'user': self.user.user_id,
             'created': format_date(self.created),
             'modified': format_date(self.modified),
         }
-
         return jsondict
 
     def save(self, *args, **kwargs):
@@ -514,15 +568,15 @@ class TagEntry(models.Model):
             # When created
             all_objects = TagEntry.objects.all()
             largest_id = max([0] + [obj.tag_entry_id for obj in all_objects])
-            self.tag_entry_id = largest_id +1
+            self.tag_entry_id = largest_id + 1
         # Just save
         super(TagEntry, self).save(*args, **kwargs)
-
 
     def validate(self):
         messages = []
         if not isinstance(self.creator.user_id, int) or self.creator.user_id < 0:
-            messages.append(compose_message("Creator must be a positive integer.", "creator"))
+            messages.append(
+                compose_message("Creator must be a positive integer.", "creator"))
         '''
         if not isinstance(self.organization_id, int) or self.organization_id < 0:
             messages.append({"type": "alert", "content": "Organization id has to be a positive integer.", "identifier": "organization_id"})
@@ -536,43 +590,25 @@ class TagEntry(models.Model):
         if not isinstance(self.course_flag, bool):
             messages.append({"type": "alert", "content": "Course flag must be a boolean.", "identifier": "course_flag"})
         '''
+
         return messages
+
 
 class ResetEntry(models.Model):
     user = models.ForeignKey(User, to_field="user_id")
-    salt = models.CharField(max_length = 5)
+    salt = models.CharField(max_length=5)
 
     created = models.DateTimeField(auto_now_add=True)
 
     def is_valid(self, has):
         if self.create() == has:
             return True
-        else:
-            return False
+        return False
 
     def create(self):
         secret = "supercoderz"
         m = hashlib.sha256()
-        m.update(self.user.email+self.salt+self.user.username+secret)
+        m.update(self.user.email + self.salt + self.user.username + secret)
         has = m.hexdigest()
+
         return has[:10]
-'''
-ToDo:
-    User object
-        How do they relate to Customer?
-            Do we need customer-specific users
-            ForeignKey to customer -> custom user class
-        How do we relate to the user?
-            separate id instead of primary_key?
-        Custom user class or not?
-            If it is custom, could we include user profile attributes as well?
-        Could single user be registered to several customers?
-
-    User profile model:
-        Reputation
-        Avatar
-        Rights
-        Events
-        etc.
-
-'''
