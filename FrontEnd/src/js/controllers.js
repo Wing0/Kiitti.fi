@@ -1,21 +1,34 @@
-var ktControllers = angular.module('ktControllers', ['http-auth-interceptor', 'ktAPI']);
+var module = angular.module('ktControllers', ['http-auth-interceptor', 'ktAPI']);
 
-ktControllers.controller('MainController', function($rootScope, $location, $log, $http, $cookieStore) {
+// master controller
+module.controller('MainController', function($rootScope, $scope, AuthAPI, MessageFactory, $state, $log) {
+
+  /* Bind scope user to authenticated user */
+  $scope.$watch(function() { return AuthAPI.user(); }, function(data) {
+    $scope.user = data;
+  }, true);
+
+  /* Authentication handling */
   $rootScope.$on('event:auth-loginRequired', function() {
-    $log.warn("Login required for access");
-    $location.path('/login');
+    $log.warn("Login required");
+    $state.go('login.login');
   });
   $rootScope.$on('event:auth-loginConfirmed', function() {
-    $log.info("Login successful");
+    $log.success("Login confirmed");
+    $state.go('master.popular');
   });
 });
 
-ktControllers.controller('LoginController', function(MessageFactory, AuthAPI, $rootScope, $scope, $location) {
+module.controller('LoginController', function(MessageFactory, AuthAPI, $scope, $location) {
+
+  /* Check if user has already logged in and redirect */
+  AuthAPI.load().success(function() {
+    $location.path('/');
+  });
 
   $scope.login = function(user) {
     AuthAPI.login(user)
       .success(function(data, status, headers, config) {
-        $rootScope.user = AuthAPI.user();
         $location.path('/');
       })
       .error(function(data, status, headers, config) {
@@ -25,40 +38,20 @@ ktControllers.controller('LoginController', function(MessageFactory, AuthAPI, $r
   }
 });
 
-ktControllers.controller('LogoutController', function(AuthAPI, $http, $rootScope, $log, $location, $cookieStore) {
+module.controller('LogoutController', function(AuthAPI, $log, $location, MessageFactory) {
+
   AuthAPI.logout()
     .success(function() {
-      $log.info("User " + $rootScope.user.username + " logged out");
-      $cookieStore.remove('tursas');
-      delete $http.defaults.headers.common['Authorization'];
-      delete $rootScope.user;
-      delete $rootScope.messages;
+      MessageFactory.clear()
       $location.path('/');
     })
     .error(function(data, status) {
-      $log.error("User " + $rootScope.user.username + " could not be logged out")
+      $log.error("User could not be logged out");
+      $location.path('/');
     });
 });
 
-ktControllers.controller('SubmitAnswerController', function($scope, QuestionAPI) {
-
-  var answertest = {
-    "id": 2,
-    "content": "Uuskommenti asglkjgsdlakjgs",
-    "user_id": 125,
-    "username": "Zorro",
-    "votes_up": 12,
-    "votes_down": 0,
-    "date": "2014-01-02T14:00:00.000Z"
-  }
-
-  $scope.send = function() {
-    console.log("User: ", $scope.user.name, "Message: ", $scope.message);
-    $scope.question.answers.push(answertest);
-  };
-});
-
-ktControllers.controller('CreateQuestionController', function($scope, QuestionAPI, $location) {
+module.controller('CreateQuestionController', function($scope, QuestionAPI, $location) {
   $scope.send = function() {
     QuestionAPI.save($scope.question, function(data) {
       $location.path('/question/'+data.messageId);
@@ -66,23 +59,33 @@ ktControllers.controller('CreateQuestionController', function($scope, QuestionAP
   }
 });
 
-ktControllers.controller('BrowseQuestionsController', function($scope, QuestionAPI) {
+module.controller('BrowseQuestionsController', function($scope, QuestionAPI) {
   $scope.data = QuestionAPI.get();
 });
 
-ktControllers.controller('SingleQuestionController', function($scope, data) {
-  $scope.question = data;
+module.controller('SingleQuestionController', function($scope, question, AnswerAPI, MessageFactory) {
+
+  $scope.question = question;
+  $scope.answer = {};
+  $scope.submitMessage = {};
+
+  $scope.submitAnswer = function() {
+    $scope.answer.questionId = $scope.question.messageId;
+
+    AnswerAPI.save($scope.answer, function(answer) {
+      $scope.question.answers.push(answer);
+      $scope.submitMessage.type = "success";
+      $scope.submitMessage.content = "Vastaus lisätty onnistuneesti.";
+      $scope.answer.content = "";
+    }, function(response) {
+      $scope.submitMessage.type = "error";
+      $scope.submitMessage.content = "Vastauksen lisääminen ei onnistunut.";
+      MessageFactory.addList(response.data.messages);
+    });
+  }
 });
 
-ktControllers.controller('BrowsePopularController', function($scope, QuestionAPI, AnswerAPI) {
-
-  //$scope.questions = AnswerAPI.get({"questionId": 1});
-
-  /*var questions = QuestionAPI.get(function(data) {
-  $scope.questions = data.questions;
-  });*/
-
-  $scope.question = QuestionAPI.get();
+module.controller('BrowsePopularController', function($scope, QuestionAPI, AnswerAPI) {
 
 });
 

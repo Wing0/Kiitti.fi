@@ -26,7 +26,6 @@ class AnswerAPI(APIView):
 
 
     # ToDo: accept an answer -method
-    @csrf_exempt
     def post(self, request):
         '''
         This method takes answer information and produces an answer object accordingly.
@@ -59,26 +58,26 @@ class AnswerAPI(APIView):
                             "messages":[{"content":"An example error message.","identifier":"example"}]
 
         '''
-        data = json.loads(request.body)
+        data = request.DATA
         messages = []
 
-        ans = post_abstract_message(Answer(), data)
+        answer = post_abstract_message(Answer(), data)
         if request.user.is_authenticated():
-            ans.user = request.user
-            ans.organization = request.user.organization
+            answer.user = request.user
+            answer.organization = request.user.organization
         else:
             messages.append(compose_message("User must be logged in.", "user"))
-            return Response({"messages":messages}, 401)
+            return Response({"messages": messages}, 401)
 
-        ans.accepted = data.get("accepted")
-        if ans.accepted == None:
-            ans.accepted = False
+        answer.accepted = data.get("accepted")
+        if answer.accepted == None:
+            answer.accepted = False
         if data.get("questionId") != None:
             try:
                 q_id = int(data.get("questionId"))
-                ans.question_id = q_id
-                q = Question.objects.get(message_id=q_id)
-                if not q.organization == request.user.organization:
+                answer.question_id = q_id
+                question = Question.objects.get(message_id=q_id)
+                if not question.organization == request.user.organization:
                     messages.append(compose_message("You are not allowed to perform this action."))
                     return Response({"messages":messages}, 403)
             except ValueError:
@@ -89,14 +88,14 @@ class AnswerAPI(APIView):
 
         else:
             messages.append(compose_message("Please provide question id.", "questionId"))
-        messages = ans.validate()
+        messages = answer.validate()
         if len(messages) == 0:
-            if ans.message_id is None:
-                ans.save()
-                return Response(ans.serialize(), 201)
+            if answer.message_id is None:
+                answer.save()
+                return Response(answer.serialize(), 201)
             else:
-                ans.save_changes()
-                return Response(ans.serialize(), 201)
+                answer.save_changes()
+                return Response(answer.serialize(), 201)
         return Response({"messages":messages}, 400)
 
     def by_question_id(self, request, question_id, limit=10, order="latest"):

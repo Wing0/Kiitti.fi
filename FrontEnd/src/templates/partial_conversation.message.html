@@ -1,4 +1,4 @@
-<div class="message-block">
+<div class="message-block table">
   <div class="votes cell">
     <div>
       <div class="vote up" title="Äänestä viestiä hyväksi"><i class="fa fa-chevron-up"></i></div>
@@ -9,7 +9,7 @@
 
   <div class="cell message-stack">
     <div class="content">
-      <p ng-bind="question.content"></p>
+      <p ng-bind="message.content"></p>
     </div>
 
     <div class="comment-block">
@@ -20,8 +20,15 @@
           <span class="date" ng-bind="comment.created"></span>
         </div>
       </div>
-      <div class="buttons">
-        <div class="button-alt" ng-click="addComment()"><i class="fa fa-pencil"></i><span>Lisää kommentti</span></div>
+      <div class="buttons" ng-init="showCommentInput=false">
+        <div class="button-alt" ng-click="showCommentInput=!showCommentInput">
+          <i class="fa fa-pencil"></i><span>Lisää kommentti</span>
+        </div>
+        <form ng-if="showCommentInput" ng-submit="submitComment()">
+          <input type="text" ng-model="comment.content">
+          <br>
+          <button type="submit">Lisää kommentti</button>
+        </form>
       </div>
     </div>
   </div>
