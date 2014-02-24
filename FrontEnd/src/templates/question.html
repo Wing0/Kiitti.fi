@@ -2,13 +2,16 @@
   <section class="conversation cell">
     <div class="question">
       <h1 class="title" ng-bind="question.title"></h1>
+      <hr>
       <div kt-conversation-message message="question"></div>
     </div>
 
     <div class="answers" ng-if="question.answers">
       <h2>Vastaukset</h2>
+      <hr>
       <div ng-repeat="answer in question.answers | orderBy: 'meta.votes.up - meta.votes.down':true">
         <div kt-conversation-message message="answer"></div>
+        <hr ng-if="!$last">
       </div>
     </div><!--/answers-->
 

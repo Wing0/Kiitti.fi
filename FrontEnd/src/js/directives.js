@@ -36,6 +36,7 @@ module.directive('ktConversationMessage', function() {
           $scope.comment.content = "";
           $scope.submitMessage.type = "success";
           $scope.submitMessage.content = "Kommentin lisääminen onnistui.";
+          $scope.showCommentInput = false;
         }, function() {
           $scope.submitMessage.type = "error";
           $scope.submitMessage.content = "Kommentin lisääminen ei onnistunut.";
