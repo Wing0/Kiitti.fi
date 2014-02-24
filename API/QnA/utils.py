@@ -46,5 +46,30 @@ def string_to_int(value):
     '''
     try:
         return int(value)
-    except ValueError:
+    except (ValueError, TypeError), e:
         return None
+
+
+def unique(a):
+    ''' return the list with duplicate elements removed '''
+    return list(set(a))
+
+def intersect(a, b=False):
+    '''
+        return the intersection of two lists
+        If the second list is not provided, and a is a list of lists:
+            return intersection of sublists in a
+    '''
+    if a and b:
+        return list(set(a) & set(b))
+    else:
+        a = [l for l in a if isinstance(l,list)]
+        if a:
+            b = a[0]
+            for l in a:
+                b = intersect(l,b)
+            return b
+
+def union(a, b):
+    ''' return the union of two lists '''
+    return list(set(a) | set(b))

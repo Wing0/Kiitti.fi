@@ -8,8 +8,6 @@ from QnA.view_utils import *
 from QnA.utils import *
 import json
 
-from view_utils import *
-
 
 class AnswerAPI(APIView):
 
@@ -92,9 +90,13 @@ class AnswerAPI(APIView):
             messages.append(compose_message("Please provide question id.", "questionId"))
         messages = answer.validate()
         if len(messages) == 0:
-            answer.save()
-            return Response(answer.serialize(), 201)
-        return Response({"messages": messages}, 400)
+            if answer.message_id is None:
+                answer.save()
+                return Response(answer.serialize(), 201)
+            else:
+                answer.save_changes()
+                return Response(answer.serialize(), 201)
+        return Response({"messages":messages}, 400)
 
     def by_question_id(self, request, question_id, limit=10, order="latest"):
         '''
