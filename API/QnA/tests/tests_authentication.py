@@ -14,7 +14,7 @@ class AuthenticationTest(APITestCase):
         self.client = APIClient()
         self.organization = Organization(
             organization_id=1, name="testorganization")
-        self.user = User(
+        self.user = User.objects.create_user(
             username='test', email='test@test.test', password='test', organization=self.organization)
 
     def test_login_logout(self):
