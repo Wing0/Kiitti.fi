@@ -49,7 +49,7 @@ class VoteAPI(APIView):
         if tryvote:
             # vote exists with same direction
             if tryvote[0].direction == request.DATA.get("direction"):
-                return Response(compose_message("Vote exists already"), 400)
+                return Response(compose_message("Vote exists already"), 403)
             # vote needs to be updated
             else:
                 serializer = VoteSerializerPOST(tryvote[0], data=data)
