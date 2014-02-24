@@ -85,8 +85,6 @@ $thumb-size: 40px;
 
 
 .message-block {
-
-
   &.answer {
     @include transition(opacity 0.5s ease-in-out);
 

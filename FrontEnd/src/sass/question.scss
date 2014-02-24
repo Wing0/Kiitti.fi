@@ -42,10 +42,10 @@ $conversation-max-width: 670px;
       }
     }
     .vote {
-      &.up:hover i {
+      &.up.active i, &.up:hover i {
         color: $color-emphasis-1;
       }
-      &.down:hover i {
+      &.down.active i, &.down:hover i {
         color: $color-emphasis-2;
       }
     }

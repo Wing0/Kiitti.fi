@@ -69,3 +69,7 @@ module.factory('AnswerAPI', function($resource, APIUrl) {
 module.factory('CommentAPI', function($resource, APIUrl) {
   return $resource(APIUrl + '/comments');
 });
+
+module.factory('VoteAPI', function($resource, APIUrl) {
+  return $resource(APIUrl + '/votes');
+});

@@ -24,7 +24,7 @@ module.directive('ktConversationMessage', function() {
     },
     transclude: false,
     templateUrl: '../templates/partial_conversation.message.html',
-    controller: function($scope, CommentAPI) {
+    controller: function($scope, CommentAPI, VoteAPI) {
       $scope.comment = {};
       $scope.submitMessage = {};
 
@@ -40,8 +40,27 @@ module.directive('ktConversationMessage', function() {
           $scope.submitMessage.type = "error";
           $scope.submitMessage.content = "Kommentin lisääminen ei onnistunut.";
         });
-      }
-    }
+      };
+
+      $scope.vote = function(direction) {
+        var vote = {"message_id": $scope.message.messageId, "direction": direction};
+        VoteAPI.save(vote, function(vote) {
+          if (direction > 0) {
+            $scope.message.meta.votes.up++;
+            if ($scope.message.meta.votedDown)
+              $scope.message.meta.votes.down--;
+            $scope.message.meta.votedDown = false;
+            $scope.message.meta.votedUp = true;
+          } else if (direction < 0) {
+            $scope.message.meta.votes.down++;
+            if ($scope.message.meta.votedUp)
+              $scope.message.meta.votes.up--;
+            $scope.message.meta.votedUp = false;
+            $scope.message.meta.votedDown = true;
+          }
+        });
+      };
+    } // /controller
   }
 });
 

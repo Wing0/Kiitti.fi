@@ -7,7 +7,7 @@
 
     <div class="answers" ng-if="question.answers">
       <h2>Vastaukset</h2>
-      <div ng-repeat="answer in question.answers">
+      <div ng-repeat="answer in question.answers | orderBy: 'meta.votes.up - meta.votes.down':true">
         <div kt-conversation-message message="answer"></div>
       </div>
     </div><!--/answers-->
