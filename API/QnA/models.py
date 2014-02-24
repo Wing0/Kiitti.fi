@@ -418,19 +418,7 @@ class Vote(models.Model):
             'created': format_date(self.created),
             'modified': format_date(self.modified)
         }
-
         return jsondict
-
-    def validate(self):
-        messages = []
-        if not isinstance(self.rate, int):
-            messages.append(compose_message("Rate has to be a integer.", "rate"))
-        if not isinstance(self.user.user_id, int) or self.user_id < 0:
-            messages.append(compose_message("User id has to be a positive integer.", "userId"))
-        if not isinstance(self.user.user_id, int) or self.message_id < 0:
-            messages.append(compose_message("Message id has to be a positive integer.", "messageId"))
-
-        return messages
 
 class Tag(models.Model):
     tag_id = models.PositiveIntegerField(unique=True)
