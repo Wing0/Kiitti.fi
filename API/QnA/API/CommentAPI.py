@@ -40,7 +40,7 @@ class CommentAPI(APIView):
             messages.append(compose_message("Parent id must be positive integer.", "parentId"))
         question = string_to_boolean(data.get("isQuestion"))
         if question is None:
-            messages.append(compose_message("Is question must be boolean.", "isQuestion"))
+            messages.append(compose_message("IsQuestion must be boolean.", "isQuestion"))
         if len(messages) == 0:
             abs_data.is_question_comment = question
             abs_data.organization = request.user.organization
@@ -48,8 +48,12 @@ class CommentAPI(APIView):
             abs_data.parent_id = parent_id
             msg = abs_data.validate()
             if len(msg) == 0:
-                abs_data.save()
-                return Response(create_message("New comment was created successfully."), 201)
+                if abs_data.message_id is None:
+                    abs_data.save()
+                    return Response(abs_data.serialize(), 201)
+                else:
+                    abs_data.save_changes()
+                    return Response(abs_data.serialize(), 201)
             else:
                 return Response({"messages": msg}, 400)
         return Response({"messages": messages}, 400)
@@ -59,27 +63,30 @@ class CommentAPI(APIView):
         Get comments.
 
         Comments can be searched by message_id or by its parents message_id.
-        Get parameter called 'order' defines how comments are searched.
-        Allowed order parameters are: order=id, order=parent or no order type (None).
-        If order=id is given you must also provide parameter messageId (ex. messageId=3).
-        If order=parent is given you must provide parameter parentId (ex. parentId=3)
+        If searched by message_id, allowed parameters are:
+            - messageId
+            - (Additional) history
+        If searched by parent_id, allowed parameters are:
+            - parentId, isQuestion
+            - (Additional) limit, sort
 
         @params
+            messageId: Id of comment to get.
+            history: If true version history is included
+
             isQuestion: Determines whether comment belongs to question.
             parentId: Id of parent message.
-            messageId: Id of comment to get.
             limit: Maximum amount of comments to return.
-            order:
-                parent: Use for testing
-                id: Get comment with messageId
             sort:
                 latest: Newest comments are first.
                 oldest: Oldest comments are first.
 
-        @example
-        /comments?order=parent&isQuestion=false&parentId=2&sort=latest&limit=5
-
+        @examples
+        /comments?isQuestion=false&parentId=2&sort=latest&limit=5
         ^^Returns 5 newest comments which have Answer with message_id=2 as a parent.
+
+        /comments?messageId=1&history=true
+        ^^Returns comment with message_id=1 with all versions.
 
         @returns
             200: If content was found.
@@ -107,17 +114,14 @@ class CommentAPI(APIView):
                     ]
                 }
 
-            400: If order has invalid value.
+            400: If parameters are invalid.
             401: If user is not logged in.
             403: If user has no permission to perfrom asked action.
-            404: If comments was not found with given id.
+            404: If comments were not found.
         '''
-        order = request.GET.get("order")
         if not request.user.is_authenticated():
             return Response(create_message("You must be logged in to request comments."), 401)
-        if order is None:
-            return self.get_all(request.user.organization.organization_id)
-        elif order == "parent":
+        if request.GET.get("parentId"):
             parent = string_to_int(request.GET.get("parentId"))
             is_question = string_to_boolean(request.GET.get("isQuestion"))
             sort = string_to_int(request.GET.get("sort"))
@@ -127,10 +131,13 @@ class CommentAPI(APIView):
             if sort is None:
                 sort = "latest"
             return self.get_by_parent(parent, is_question, request.user.organization.organization_id, limit, sort)
-        elif order == "id":
-            return self.get_by_id(request.GET.get("messageId"), request.user.organization.organization_id)
+        elif request.GET.get("messageId"):
+            history = string_to_boolean(request.GET.get("history"))
+            if history is None:
+                history = False
+            return self.get_by_id(request.GET.get("messageId"), request.user.organization.organization_id, history)
         else:
-           return Response(create_message("No order type provided.", "order"), 400)
+           return self.get_all(request.user.organization.organization_id)
 
     def get_all(self, organization):
         '''
@@ -163,6 +170,7 @@ class CommentAPI(APIView):
                     }
                 ]
             }
+            404: If no comments exist.
         '''
         try:
             data = []
@@ -171,7 +179,7 @@ class CommentAPI(APIView):
                 data.append(comment.serialize())
             return Response({"comments": data}, 200)
         except:
-            return Response(create_message("No comments related to this organization", "organization_id"), 400);
+            return Response(create_message("No comments related to this organization", "organization_id"), 404);
 
     def get_by_id(self, comment, organization):
         '''
@@ -235,5 +243,5 @@ class CommentAPI(APIView):
                     data.append(comment.serialize())
                 return Response({"comments": data}, 200)
             except Exception, e:
-                return Response({"comments": e.message}, 200)
+                return Response({"messages": e.message}, 400)
         return Response({"messages": messages}, 400)
