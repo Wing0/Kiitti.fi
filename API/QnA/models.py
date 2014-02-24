@@ -10,8 +10,8 @@ def format_date(date):
 class Organization(models.Model):
 
     organization_id = models.PositiveIntegerField(unique=True)
-    created = models.DateField(auto_now_add=True)
-    modified = models.DateField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
     name = models.CharField(max_length=255)
     address = models.TextField()
     #image = models.ImageField()
@@ -404,10 +404,10 @@ class Vote(models.Model):
 
     direction = models.SmallIntegerField(default=1)
     user = models.ForeignKey(User, to_field="user_id")
-    is_question = models.BooleanField()
+    is_question = models.BooleanField(default=False)
     message_id = models.PositiveIntegerField(default=0)
-    created = models.DateField(auto_now_add=True)
-    modified = models.DateField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
     def serialize(self):
         jsondict = {
@@ -434,8 +434,8 @@ class Vote(models.Model):
 
 class Tag(models.Model):
     tag_id = models.PositiveIntegerField(unique=True)
-    created = models.DateField(auto_now_add=True)
-    modified = models.DateField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
     user = models.ForeignKey(User, to_field="user_id")
     organization = models.ForeignKey(Organization)
@@ -495,8 +495,8 @@ class TagEntry(models.Model):
     tag = models.ForeignKey(Tag, to_field="tag_id")
     message_id = models.PositiveIntegerField(default=0)
 
-    created = models.DateField(auto_now_add=True)
-    modified = models.DateField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(User, to_field="user_id")
 
     def __unicode__(self):
@@ -550,7 +550,7 @@ class ResetEntry(models.Model):
     user = models.ForeignKey(User, to_field="user_id")
     salt = models.CharField(max_length = 5)
 
-    created = models.DateField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def is_valid(self, has):
         if self.create() == has:
