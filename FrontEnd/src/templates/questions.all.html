@@ -1,9 +1,15 @@
-<div ng-repeat="question in data.questions">
-  <div class="sing-question" ng-init="showContent=false">
-    <header>
+<div id="questions">
+  <h1>Kysymykset</h1>
+
+  <div ng-repeat="question in data.questions" class="single-question table" ng-init="showContent=false">
+    <aside class="votes cell">
+      <div class="votes-container" ng-bind="question.meta.votes"></div>
+    </aside>
+    <header class="cell">
       <h2><a href="/question/{{question.messageId}}" ng-bind="question.title"></a></h2>
+      <p ng-bind="question.content | slice:{length:150}"></p>
     </header>
-    <section class="content" ng-show="showContent">
+    <section class="content cell" ng-show="showContent">
       <div ng-bind="question.content"></div>
     </section>
   </div>
