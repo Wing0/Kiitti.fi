@@ -166,13 +166,13 @@ class QuestionAPI(APIView):
         get_all = True # Flag for default return if no search parameters were provided
 
         if question_id:
-            get_all = False
             try:
-                question_sets.append([Question.objects.get(message_id=int(question_id), organization=request.user.organization)])
+                question = Question.objects.get(message_id=int(question_id), organization=request.user.organization)
+                return Response(question.serialize_single(), 200)
             except ValueError:
                 return Response({"messages": create_message("Given question id was invalid")}, 400)
             except Question.DoesNotExist:
-                question_sets.append([])
+                return Response(create_message("No question found"), 404)
 
         if request.GET.get("authorId"):
             get_all = False
@@ -235,7 +235,4 @@ class QuestionAPI(APIView):
         except (ValueError, TypeError):
             questions = questions[:10]
 
-        if len(questions) == 1:
-            return Response({"questions": questions[0].serialize_single()}, 200)
-        else:
-            return Response({"questions": [question.serialize() for question in questions]}, 200)
+        return Response({"questions": [question.serialize() for question in questions]}, 200)
