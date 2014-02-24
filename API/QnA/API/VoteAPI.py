@@ -8,13 +8,6 @@ import json
 
 class VoteAPI(APIView):
 
-    def get(self, request):
-        data = []
-        votedata = Vote.objects.all()
-        for vote in votedata:
-            data.append(vote.serialize())
-        return Response({"votes": data}, 200)
-
     def post(self, request):
         '''
         This method saves a vote for a question or answer matching the given message_id
@@ -25,7 +18,7 @@ class VoteAPI(APIView):
         @example:
             {
                 "direction": 1,
-                "messageId":3
+                "messageId": 3
             }
         @perm
             member: any member can vote
