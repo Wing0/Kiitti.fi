@@ -192,8 +192,22 @@ class AbstractMessage(models.Model):
             'organizationId': self.organization.organization_id,
             'created': format_date(self.created),
             'messageId': self.message_id,
-            'user': self.user.serialize()
+            'user': self.user.serialize(),
+            'meta': {}
         }
+        votes = Vote.objects.filter(message_id=self.message_id)
+        jsondict['meta']['votes'] = {
+            "up": len(votes.filter(direction__gt=0)),
+            "down": len(votes.filter(direction__lt=0))
+        }
+        jsondict['meta']['votedUp'] = bool(Vote.objects.filter(
+                                           message_id=self.message_id,
+                                           user=self.user,
+                                           direction__gt=0))
+        jsondict['meta']['votedDown'] = bool(Vote.objects.filter(
+                                           message_id=self.message_id,
+                                           user=self.user,
+                                           direction__lt=0))
 
         return jsondict
 
@@ -242,11 +256,6 @@ class Answer(AbstractMessage):
         jsondict = super(Answer, self).serialize()
         jsondict['questionId'] = self.question_id
         jsondict['accepted'] = self.accepted
-        jsondict['meta'] = {
-                            "commentsNumber": len(exclude_old_versions(list(Comment.objects.filter(parent_id = self.message_id, is_question_comment = False)))),
-                            "votesNumber": len(Vote.objects.filter(message_id = self.message_id, is_question=False)),
-                            "votes": sum([vote.direction for vote in list(Vote.objects.filter(message_id = self.message_id, is_question=False))])
-                            }
         comments = Comment.objects.filter(parent_id=self.message_id)
         jsondict['comments'] = [comment.serialize() for comment in comments]
 
@@ -300,12 +309,7 @@ class Question(AbstractMessage):
         jsondict = super(Question, self).serialize()
         jsondict['title'] = self.title
         jsondict['tags'] = [tag_entry.tag.name for tag_entry in TagEntry.objects.filter(message_id=self.message_id)]
-        jsondict['meta'] = {
-                            "commentsNumber": len(exclude_old_versions(list(Comment.objects.filter(parent_id = self.message_id, is_question_comment = True)))),
-                            "answersNumber":len(exclude_old_versions(list(Answer.objects.filter(question_id=self.message_id)))),
-                            "votesNumber": len(Vote.objects.filter(message_id = self.message_id, is_question=True)),
-                            "votes": sum([vote.direction for vote in list(Vote.objects.filter(message_id = self.message_id, is_question=True))])
-                            }
+
         return jsondict
 
     def serialize_single(self):
