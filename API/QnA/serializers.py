@@ -1,5 +1,5 @@
-from rest_framework.serializers import ModelSerializer, ValidationError
-from QnA.models import User, Organization, Vote
+from rest_framework.serializers import ModelSerializer, ValidationError, Field
+from QnA.models import User, Organization, Vote, Question
 
 
 class OrganizationSerializerGET(ModelSerializer):
@@ -46,3 +46,25 @@ class VoteSerializerPOST(ModelSerializer):
         if attrs['direction'] not in [1, -1]:
             raise ValidationError("Direction must be 1 or -1")
         return attrs
+
+
+class QuestionSerializerGETSingle(ModelSerializer):
+
+    # TODO ...
+
+    message = Field()
+
+    class Meta:
+        model = Question
+        fields = ('title', 'created',)
+
+
+class QuestionSerializerGETMany(ModelSerializer):
+
+    # TODO ...
+
+    message = Field()
+
+    class Meta:
+        model = Question
+        fields = ('title', )

@@ -15,6 +15,7 @@ from QnA.utils import compose_message, create_message
 class UserAPI(APIView):
 
     def get(self, request, user_id=None):
+
         if user_id:
             return self.get_single(request, user_id)
 
