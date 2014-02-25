@@ -136,7 +136,29 @@ class Message(TimestampMixin):
                % (self.pk, self.version, self.content)
 
 
-class MessageMixin(object):
+class CommentMixin(object):
+
+    @property
+    def comments(self):
+        content_type = ContentType.objects.get_for_model(self.__class__)
+
+        comments = Comment.objects.filter(
+            content_type__pk=content_type.id,
+            object_id=self.id)
+
+        if not hasattr(self, "_comments"):
+            self._comments = message
+
+        return self._comments
+
+
+class AbstractMessage(RIDMixin, TimestampMixin):
+
+    messages = generic.GenericRelation(Message)
+    votes    = generic.GenericRelation(Vote)
+
+    class Meta:
+        abstract = True
 
     @property
     def message(self):
@@ -151,8 +173,8 @@ class MessageMixin(object):
 
         if messages:
             message = messages
-
-        if not message: message = None
+        else:
+            message = None
 
         if not hasattr(self, "_message"):
             self._message = message
@@ -160,26 +182,7 @@ class MessageMixin(object):
         return self._message
 
 
-class AbstractMessage(RIDMixin, TimestampMixin, MessageMixin):
-
-    messages = generic.GenericRelation(Message)
-    votes    = generic.GenericRelation(Vote)
-
-    class Meta:
-        abstract = True
-
-
-class Answer(AbstractMessage):
-    '''
-    Represents an answer to a question (Question()).
-    '''
-    accepted = models.BooleanField(default=False)
-
-    class Meta:
-        db_table = 'QnA_answers'
-
-
-class Question(AbstractMessage):
+class Question(AbstractMessage, CommentMixin):
 
     title  = models.CharField(max_length=512)
     tags   = generic.GenericRelation(Tag)
@@ -188,7 +191,23 @@ class Question(AbstractMessage):
         db_table = 'QnA_questions'
 
 
+class Answer(AbstractMessage, CommentMixin):
+    '''
+    Represents an answer to a question (Question()).
+    '''
+    question = models.ForeignKey(Question)
+    accepted = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'QnA_answers'
+
+
 class Comment(AbstractMessage):
+
+    # relation
+    content_type   = models.ForeignKey(ContentType)
+    object_id      = models.PositiveIntegerField()
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     class Meta:
         db_table = 'QnA_comments'
