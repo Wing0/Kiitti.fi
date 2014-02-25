@@ -1,14 +1,14 @@
 from django.contrib import admin
 
-# Register your models here.
 from models import *
 
+
 class CustomerAdmin(admin.ModelAdmin):
-	list_display = ("name",)
+    list_display = ("name",)
 
 
 class QuestionAdmin(admin.ModelAdmin):
-	list_display = ("title",)
+    list_display = ('id', 'rid', 'title', 'created', 'modified')
 
 admin.site.register(User)
 admin.site.register(Organization)
@@ -16,7 +16,7 @@ admin.site.register(ResetEntry)
 
 admin.site.register(Vote)
 admin.site.register(Tag)
-admin.site.register(TagEntry)
+admin.site.register(Keyword)
 
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Message)

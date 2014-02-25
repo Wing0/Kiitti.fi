@@ -9,17 +9,19 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         # Adding model 'Organization'
-        db.create_table(u'QnA_organization', (
-            ('organization_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        db.create_table('QnA_organizations', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('rid', self.gf('django.db.models.fields.PositiveIntegerField')(blank=True)),
+            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, auto_now_add=True, blank=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('address', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
         db.send_create_signal(u'QnA', ['Organization'])
 
         # Adding model 'User'
-        db.create_table(u'QnA_user', (
+        db.create_table('QnA_users', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('password', self.gf('django.db.models.fields.CharField')(max_length=128)),
             ('last_login', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
             ('is_superuser', self.gf('django.db.models.fields.BooleanField')(default=False)),
@@ -30,14 +32,14 @@ class Migration(SchemaMigration):
             ('is_staff', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('is_active', self.gf('django.db.models.fields.BooleanField')(default=True)),
             ('date_joined', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
-            ('user_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('rid', self.gf('django.db.models.fields.PositiveIntegerField')(blank=True)),
             ('reputation', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('organization', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.Organization'], null=True, blank=True)),
         ))
         db.send_create_signal(u'QnA', ['User'])
 
         # Adding M2M table for field groups on 'User'
-        m2m_table_name = db.shorten_name(u'QnA_user_groups')
+        m2m_table_name = db.shorten_name('QnA_users_groups')
         db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('user', models.ForeignKey(orm[u'QnA.user'], null=False)),
@@ -46,7 +48,7 @@ class Migration(SchemaMigration):
         db.create_unique(m2m_table_name, ['user_id', 'group_id'])
 
         # Adding M2M table for field user_permissions on 'User'
-        m2m_table_name = db.shorten_name(u'QnA_user_user_permissions')
+        m2m_table_name = db.shorten_name('QnA_users_user_permissions')
         db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('user', models.ForeignKey(orm[u'QnA.user'], null=False)),
@@ -55,48 +57,74 @@ class Migration(SchemaMigration):
         db.create_unique(m2m_table_name, ['user_id', 'permission_id'])
 
         # Adding model 'Vote'
-        db.create_table(u'QnA_vote', (
+        db.create_table('QnA_votes', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('direction', self.gf('django.db.models.fields.SmallIntegerField')(default=1)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.User'])),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, auto_now_add=True, blank=True)),
+            ('direction', self.gf('django.db.models.fields.SmallIntegerField')(default=1)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.User'])),
         ))
         db.send_create_signal(u'QnA', ['Vote'])
 
+        # Adding model 'Category'
+        db.create_table('QnA_categories', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('rid', self.gf('django.db.models.fields.PositiveIntegerField')(blank=True)),
+            ('title', self.gf('django.db.models.fields.CharField')(max_length=512)),
+            ('description', self.gf('django.db.models.fields.TextField')()),
+        ))
+        db.send_create_signal(u'QnA', ['Category'])
+
+        # Adding model 'Keyword'
+        db.create_table('QnA_keywords', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('content', self.gf('django.db.models.fields.CharField')(unique=True, max_length=63)),
+        ))
+        db.send_create_signal(u'QnA', ['Keyword'])
+
+        # Adding M2M table for field category on 'Keyword'
+        m2m_table_name = db.shorten_name('QnA_keywords_category')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('keyword', models.ForeignKey(orm[u'QnA.keyword'], null=False)),
+            ('category', models.ForeignKey(orm[u'QnA.category'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['keyword_id', 'category_id'])
+
         # Adding model 'Tag'
-        db.create_table(u'QnA_tag', (
-            ('tag_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.User'])),
-            ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=63)),
-            ('organization', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.Organization'])),
+        db.create_table('QnA_tags', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('rid', self.gf('django.db.models.fields.PositiveIntegerField')(blank=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, auto_now_add=True, blank=True)),
+            ('keyword', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.Keyword'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.User'])),
+            ('organization', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.Organization'])),
+            ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
+            ('object_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
         ))
         db.send_create_signal(u'QnA', ['Tag'])
 
         # Adding model 'Message'
         db.create_table('QnA_messages', (
-            ('message_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, auto_now_add=True, blank=True)),
             ('content', self.gf('django.db.models.fields.TextField')()),
             ('version', self.gf('django.db.models.fields.PositiveIntegerField')(default=1)),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.User'])),
             ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
             ('object_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, auto_now_add=True, blank=True)),
         ))
         db.send_create_signal(u'QnA', ['Message'])
 
-        # Adding unique constraint on 'Message', fields ['message_id', 'version']
-        db.create_unique('QnA_messages', ['message_id', 'version'])
-
-        # Adding unique constraint on 'Message', fields ['content_type', 'version']
-        db.create_unique('QnA_messages', ['content_type_id', 'version'])
+        # Adding unique constraint on 'Message', fields [u'id', 'version']
+        db.create_unique('QnA_messages', [u'id', 'version'])
 
         # Adding model 'Answer'
         db.create_table('QnA_answers', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('rid', self.gf('django.db.models.fields.PositiveIntegerField')(blank=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, auto_now_add=True, blank=True)),
             ('accepted', self.gf('django.db.models.fields.BooleanField')(default=False)),
@@ -106,6 +134,7 @@ class Migration(SchemaMigration):
         # Adding model 'Question'
         db.create_table('QnA_questions', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('rid', self.gf('django.db.models.fields.PositiveIntegerField')(blank=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, auto_now_add=True, blank=True)),
             ('title', self.gf('django.db.models.fields.CharField')(max_length=512)),
@@ -115,20 +144,11 @@ class Migration(SchemaMigration):
         # Adding model 'Comment'
         db.create_table('QnA_comments', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('rid', self.gf('django.db.models.fields.PositiveIntegerField')(blank=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, auto_now_add=True, blank=True)),
         ))
         db.send_create_signal(u'QnA', ['Comment'])
-
-        # Adding model 'TagEntry'
-        db.create_table(u'QnA_tagentry', (
-            ('tag_entry_id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('tag', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.Tag'])),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['QnA.User'])),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, auto_now_add=True, blank=True)),
-        ))
-        db.send_create_signal(u'QnA', ['TagEntry'])
 
         # Adding model 'ResetEntry'
         db.create_table(u'QnA_resetentry', (
@@ -141,29 +161,35 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        # Removing unique constraint on 'Message', fields ['content_type', 'version']
-        db.delete_unique('QnA_messages', ['content_type_id', 'version'])
-
-        # Removing unique constraint on 'Message', fields ['message_id', 'version']
-        db.delete_unique('QnA_messages', ['message_id', 'version'])
+        # Removing unique constraint on 'Message', fields [u'id', 'version']
+        db.delete_unique('QnA_messages', [u'id', 'version'])
 
         # Deleting model 'Organization'
-        db.delete_table(u'QnA_organization')
+        db.delete_table('QnA_organizations')
 
         # Deleting model 'User'
-        db.delete_table(u'QnA_user')
+        db.delete_table('QnA_users')
 
         # Removing M2M table for field groups on 'User'
-        db.delete_table(db.shorten_name(u'QnA_user_groups'))
+        db.delete_table(db.shorten_name('QnA_users_groups'))
 
         # Removing M2M table for field user_permissions on 'User'
-        db.delete_table(db.shorten_name(u'QnA_user_user_permissions'))
+        db.delete_table(db.shorten_name('QnA_users_user_permissions'))
 
         # Deleting model 'Vote'
-        db.delete_table(u'QnA_vote')
+        db.delete_table('QnA_votes')
+
+        # Deleting model 'Category'
+        db.delete_table('QnA_categories')
+
+        # Deleting model 'Keyword'
+        db.delete_table('QnA_keywords')
+
+        # Removing M2M table for field category on 'Keyword'
+        db.delete_table(db.shorten_name('QnA_keywords_category'))
 
         # Deleting model 'Tag'
-        db.delete_table(u'QnA_tag')
+        db.delete_table('QnA_tags')
 
         # Deleting model 'Message'
         db.delete_table('QnA_messages')
@@ -177,9 +203,6 @@ class Migration(SchemaMigration):
         # Deleting model 'Comment'
         db.delete_table('QnA_comments')
 
-        # Deleting model 'TagEntry'
-        db.delete_table(u'QnA_tagentry')
-
         # Deleting model 'ResetEntry'
         db.delete_table(u'QnA_resetentry')
 
@@ -190,38 +213,55 @@ class Migration(SchemaMigration):
             'accepted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'auto_now_add': 'True', 'blank': 'True'})
+            'modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'auto_now_add': 'True', 'blank': 'True'}),
+            'rid': ('django.db.models.fields.PositiveIntegerField', [], {'blank': 'True'})
+        },
+        u'QnA.category': {
+            'Meta': {'object_name': 'Category', 'db_table': "'QnA_categories'"},
+            'description': ('django.db.models.fields.TextField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'rid': ('django.db.models.fields.PositiveIntegerField', [], {'blank': 'True'}),
+            'title': ('django.db.models.fields.CharField', [], {'max_length': '512'})
         },
         u'QnA.comment': {
             'Meta': {'object_name': 'Comment', 'db_table': "'QnA_comments'"},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'auto_now_add': 'True', 'blank': 'True'})
+            'modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'auto_now_add': 'True', 'blank': 'True'}),
+            'rid': ('django.db.models.fields.PositiveIntegerField', [], {'blank': 'True'})
+        },
+        u'QnA.keyword': {
+            'Meta': {'object_name': 'Keyword', 'db_table': "'QnA_keywords'"},
+            'category': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['QnA.Category']", 'null': 'True', 'blank': 'True'}),
+            'content': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '63'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
         u'QnA.message': {
-            'Meta': {'unique_together': "(('message_id', 'version'), ('content_type', 'version'))", 'object_name': 'Message', 'db_table': "'QnA_messages'"},
+            'Meta': {'unique_together': "(('id', 'version'),)", 'object_name': 'Message', 'db_table': "'QnA_messages'"},
             'content': ('django.db.models.fields.TextField', [], {}),
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'message_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'auto_now_add': 'True', 'blank': 'True'}),
             'object_id': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.User']"}),
             'version': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'})
         },
         u'QnA.organization': {
-            'Meta': {'object_name': 'Organization'},
+            'Meta': {'object_name': 'Organization', 'db_table': "'QnA_organizations'"},
             'address': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'auto_now_add': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'organization_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+            'rid': ('django.db.models.fields.PositiveIntegerField', [], {'blank': 'True'})
         },
         u'QnA.question': {
             'Meta': {'object_name': 'Question', 'db_table': "'QnA_questions'"},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'auto_now_add': 'True', 'blank': 'True'}),
+            'rid': ('django.db.models.fields.PositiveIntegerField', [], {'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '512'})
         },
         u'QnA.resetentry': {
@@ -232,28 +272,24 @@ class Migration(SchemaMigration):
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.User']"})
         },
         u'QnA.tag': {
-            'Meta': {'object_name': 'Tag'},
+            'Meta': {'object_name': 'Tag', 'db_table': "'QnA_tags'"},
+            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'keyword': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.Keyword']"}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'auto_now_add': 'True', 'blank': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '63'}),
+            'object_id': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.Organization']"}),
-            'tag_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.User']"})
-        },
-        u'QnA.tagentry': {
-            'Meta': {'object_name': 'TagEntry'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'auto_now_add': 'True', 'blank': 'True'}),
-            'tag': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.Tag']"}),
-            'tag_entry_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'rid': ('django.db.models.fields.PositiveIntegerField', [], {'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.User']"})
         },
         u'QnA.user': {
-            'Meta': {'object_name': 'User'},
+            'Meta': {'object_name': 'User', 'db_table': "'QnA_users'"},
             'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -262,12 +298,12 @@ class Migration(SchemaMigration):
             'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['QnA.Organization']", 'null': 'True', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'reputation': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'user_id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'rid': ('django.db.models.fields.PositiveIntegerField', [], {'blank': 'True'}),
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
         u'QnA.vote': {
-            'Meta': {'object_name': 'Vote'},
+            'Meta': {'object_name': 'Vote', 'db_table': "'QnA_votes'"},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'direction': ('django.db.models.fields.SmallIntegerField', [], {'default': '1'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),

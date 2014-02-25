@@ -6,7 +6,7 @@ class OrganizationSerializerGET(ModelSerializer):
 
     class Meta:
         model = Organization
-        fields = ('organization_id', 'name', 'address')
+        fields = ('rid', 'name', 'address')
 
 
 class OrganizationSerializerPOST(ModelSerializer):
@@ -22,7 +22,7 @@ class UserSerializerGET(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('user_id', 'first_name', 'last_name', 'organization')
+        fields = ('rid', 'first_name', 'last_name', 'organization')
 
 
 class UserSerializerPOST(ModelSerializer):
@@ -37,7 +37,7 @@ class VoteSerializerPOST(ModelSerializer):
 
     class Meta:
         model = Vote
-        fields = ('user', 'message_id', 'direction')
+        fields = ('user', 'rid', 'direction')
 
     def validate(self, attrs):
 

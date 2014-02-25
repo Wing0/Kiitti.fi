@@ -121,3 +121,5 @@ CORS_ALLOW_HEADERS = (
     'X-CSRFToken',
     'Authorization'
 )
+
+RID_MINIMUM_VALUE = 10000

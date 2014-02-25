@@ -1,78 +1,133 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 
-import re
 import hashlib
 
 
-class Organization(models.Model):
-    organization_id = models.AutoField(primary_key=True)
+class RIDMixin(models.Model):
+
+    rid = models.PositiveIntegerField(blank=True)
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        """
+        Saves unique resource identifier
+        """
+        rid_dict = self._default_manager.all().aggregate(models.Max('rid'))
+        max_rid = rid_dict['rid__max']
+
+        if max_rid < settings.RID_MINIMUM_VALUE:
+            max_rid = settings.RID_MINIMUM_VALUE - 1
+
+        self.rid = max_rid + 1
+
+        super(RIDMixin, self).save(*args, **kwargs)
+
+
+class TimestampMixin(models.Model):
+
+    created   = models.DateTimeField(auto_now_add=True)
+    modified  = models.DateTimeField(auto_now_add=True, auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class Organization(RIDMixin, TimestampMixin):
 
     name     = models.CharField(max_length=255)
     address  = models.TextField(blank=True)
 
-    created   = models.DateTimeField(auto_now_add=True)
-    modified  = models.DateTimeField(auto_now=True)
+    class Meta:
+        db_table = 'QnA_organizations'
 
     def __unicode__(self):
         return self.name
 
 
-class User(AbstractUser):
-    user_id = models.AutoField(primary_key=True)
+class User(AbstractUser, RIDMixin):
 
     reputation    = models.IntegerField(default=0)
-    organization  = models.ForeignKey(Organization, to_field='organization_id', null=True, blank=True)
+    organization  = models.ForeignKey(Organization, null=True, blank=True)
+
+    class Meta:
+        db_table = 'QnA_users'
 
     def __unicode__(self):
         return self.username
 
 
-class Vote(models.Model):
+class Vote(TimestampMixin):
 
     direction = models.SmallIntegerField(default=1)
-    user      = models.ForeignKey(User, to_field="user_id")
+    user      = models.ForeignKey(User)
 
-    created   = models.DateTimeField(auto_now_add=True)
-    modified  = models.DateTimeField(auto_now_add=True, auto_now=True)
+    class Meta:
+        db_table = 'QnA_votes'
 
 
-class Tag(models.Model):
-    tag_id = models.AutoField(primary_key=True)
+class Category(RIDMixin):
 
-    user         = models.ForeignKey(User, to_field="user_id")
-    name         = models.CharField(max_length=63, unique=True)
-    organization = models.ForeignKey(Organization)
+    title       = models.CharField(max_length=512)
+    description = models.TextField()
 
-    created   = models.DateTimeField(auto_now_add=True)
-    modified  = models.DateTimeField(auto_now_add=True, auto_now=True)
+    class Meta:
+        db_table = 'QnA_categories'
 
     def __unicode__(self):
-        return self.name
+        return self.title
 
 
-class Message(models.Model):
-    message_id = models.AutoField(primary_key=True)
+class Keyword(models.Model):
 
-    content  = models.TextField()
-    version  = models.PositiveIntegerField(default=1)
-    user     = models.ForeignKey(User, to_field="user_id")
+    content = models.CharField(max_length=63, unique=True)
+    category = models.ManyToManyField(Category, blank=True, null=True)
+
+    class Meta:
+        db_table = 'QnA_keywords'
+
+    def __unicode__(self):
+        return self.content
+
+
+class Tag(RIDMixin, TimestampMixin):
+
+    keyword      = models.ForeignKey(Keyword)
+    user         = models.ForeignKey(User)
+    organization = models.ForeignKey(Organization)
 
     # relation
     content_type   = models.ForeignKey(ContentType)
     object_id      = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
-    created  = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now_add=True, auto_now=True)
+    class Meta:
+        db_table = 'QnA_tags'
+
+    def __unicode__(self):
+        return self.keyword
+
+
+class Message(TimestampMixin):
+
+    content  = models.TextField()
+    version  = models.PositiveIntegerField(default=1)
+    user     = models.ForeignKey(User)
+
+    # relation
+    content_type   = models.ForeignKey(ContentType)
+    object_id      = models.PositiveIntegerField()
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     class Meta:
-        unique_together = (('message_id', 'version'),
-                           ('content_type', 'version'))
+        unique_together = (('id', 'version'),)
         db_table        = 'QnA_messages'
         get_latest_by   = 'created'
 
@@ -86,7 +141,7 @@ class MessageMixin(object):
     @property
     def message(self):
         """
-        Returns the messages with highest version numver
+        Returns the message with highest version number
         """
         content_type = ContentType.objects.get_for_model(self.__class__)
 
@@ -105,13 +160,10 @@ class MessageMixin(object):
         return self._message
 
 
-class AbstractMessage(models.Model, MessageMixin):
+class AbstractMessage(RIDMixin, TimestampMixin, MessageMixin):
 
     messages = generic.GenericRelation(Message)
     votes    = generic.GenericRelation(Vote)
-
-    created  = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now_add=True, auto_now=True)
 
     class Meta:
         abstract = True
@@ -142,21 +194,8 @@ class Comment(AbstractMessage):
         db_table = 'QnA_comments'
 
 
-class TagEntry(models.Model):
-    tag_entry_id = models.AutoField(primary_key=True)
-
-    tag  = models.ForeignKey(Tag, to_field="tag_id")
-    user = models.ForeignKey(User, to_field="user_id")
-
-    created  = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now_add=True, auto_now=True)
-
-    def __unicode__(self):
-        return self.tag.name
-
-
 class ResetEntry(models.Model):
-    user = models.ForeignKey(User, to_field="user_id")
+    user = models.ForeignKey(User)
     salt = models.CharField(max_length=5)
 
     created = models.DateTimeField(auto_now_add=True)
