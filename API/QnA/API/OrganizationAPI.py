@@ -25,7 +25,11 @@ class OrganizationAPI(APIView):
         return self.get_many(request)
 
     def get_many(self, request):
+
         organizations = Organization.objects.all()
+        if not organizations:
+            raise NotFound("No organizations could be found.")
+
         serializer = OrganizationSerializerGET(organizations, many=True)
 
         return Response(serializer.data, 200)
@@ -56,6 +60,8 @@ class OrganizationAPI(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(create_message("New organization created."), 201)
+        else:
+            return Response(serializer.errors, 400)
 
         raise ParseError("Organization could not be created")
 

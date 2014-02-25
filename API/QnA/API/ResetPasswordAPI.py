@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from QnA.models import * # todo: clean this
 from QnA.utils import * # todo: clean this
-from QnA.view_utils import post_abstract_message, exclude_old_versions
+from QnA.view_utils import post_abstract_message
 
 import re
 import random

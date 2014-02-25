@@ -36,7 +36,7 @@ class VoteAPI(APIView):
                 example: {"messages":[{"content": "An example error message.", "identifier": "example"}]}
         '''
 
-        data = {
+        data = {  # todo: get rid of this phase
             "user": request.user.pk,
             "message_id": request.DATA.get("message_id", None),
             "direction": request.DATA.get("direction", None)
