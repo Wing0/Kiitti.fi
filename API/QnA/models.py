@@ -187,6 +187,8 @@ class Question(AbstractMessage, CommentMixin):
     title  = models.CharField(max_length=512)
     tags   = generic.GenericRelation(Tag)
 
+    comments = generic.GenericRelation(Comment)
+
     class Meta:
         db_table = 'QnA_questions'
 
@@ -197,6 +199,8 @@ class Answer(AbstractMessage, CommentMixin):
     '''
     question = models.ForeignKey(Question)
     accepted = models.BooleanField(default=False)
+
+    comments = generic.GenericRelation(Comment)
 
     class Meta:
         db_table = 'QnA_answers'
