@@ -1,98 +1,61 @@
 # -*- coding: utf-8 -*-
 
+from django.http import Http404
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+import rest_framework.exceptions as exc
 
 from QnA.models import Organization
+from QnA.serializers import OrganizationSerializerGET, OrganizationSerializerPOST
+from QnA.exceptions import NotFound
 from QnA.view_utils import *
 from QnA.utils import *
 
 
 class OrganizationAPI(APIView):
 
-    def get(self, request):
-        '''
-        Get Organization. Heigher permissions returns more content to user.
-        '''
-        if not request.user.is_authenticated():
-            return Response(create_message("You must be logged in to request comments."), 403)
-        order = request.GET.get("order")
-        if order is None or order == "all":
-            return self.get_all()
-        elif order == "id":
-            return self.get_by_id(request.GET.get("organizationId"))
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, organization_id=None):
+        if organization_id:
+            return self.get_single(request, organization_id)
+
+        return self.get_many(request)
+
+    def get_many(self, request):
+        organizations = Organization.objects.all()
+        serializer = OrganizationSerializerGET(organizations, many=True)
+
+        return Response(serializer.data, 200)
+
+
+    def get_single(self, request, organization_id):
+        # todo: check that user has permissions to get organization
+        # todo: messages
+
+        try:
+            organization = Organization.objects.get(organization_id=organization_id)
+        except Organization.DoesNotExist:
+            raise NotFound("Requested organization cannot be found.")
+
+        serializer = OrganizationSerializerGET(organization)
+
+        return Response(serializer.data, 200)
+
 
     def post(self, request):
-        messages = []
-        data = request.DATA
 
-        if not request.user.is_authenticated():
-            return Response(create_message("You must be logged in to request organizations."), 401)
-        if not data.get("name"):
-            messages.append(
-                {"type": "alert", "content": "Organization name must be provided.", "identifier": "name"})
-        if not data.get("address"):
-            messages.append(
-                {"type": "alert", "content": "Organization address must be provided.", "identifier": "address"})
-        if len(messages) == 0:
-            org = Organization(
-                name=data.get("name"), address=data.get("address"))
-            messages = org.validate()
-            if len(messages) == 0:
-                org.save()
-                return Response(create_message("New organization created."), 201)
+        if not request.DATA.get("name", None):
+            raise exc.ParseError("Organization name must be provided.")
+        if not request.DATA.get("address", None):
+            raise exc.ParseError("Organization address must be provided.")
 
-        return Response({"messages": messages}, 400)
+        serializer = OrganizationSerializerPOST(data=request.DATA)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(create_message("New organization created."), 201)
 
-    def get_by_id(self, orgid):
-        '''
-        Get Organization by id.
+        raise ParseError("Organization could not be created")
 
-        @params
-            orgid, string: Organization id which should be returned.
-        @example
-            /organization/?organizationId=223
-        @perm
-            member: Get basic information aabout Organization.
-            staff: Shows additional information about Organization.
-            admin: Load all Organizations.
-        @return
-            200: Found organization.
-                example:
-                {
-                    "organizations":[
-                        {
-                        "name":"Aalto",
-                        "organizationId":"1",
-                        "created":"2014-01-25T18:28:28.520Z",
-                        "modified":"2014-01-25T18:28:28.520Z",
-                        "address":"Aallonkuja 4 A 13"
-                        }
-                    ]
-                }
-            400: Bad request. List of appropriate error messages.
-                example:
-                {
-                    "messages":[{"content":"An exampleerror message.","identifier":"example"}]
-                }
-        '''
-        messages = []
-        try:
-            if not isinstance(orgid, int) or orgid < 0:
-                messages.append(
-                    compose_message("Organization id must be positive integer.", "orgid"))
-            if len(messages) == 0:
-                return Response({"organizations": Organization.objects.get(organization_id=orgid).serialize()}, 200)
-        except:
-            messages.append(
-                compose_message("No Organization with given id exist.", "orgid"))
-
-        return Response({"messages": messages}, 400)
-
-    def get_all(self):
-        data = []
-        orgdata = Organization.objects.all()
-        for org in orgdata:
-            data.append(org.serialize())
-
-        return Response({"organizations": data}, 200)

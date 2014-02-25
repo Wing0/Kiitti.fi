@@ -1,5 +1,19 @@
 from rest_framework.serializers import ModelSerializer, ValidationError
-from QnA.models import Vote
+from QnA.models import Organization, Vote
+
+
+class OrganizationSerializerGET(ModelSerializer):
+
+    class Meta:
+        model = Organization
+        fields = ('organization_id', 'name', 'address')
+
+
+class OrganizationSerializerPOST(ModelSerializer):
+
+    class Meta:
+        model = Organization
+        fields = ('name', 'address')
 
 
 class VoteSerializerPOST(ModelSerializer):

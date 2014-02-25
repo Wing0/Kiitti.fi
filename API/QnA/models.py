@@ -14,32 +14,14 @@ def format_date(date):
 class Organization(models.Model):
 
     organization_id = models.PositiveIntegerField(unique=True)
+    name = models.CharField(max_length=255)
+    address = models.TextField(blank=True)
+
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    name = models.CharField(max_length=255)
-    address = models.TextField()
-    #image = models.ImageField()
-
-    @staticmethod
-    def get_default():
-        '''
-        Get default Organization.
-
-        @return
-            Global Organization-object with name and address set to DEFAULT.
-        '''
-        try:
-            return Organization.objects.get(name="DEFAULT")
-        except:
-            # Default object does not exist yet, it will be created without
-            # validation.
-            return Organization.objects.create(name="DEFAULT", address="DEFAULT")
 
     def __unicode__(self):
         return self.name
-
-    def get_image():
-        return None
 
     def serialize(self):
         jsondict = {
@@ -54,23 +36,24 @@ class Organization(models.Model):
 
     def save(self, *args, **kwargs):
         '''
-            The default save method is overridden to be able to generate appropriate organization_id that is unique and ascending.
+            The default save method is overridden to be able to
+            generate appropriate organization_id that is unique and ascending.
         '''
         if self.pk is None:
-            # Create user actions
-            orgobjects = Organization.objects.all()
-            largest_id = max([0] + [org.organization_id for org in orgobjects])
-            self.organization_id = largest_id + 1
+            # get max organization_id and add 1
+            self.organization_id = Organization.objects.all().order_by(
+                "-organization_id")[0].organization_id + 1
         # Just save
         super(Organization, self).save(*args, **kwargs)
 
     def validate(self):
         messages = []
-        '''
-        if not isinstance(self.organization_id, int) or self.organization_id < 0:
-            valid = False
-            messages.append({"type": "alert", "content": "Organization id must be a positive integer.", "identifier": "organization_id"})
-        '''
+
+        # if not isinstance(self.organization_id, int) or self.organization_id < 0:
+        #     valid = False
+        #     messages.append(
+        #         compose_message("Organization id must be a positive integer", "organization"))
+
         if not isinstance(self.name, basestring):
             messages.append(compose_message("Name has to be a string", "name"))
         if len(self.name) < 3:
@@ -276,7 +259,7 @@ class Answer(AbstractMessage):
     Represents an Answer for Question.
 
     '''
-    #this is the message_id of the question this answer is response to
+    # this is the message_id of the question this answer is response to
     question_id = models.PositiveIntegerField()
     accepted = models.BooleanField(default=False)
 
@@ -401,7 +384,7 @@ class Comment(AbstractMessage):
     # if true, this is a comment to a Question. If False, it is comment to an
     # Answer.
     is_question_comment = models.BooleanField(default=False)
-    #this is the message_id of the message to which this comment is for
+    # this is the message_id of the message to which this comment is for
     parent_id = models.PositiveIntegerField()
 
     def __unicode__(self):
