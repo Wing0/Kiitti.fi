@@ -2,8 +2,10 @@
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import exceptions as exc
 
 from QnA.utils import create_message
+from QnA.serializers import UserSerializerGET
 
 
 class LoginAPI(APIView):
@@ -34,6 +36,7 @@ class LoginAPI(APIView):
 
         '''
         if request.user.is_authenticated():
-            return Response(request.user.serialize(), 200)
+            serializer = UserSerializerGET(request.user)
+            return Response(serializer.data, 200)
         else:
             return Response(create_message("User is not logged in."), 401)

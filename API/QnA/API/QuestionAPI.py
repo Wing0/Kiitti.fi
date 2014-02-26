@@ -3,6 +3,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import exceptions as exc
 
 from QnA.models import Question, User, Tag, Keyword
 from QnA.serializers import QuestionSerializerGETSingle, QuestionSerializerGETMany, \
@@ -96,7 +97,7 @@ class QuestionAPI(APIView):
 
         serializer = QuestionSerializerGETMany(questions, many=True)
 
-        return Response(serializer.data, 200)
+        return Response({"questions": serializer.data}, 200)
 
     def post(self, request):
         '''
@@ -108,10 +109,10 @@ class QuestionAPI(APIView):
             will give new messageId for new messages!
         @example:
             {
-                "title": "Why does the sun go down every night?",
-                "content":"Why does the sun go down every night? I don't understand!",
-                "messageId":3,
-                "tags": ["tagFirst", "tagSecond"]
+                "head": {
+                    "title": string
+                }
+                "content": string,
             }
         @perm
             member: any member can post an question
@@ -127,15 +128,20 @@ class QuestionAPI(APIView):
                 example: {
                             "messages":[{"content":"An example error message.","identifier":"example"}]
         '''
+        request.DATA['head']['user'] = request.user.pk # important
+        request.DATA['user'] = request.user.pk # important
+        print request.DATA
+
         serializer = MessageSerializerPOSTQuestion(data=request.DATA)
         if serializer.is_valid():
-
             serializer.save()
-            return Response(serializer.data, 201)
+            question = serializer.object.head
+            get_serializer = QuestionSerializerGETSingle(question)
+            return Response(get_serializer.data, 201)
         else:
             return Response(serializer.errors, 400)
 
-        raise ParseError("Question could not be created")
+        raise exc.ParseError("Question could not be created")
 
     def put(self, request, question_id):
         # todo: add question updating

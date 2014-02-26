@@ -5,15 +5,12 @@ from rest_framework.response import Response
 
 from QnA.models import Answer, User, Question
 from QnA.view_utils import post_abstract_message, serialize_answers, order_messages
+from QnA.utils import compose_message, create_message
 
 
 class AnswerAPI(APIView):
 
     def get(self, request):
-        '''
-        This method mediates the task to correct function.
-        Further information in helper method docstring
-        '''
         if request.GET.get("questionId") != None:
             return self.by_question_id(request, request.GET.get("questionId"), request.GET.get("limit"), request.GET.get("order"))
         elif request.GET.get("authorId") != None:

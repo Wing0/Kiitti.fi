@@ -17,9 +17,8 @@ class RIDMixin(models.Model):
         abstract = True
 
     def save(self, *args, **kwargs):
-        """
-        Saves unique resource identifier
-        """
+
+        # Saves unique resource identifier automatically
         rid_dict = self._default_manager.all().aggregate(models.Max('rid'))
         max_rid = rid_dict['rid__max']
 
@@ -68,6 +67,11 @@ class Vote(TimestampMixin):
 
     direction = models.SmallIntegerField(default=1)
     user      = models.ForeignKey(User)
+
+    # relation
+    head_type  = models.ForeignKey(ContentType)
+    head_id    = models.PositiveIntegerField()
+    head       = generic.GenericForeignKey('head_type', 'head_id')
 
     class Meta:
         db_table = 'QnA_votes'
@@ -135,7 +139,23 @@ class Message(TimestampMixin):
         return "Message | pk: %d, version: %d, content: %s type: %s" \
                % (self.pk, self.version, self.content, self.head_type)
 
-    # todo add auto versioning
+    def save(self, *args, **kwargs):
+
+        # Increment version number automatically
+        max_version_dict = self._default_manager.filter(
+                        head_type=self.head_type,
+                        head_id=self.head_id).aggregate(models.Max('version'))
+        max_version = max_version_dict['version__max']
+
+        print max_version_dict
+
+        if max_version:
+            self.version = max_version + 1
+        else:
+            self.version = 1
+
+        super(Message, self).save(*args, **kwargs)
+
 
 
 class CommentMixin(object):
@@ -155,6 +175,8 @@ class CommentMixin(object):
 
 
 class AbstractMessage(RIDMixin, TimestampMixin):
+
+    user     = models.ForeignKey(User)
 
     messages = generic.GenericRelation(Message,
                     content_type_field='head_type',
@@ -177,8 +199,10 @@ class AbstractMessage(RIDMixin, TimestampMixin):
             head_type__pk=head_type.id,
             head_id=self.id).order_by('-version', '-created')
 
+        print messages
+
         if messages:
-            message = messages
+            message = messages[0]
             # one could raise error here if len(messages) > 0
         else:
             message = None
@@ -187,6 +211,24 @@ class AbstractMessage(RIDMixin, TimestampMixin):
             self._message = message
 
         return self._message
+
+    @property
+    def votes_up(self):
+        head_type = ContentType.objects.get_for_model(self.__class__)
+
+        votes = Vote.objects.filter(
+            head_type__pk=head_type.id,
+            head_id=self.id)
+        return len(votes.filter(direction=1))
+
+    @property
+    def votes_down(self):
+        head_type = ContentType.objects.get_for_model(self.__class__)
+
+        votes = Vote.objects.filter(
+            head_type__pk=head_type.id,
+            head_id=self.id)
+        return len(votes.filter(direction=-1))
 
 
 class Comment(AbstractMessage):

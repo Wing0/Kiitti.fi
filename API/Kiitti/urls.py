@@ -37,7 +37,7 @@ urlpatterns = patterns('',
     url(r'^users/(?P<user_id>[0-9]{1,9})/?$', UserAPI.as_view()),
     url(r'^users/?$', UserAPI.as_view()),
 
-    url(r'^votes/?$', VoteAPI.as_view()),
+    url(r'^votes/(?P<message_type>question|answer|comment)/?$', VoteAPI.as_view()),
 
     url(r'^reset/?$', ResetPasswordAPI.as_view()),
 )

@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from django.contrib.contenttypes.models import ContentType
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import exceptions as exc
 
 from QnA.models import Vote
 from QnA.serializers import VoteSerializerPOST
@@ -13,7 +16,7 @@ class VoteAPI(APIView):
 
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request):
+    def post(self, request, message_type):
         '''
         This method saves a vote for a question or answer matching the given message_id
         @params
@@ -26,39 +29,57 @@ class VoteAPI(APIView):
             }
         @perm
             member: any member can vote
-        @return
-            201: Created, the vote was succesfully created
-            400: Bad request, parameters were missing or wrong type
-                list of appropriate error messages
-                example: {"messages":[{"content": "An example error message.", "identifier": "example"}]}
-            401: Unauthorized, the user has to be logged in to perform this action
-                list of appropriate error messages
-                example: {"messages":[{"content": "An example error message.", "identifier": "example"}]}
         '''
 
-        data = {  # todo: get rid of this phase
-            "user": request.user.pk,
-            "message_id": request.DATA.get("message_id", None),
-            "direction": request.DATA.get("direction", None)
-        }
+        if not message_type.lower() in ["question", "answer", "comment"]:
+            raise exc.ParseError("Must have type question/answer/comment in URL.")
+        if not request.DATA.get('message_id', None):
+            raise exc.ParseError("Must have message_id.")
+
+        try:
+            content_type = ContentType.objects.get(name=message_type)
+            voteobject = content_type.get_object_for_this_type(rid=request.DATA['message_id'])
+        except:
+            raise exc.ParseError("Cannot find message to vote.")
+
+        request.DATA['user'] = request.user.pk # important
 
         # check for existing vote
         tryvote = Vote.objects.filter(
-            message_id=request.DATA.get("message_id"),
+            head_type__model=message_type,
+            head_id=voteobject.pk,
             user=request.user)
-        if tryvote:
-            # vote exists with same direction
-            if tryvote[0].direction == request.DATA.get("direction"):
-                return Response(compose_message("Vote exists already"), 403)
-            # vote needs to be updated
-            else:
-                serializer = VoteSerializerPOST(tryvote[0], data=data)
-        else:
-            serializer = VoteSerializerPOST(data=data)
 
-        # validate and save
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, 201)
-        else:
-            return Response(serializer.errors, 400)
+        # update old
+        if tryvote:
+            tryvote[0].direction = request.DATA['direction']
+            tryvote.save()
+            return Response("Vote updated.", 200)
+
+        # create new
+        vote = Vote(direction=request.DATA['direction'],
+                    user=request.user,
+                    head_type=content_type,
+                    head_id=voteobject.pk)
+        vote.save()
+
+        return Response("vote created", 201)
+
+        # Better saving method in development:
+
+        # if tryvote:
+        #     # vote exists with same direction
+        #     if tryvote[0].direction == request.DATA.get("direction"):
+        #         raise exc.ParseError("Vote exists already.")
+        #     # vote needs to be updated
+        #     else:
+        #         serializer = VoteSerializerPOST(tryvote[0], data=request.DATA)
+        # else:
+        #     serializer = VoteSerializerPOST(data=request.DATA)
+
+        # # validate and save
+        # if serializer.is_valid():
+        #     serializer.save()
+        #     return Response(serializer.data, 201)
+        # else:
+        #     return Response(serializer.errors, 400)

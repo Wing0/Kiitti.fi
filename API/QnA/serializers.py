@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer, ValidationError, Field
+from rest_framework.serializers import ModelSerializer, ValidationError, Field, RelatedField
 from QnA.models import User, Organization, Vote, Message, \
                        Question, Answer, Comment, Keyword, Tag
 
@@ -23,7 +23,7 @@ class UserSerializerGET(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('rid', 'first_name', 'last_name', 'organization')
+        fields = ('rid', 'username', 'first_name', 'last_name', 'organization')
         read_only_fields = ('rid',)
         write_only_fields = ('password',)
 
@@ -41,7 +41,7 @@ class VoteSerializerPOST(ModelSerializer):
 
     class Meta:
         model = Vote
-        fields = ('user', 'rid', 'direction')
+        fields = ('user', 'direction')
 
     def validate(self, attrs):
 
@@ -53,8 +53,6 @@ class VoteSerializerPOST(ModelSerializer):
 
 
 class MessageSerializerGET(ModelSerializer):
-
-    user = UserSerializerGET()
 
     class Meta:
         model = Message
@@ -86,20 +84,26 @@ class TagSerializerGet(ModelSerializer):
 
 class AnswerSerializerGET(ModelSerializer):
 
+    user = UserSerializerGET()
     message = MessageSerializerGET()
+    votes_up = Field(source='votes_up')
+    votes_down = Field(source='votes_down')
 
     class Meta:
         model = Answer
-        fields = ('rid', 'message')
+        fields = ('rid', 'message', 'user')
 
 
 class CommentSerializerGET(ModelSerializer):
 
+    user = UserSerializerGET()
     message = MessageSerializerGET()
+    votes_up = Field(source='votes_up')
+    votes_down = Field(source='votes_down')
 
     class Meta:
         model = Comment
-        fields = ('rid', 'message')
+        fields = ('rid', 'message', 'user')
 
 
 class QuestionSerializerGETSingle(ModelSerializer):
@@ -108,31 +112,37 @@ class QuestionSerializerGETSingle(ModelSerializer):
     answers = AnswerSerializerGET(many=True)
     comments = CommentSerializerGET(many=True)
     tags = TagSerializerGet(many=True)
+    votes_up = Field(source='votes_up')
+    votes_down = Field(source='votes_down')
 
     class Meta:
         model = Question
         fields = ('rid', 'title', 'message', 'created',
-                  'modified', 'answers', 'comments', 'tags')
+                  'modified', 'answers', 'comments', 'tags',
+                  'votes_up', 'votes_down')
 
 
 class QuestionSerializerGETMany(ModelSerializer):
 
+    user = UserSerializerGET()
+    message = MessageSerializerGET()
     tags = TagSerializerGet(many=True)
+    votes_up = Field(source='votes_up')
+    votes_down = Field(source='votes_down')
 
     class Meta:
         model = Question
-        fields = ('rid', 'title', 'created', 'modified',
-                  'tags')
+        fields = ('rid', 'title', 'message', 'user', 'created',
+                  'modified', 'tags', 'votes_up', 'votes_down')
 
 
 class QuestionSerializerPOST(ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ('title',)
+        fields = ('title', 'user')
 
 
 class MessageSerializerPOSTQuestion(MessageSerializerPOSTAbstract):
 
     head = QuestionSerializerPOST()
-
