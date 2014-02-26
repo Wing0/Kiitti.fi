@@ -14,13 +14,13 @@
 
     <div class="cell message-stack">
       <div class="content">
-        <p ng-bind="message.content"></p>
+        <p ng-bind="message.message.content"></p>
       </div>
 
       <div class="comment-block">
         <div class="comments">
           <div class="comment" ng-repeat="comment in message.comments">
-            <span class="content" ng-bind="comment.content"></span>
+            <span class="content" ng-bind="comment.message.content"></span>
             <span class="username"><a href="#" ng-bind="comment.user.username"></a></span>
             <span class="date" ng-bind="comment.created | date:'dd.mm.yyyy hh:mm'"></span>
           </div>
@@ -30,7 +30,7 @@
             <i class="fa fa-pencil"></i><span>Lisää kommentti</span>
           </div>
           <form ng-if="showCommentInput" ng-submit="submitComment()">
-            <input type="text" ng-model="comment.content">
+            <input type="text" ng-model="comment.message.content">
             <br>
             <button type="submit">Lisää kommentti</button>
           </form>
