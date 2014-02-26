@@ -10,7 +10,6 @@ from QnA.serializers import QuestionSerializerGETSingle, QuestionSerializerGETMa
                             MessageSerializerPOSTQuestion
 from QnA.exceptions import NotFound
 from QnA.view_utils import order_messages, get_message_by_id, post_abstract_message
-from QnA.utils import compose_message, create_message, exclude_old_versions, intersect, unique
 
 
 class QuestionAPI(APIView):
