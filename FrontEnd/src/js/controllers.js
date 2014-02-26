@@ -53,8 +53,8 @@ module.controller('LogoutController', function(AuthAPI, $log, $location, Message
 
 module.controller('CreateQuestionController', function($scope, QuestionAPI, $location) {
   $scope.send = function() {
-    QuestionAPI.save($scope.question, function(data) {
-      $location.path('/question/'+data.messageId);
+    QuestionAPI.save($scope.question, function(question) {
+      $location.path('/question/'+question.rid);
     });
   }
 });
@@ -66,7 +66,7 @@ module.controller('BrowseQuestionsController', function($scope, QuestionAPI) {
 module.controller('SingleQuestionController', function($scope, question, AnswerAPI, MessageFactory) {
 
   $scope.question = question;
-  $scope.answer = {};
+  $scope.answer = {"message": {}};
   $scope.submitMessage = {};
 
   $scope.submitAnswer = function() {

@@ -15,10 +15,10 @@
     <div class="new-answer">
       <h2>Lisää vastaus</h2>
       <hr>
-      <div ng-if="submitMessage" ng-bind="submitMessage.content" class="submitMessage {{submitMessage.type}}"></div>
+      <div ng-if="submitMessage" ng-bind="submitMessage.message.content" class="submitMessage {{submitMessage.type}}"></div>
       <form class="add-answer">
         <label for="message">Vastauksesi</label>
-        <div text-angular ng-model="answer.content"></div>
+        <div text-angular ng-model="answer.message.content"></div>
         <button ng-click="submitAnswer()" class="emphasis-1">Lähetä vastaus</button>
       </form>
     </div>

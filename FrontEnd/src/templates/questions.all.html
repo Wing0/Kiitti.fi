@@ -6,11 +6,11 @@
       <div class="votes-container" ng-bind="question.meta.votes"></div>
     </aside>
     <header class="cell">
-      <h2><a href="/question/{{question.messageId}}" ng-bind="question.title"></a></h2>
-      <p ng-bind="question.content | slice:{length:150}"></p>
+      <h2><a href="/question/{{question.rid}}" ng-bind="question.title"></a></h2>
+      <p ng-bind="question.message.content | slice:{length:150}"></p>
     </header>
     <section class="content cell" ng-show="showContent">
-      <div ng-bind="question.content"></div>
+      <div ng-bind="question.message.content"></div>
     </section>
   </div>
 </div>

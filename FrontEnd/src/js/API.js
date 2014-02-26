@@ -58,7 +58,7 @@ module.factory('AuthAPI', function($http, APIUrl, authService, $cookieStore, $lo
 });
 
 module.factory('QuestionAPI', function($resource, APIUrl) {
-  return $resource(APIUrl + '/questions/:messageId', {},
+  return $resource(APIUrl + '/questions/:rid', {},
     { 'get': {method: 'GET', isArray: false} });
 });
 

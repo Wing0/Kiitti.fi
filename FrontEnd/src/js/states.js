@@ -50,11 +50,11 @@ ktStates.config(function($stateProvider, $urlRouterProvider) {
       controller: 'CreateQuestionController'
     })
     .state('master.question', {
-      url: '/question/:messageId',
+      url: '/question/:rid',
       templateUrl: tdir + 'question.html',
       resolve: {
         question: function(QuestionAPI, $stateParams) {
-          return QuestionAPI.get({"messageId": $stateParams.messageId});
+          return QuestionAPI.get({"rid": $stateParams.rid});
         }
       },
       controller: 'SingleQuestionController'

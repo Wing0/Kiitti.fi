@@ -2,6 +2,8 @@ var module = angular.module('ktFilters', []);
 
 module.filter('slice', function() {
   return function(content, params) {
+    // prevent errors with null content
+    if (!content) return;
 
     // find slicing position (character " ")
     var slicePosition = params.length;
