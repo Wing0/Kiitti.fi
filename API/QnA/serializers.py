@@ -65,7 +65,7 @@ class MessageSerializerPOSTAbstract(ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ('content', 'user', 'content_object')
+        fields = ('content', 'user', 'head')
 
 
 class KeywordSerializer(ModelSerializer):
@@ -134,5 +134,5 @@ class QuestionSerializerPOST(ModelSerializer):
 
 class MessageSerializerPOSTQuestion(MessageSerializerPOSTAbstract):
 
-    content_object = QuestionSerializerPOST()
+    head = QuestionSerializerPOST()
 

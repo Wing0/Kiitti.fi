@@ -104,15 +104,15 @@ class Tag(RIDMixin, TimestampMixin):
     organization = models.ForeignKey(Organization)
 
     # relation
-    content_type   = models.ForeignKey(ContentType)
-    object_id      = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    head_type  = models.ForeignKey(ContentType)
+    head_id    = models.PositiveIntegerField()
+    head       = generic.GenericForeignKey('head_type', 'head_id')
 
     class Meta:
         db_table = 'QnA_tags'
 
     def __unicode__(self):
-        return "%s for ID%d" % (self.keyword.content, self.object_id)
+        return "%s for ID%d" % (self.keyword.content, self.head_id)
 
 
 class Message(TimestampMixin):
@@ -122,9 +122,9 @@ class Message(TimestampMixin):
     user     = models.ForeignKey(User)
 
     # relation
-    content_type   = models.ForeignKey(ContentType)
-    object_id      = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    head_type  = models.ForeignKey(ContentType)
+    head_id    = models.PositiveIntegerField()
+    head       = generic.GenericForeignKey('head_type', 'head_id')
 
     class Meta:
         unique_together = (('id', 'version'),)
@@ -133,7 +133,7 @@ class Message(TimestampMixin):
 
     def __unicode__(self):
         return "Message | pk: %d, version: %d, content: %s type: %s" \
-               % (self.pk, self.version, self.content, self.content_type)
+               % (self.pk, self.version, self.content, self.head_type)
 
     # todo add auto versioning
 
@@ -142,11 +142,11 @@ class CommentMixin(object):
 
     @property
     def comments(self):
-        content_type = ContentType.objects.get_for_model(self.__class__)
+        head_type = ContentType.objects.get_for_model(self.__class__)
 
         comments = Comment.objects.filter(
-            content_type__pk=content_type.id,
-            object_id=self.id)
+            head_type__pk=head_type.id,
+            head_id=self.id)
 
         if not hasattr(self, "_comments"):
             self._comments = message
@@ -156,8 +156,12 @@ class CommentMixin(object):
 
 class AbstractMessage(RIDMixin, TimestampMixin):
 
-    messages = generic.GenericRelation(Message)
-    votes    = generic.GenericRelation(Vote)
+    messages = generic.GenericRelation(Message,
+                    content_type_field='head_type',
+                    object_id_field='head_id')
+    votes    = generic.GenericRelation(Vote,
+                    content_type_field='head_type',
+                    object_id_field='head_id')
 
     class Meta:
         abstract = True
@@ -167,11 +171,11 @@ class AbstractMessage(RIDMixin, TimestampMixin):
         """
         Returns the message with highest version number
         """
-        content_type = ContentType.objects.get_for_model(self.__class__)
+        head_type = ContentType.objects.get_for_model(self.__class__)
 
         messages = Message.objects.filter(
-            content_type__pk=content_type.id,
-            object_id=self.id).order_by('-version', '-created')
+            head_type__pk=head_type.id,
+            head_id=self.id).order_by('-version', '-created')
 
         if messages:
             message = messages
@@ -188,9 +192,9 @@ class AbstractMessage(RIDMixin, TimestampMixin):
 class Comment(AbstractMessage):
 
     # relation
-    content_type   = models.ForeignKey(ContentType)
-    object_id      = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    head_type  = models.ForeignKey(ContentType)
+    head_id    = models.PositiveIntegerField()
+    head       = generic.GenericForeignKey('head_type', 'head_id')
 
     class Meta:
         db_table = 'QnA_comments'
@@ -199,9 +203,13 @@ class Comment(AbstractMessage):
 class Question(AbstractMessage, CommentMixin):
 
     title  = models.CharField(max_length=512)
-    tags   = generic.GenericRelation(Tag)
+    tags   = generic.GenericRelation(Tag,
+                    content_type_field='head_type',
+                    object_id_field='head_id')
 
-    comments = generic.GenericRelation(Comment)
+    comments = generic.GenericRelation(Comment,
+                    content_type_field='head_type',
+                    object_id_field='head_id')
 
     class Meta:
         db_table = 'QnA_questions'
@@ -214,7 +222,9 @@ class Answer(AbstractMessage, CommentMixin):
     question = models.ForeignKey(Question, related_name='answers')
     accepted = models.BooleanField(default=False)
 
-    comments = generic.GenericRelation(Comment)
+    comments = generic.GenericRelation(Comment,
+                    content_type_field='head_type',
+                    object_id_field='head_id')
 
     class Meta:
         db_table = 'QnA_answers'
