@@ -15,9 +15,11 @@ $conversation-max-width: 670px;
 }
 
 .message-block {
-  border-top: 2px solid $color-background-dark;
-  padding: 20px 0;
-  display: table;
+  margin: 20px 0;
+
+  .toolbar {
+    margin: 20px 0;
+  }
 
   .cell {
     vertical-align: top;
@@ -42,10 +44,10 @@ $conversation-max-width: 670px;
       }
     }
     .vote {
-      &.up:hover i {
+      &.up.active i, &.up:hover i {
         color: $color-emphasis-1;
       }
-      &.down:hover i {
+      &.down.active i, &.down:hover i {
         color: $color-emphasis-2;
       }
     }

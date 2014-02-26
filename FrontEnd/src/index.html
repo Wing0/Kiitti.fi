@@ -34,18 +34,22 @@
   <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
   <!-- build:js js/ie8.js -->
+
+  <!--[if lte IE 7]>
+    <script src="bower_components/json3/lib/json3.min.js"></script>
+  <![endif]-->
+
   <!--[if lte IE 8]>
-  <script src="bower_components/json3/lib/json3.min.js"></script>
-  <script src="js/vendor/respond.js"></script>
-  <script src="js/vendor/PIE_IE678.js"></script>
-  <script src="bower_components/html5shiv/dist/html5shiv.js"></script>
-  <script src="bower_components/html5shiv/dist/html5shiv-printshiv.js"></script>
+    <script src="js/vendor/respond.js"></script>
+    <script src="js/vendor/PIE_IE678.js"></script>
+    <script src="bower_components/html5shiv/dist/html5shiv.js"></script>
+    <script src="bower_components/html5shiv/dist/html5shiv-printshiv.js"></script>
   <![endif]-->
   <!-- endbuild -->
 
   <!-- build:js js/ie9.js -->
   <!--[if IE 9]>
-  <script src="js/vendor/PIE_IE9.js"></script>
+    <script src="js/vendor/PIE_IE9.js"></script>
   <![endif]-->
   <!-- endbuild -->
 </head>
@@ -68,6 +72,7 @@
   <script src="js/vendor/angular-ui-router.min.js"></script>
   <!-- endbuild -->
   <!-- build:js({.tmp,src}) js/app.js -->
+  <script src="js/i18n/angular-locale_fi.js"></script>
   <script src="js/services.js"></script>
   <script src="js/controllers.js"></script>
   <script src="js/directives.js"></script>
