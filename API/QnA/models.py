@@ -112,7 +112,7 @@ class Tag(RIDMixin, TimestampMixin):
         db_table = 'QnA_tags'
 
     def __unicode__(self):
-        return self.keyword
+        return "%s for ID%d" % (self.keyword.content, self.object_id)
 
 
 class Message(TimestampMixin):
@@ -132,8 +132,10 @@ class Message(TimestampMixin):
         get_latest_by   = 'created'
 
     def __unicode__(self):
-        return "Message | pk: %d, version: %d, content: %s" \
-               % (self.pk, self.version, self.content)
+        return "Message | pk: %d, version: %d, content: %s type: %s" \
+               % (self.pk, self.version, self.content, self.content_type)
+
+    # todo add auto versioning
 
 
 class CommentMixin(object):
@@ -169,10 +171,11 @@ class AbstractMessage(RIDMixin, TimestampMixin):
 
         messages = Message.objects.filter(
             content_type__pk=content_type.id,
-            object_id=self.id).order_by('-version')
+            object_id=self.id).order_by('-version', '-created')
 
         if messages:
             message = messages
+            # one could raise error here if len(messages) > 0
         else:
             message = None
 
@@ -180,6 +183,17 @@ class AbstractMessage(RIDMixin, TimestampMixin):
             self._message = message
 
         return self._message
+
+
+class Comment(AbstractMessage):
+
+    # relation
+    content_type   = models.ForeignKey(ContentType)
+    object_id      = models.PositiveIntegerField()
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        db_table = 'QnA_comments'
 
 
 class Question(AbstractMessage, CommentMixin):
@@ -197,24 +211,13 @@ class Answer(AbstractMessage, CommentMixin):
     '''
     Represents an answer to a question (Question()).
     '''
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(Question, related_name='answers')
     accepted = models.BooleanField(default=False)
 
     comments = generic.GenericRelation(Comment)
 
     class Meta:
         db_table = 'QnA_answers'
-
-
-class Comment(AbstractMessage):
-
-    # relation
-    content_type   = models.ForeignKey(ContentType)
-    object_id      = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
-
-    class Meta:
-        db_table = 'QnA_comments'
 
 
 class ResetEntry(models.Model):

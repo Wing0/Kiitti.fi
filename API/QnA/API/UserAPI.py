@@ -24,7 +24,7 @@ class UserAPI(APIView):
     def get_single(self, request, user_id):
 
         try:
-            user = User.objects.get(user_id=user_id)
+            user = User.objects.get(rid=user_id)
         except User.DoesNotExist:
             raise NotFound("User could not be found.")
 
@@ -37,7 +37,7 @@ class UserAPI(APIView):
         users = User.objects.all()
 
         if request.GET.get("user_id", None):
-            users = users.filter(user_id=request.GET['user_id'])
+            users = users.filter(rid=request.GET['user_id'])
         if request.GET.get("organization_id", None):
             users = users.filter(organization=request.GET['organization_id'])
 

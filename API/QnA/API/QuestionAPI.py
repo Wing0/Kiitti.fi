@@ -5,7 +5,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from QnA.models import Question, User, Tag, Keyword
-from QnA.serializers import QuestionSerializerGETSingle, QuestionSerializerGETMany
+from QnA.serializers import QuestionSerializerGETSingle, QuestionSerializerGETMany, \
+                            MessageSerializerPOSTQuestion
+from QnA.exceptions import NotFound
 from QnA.view_utils import order_messages, get_message_by_id, post_abstract_message
 from QnA.utils import compose_message, create_message, exclude_old_versions, intersect, unique
 
@@ -62,29 +64,11 @@ class QuestionAPI(APIView):
                                         "messageId": 4,
                                         }]
                         }
-            404: No content found
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-                        }
-            400: Bad request, parameters were missing or wrong type
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-                        }
-            401: Unauthorized, the user has to be logged in to perform this action
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-            403: Forbidden, the user does not have permission for the action
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
         '''
         if question_id:
             return self.get_single(request, question_id)
 
-        return self.get_many()
+        return self.get_many(request)
 
     def get_single(self, request, question_id):
 
@@ -101,10 +85,10 @@ class QuestionAPI(APIView):
 
         questions = Question.objects.all()
 
-        if request.GET.get("author_id", None):
-            author = User.objects.get(rid=author_id)
+        if request.GET.get('author_id', None):
+            author = User.objects.get(rid=request.GET['author_id'])
             questions.filter(user=author)
-        if request.GET.get("limit", None):
+        if request.GET.get('limit', None):
             questions = questions[:limit]
 
         if not questions:
@@ -143,7 +127,16 @@ class QuestionAPI(APIView):
                 example: {
                             "messages":[{"content":"An example error message.","identifier":"example"}]
         '''
+        serializer = MessageSerializerPOSTQuestion(data=request.DATA)
+        if serializer.is_valid():
 
+            serializer.save()
+            return Response(serializer.data, 201)
+        else:
+            return Response(serializer.errors, 400)
+
+        raise ParseError("Question could not be created")
+
+    def put(self, request, question_id):
+        # todo: add question updating
         pass
-
-

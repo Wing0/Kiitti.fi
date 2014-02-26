@@ -1,5 +1,6 @@
 from rest_framework.serializers import ModelSerializer, ValidationError, Field
-from QnA.models import User, Organization, Vote, Question
+from QnA.models import User, Organization, Vote, Message, \
+                       Question, Answer, Comment, Keyword, Tag
 
 
 class OrganizationSerializerGET(ModelSerializer):
@@ -23,6 +24,8 @@ class UserSerializerGET(ModelSerializer):
     class Meta:
         model = User
         fields = ('rid', 'first_name', 'last_name', 'organization')
+        read_only_fields = ('rid',)
+        write_only_fields = ('password',)
 
 
 class UserSerializerPOST(ModelSerializer):
@@ -31,6 +34,7 @@ class UserSerializerPOST(ModelSerializer):
         model = User
         fields = ('username', 'password', 'organization',
                   'email', 'first_name', 'last_name')
+        write_only_fields = ('password',)
 
 
 class VoteSerializerPOST(ModelSerializer):
@@ -48,23 +52,87 @@ class VoteSerializerPOST(ModelSerializer):
         return attrs
 
 
+class MessageSerializerGET(ModelSerializer):
+
+    user = UserSerializerGET()
+
+    class Meta:
+        model = Message
+        fields = ('content', 'version', 'user', 'created', 'modified')
+
+
+class MessageSerializerPOSTAbstract(ModelSerializer):
+
+    class Meta:
+        model = Message
+        fields = ('content', 'user', 'content_object')
+
+
+class KeywordSerializer(ModelSerializer):
+
+    class Meta:
+        model = Keyword
+        fields = ('content', 'category')
+
+
+class TagSerializerGet(ModelSerializer):
+
+    keyword = KeywordSerializer()
+
+    class Meta:
+        model = Tag
+        fields = ('keyword', 'created')
+
+
+class AnswerSerializerGET(ModelSerializer):
+
+    message = MessageSerializerGET()
+
+    class Meta:
+        model = Answer
+        fields = ('rid', 'message')
+
+
+class CommentSerializerGET(ModelSerializer):
+
+    message = MessageSerializerGET()
+
+    class Meta:
+        model = Comment
+        fields = ('rid', 'message')
+
+
 class QuestionSerializerGETSingle(ModelSerializer):
 
-    # TODO ...
-
-    message = Field()
+    message = MessageSerializerGET()
+    answers = AnswerSerializerGET(many=True)
+    comments = CommentSerializerGET(many=True)
+    tags = TagSerializerGet(many=True)
 
     class Meta:
         model = Question
-        fields = ('title', 'created',)
+        fields = ('rid', 'title', 'message', 'created',
+                  'modified', 'answers', 'comments', 'tags')
 
 
 class QuestionSerializerGETMany(ModelSerializer):
 
-    # TODO ...
-
-    message = Field()
+    tags = TagSerializerGet(many=True)
 
     class Meta:
         model = Question
-        fields = ('title', )
+        fields = ('rid', 'title', 'created', 'modified',
+                  'tags')
+
+
+class QuestionSerializerPOST(ModelSerializer):
+
+    class Meta:
+        model = Question
+        fields = ('title',)
+
+
+class MessageSerializerPOSTQuestion(MessageSerializerPOSTAbstract):
+
+    content_object = QuestionSerializerPOST()
+
