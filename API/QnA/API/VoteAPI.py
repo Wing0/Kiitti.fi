@@ -9,7 +9,6 @@ from rest_framework import exceptions as exc
 
 from QnA.models import Vote
 from QnA.serializers import VoteSerializerPOST
-from QnA.utils import compose_message, create_message
 
 
 class VoteAPI(APIView):
@@ -25,7 +24,7 @@ class VoteAPI(APIView):
         """
 
         try:
-            content_type = ContentType.objects.get(name=content_type)
+            content_type = ContentType.objects.get(name__iexact=content_type)
             vote_target_object = content_type.get_object_for_this_type(rid=rid)
         except:
             raise exc.ParseError("Cannot find message to vote.")
@@ -38,6 +37,7 @@ class VoteAPI(APIView):
         }
 
         try:
+            # TODO: move to PUT-method
             # update old
             tryvote = Vote.objects.get(head_type=content_type.pk,
                                        head_id=vote_target_object.pk,

@@ -129,7 +129,6 @@ class QuestionAPI(APIView):
         '''
         request.DATA['head']['user'] = request.user.pk # important
         request.DATA['user'] = request.user.pk # important
-        print request.DATA
 
         serializer = MessageSerializerPOSTQuestion(data=request.DATA)
         if serializer.is_valid():
@@ -140,7 +139,7 @@ class QuestionAPI(APIView):
         else:
             return Response(serializer.errors, 400)
 
-        raise exc.ParseError("Question could not be created")
+        raise exc.ParseError("Question could not be created.")
 
     def put(self, request, question_id):
         # todo: add question updating

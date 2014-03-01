@@ -8,10 +8,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import exceptions as exc
 
-from QnA.models import Comment, Question
+from QnA.models import Comment
 from QnA.serializers import MessageSerializerPOSTComment
-from QnA.view_utils import *  # todo: clean this
-from QnA.utils import create_message, compose_message, string_to_int, string_to_boolean
 
 
 class CommentAPI(APIView):
