@@ -54,7 +54,7 @@ class QuestionAPI(APIView):
         except Question.DoesNotExist:
             raise NotFound("Question could not be found.")
 
-        serializer = QuestionSerializerGETSingle(question)
+        serializer = QuestionSerializerGETSingle(question, context={'user': request.user})
 
         return Response(serializer.data, 200)
 
