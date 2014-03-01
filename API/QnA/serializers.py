@@ -82,7 +82,7 @@ class CommentSerializerGET(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('rid', 'message', 'user')
+        fields = ('rid', 'message', 'user', 'votes_up', 'votes_down')
 
 
 class QuestionSerializerGETSingle(serializers.ModelSerializer):

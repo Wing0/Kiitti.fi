@@ -197,8 +197,6 @@ class AbstractMessage(RIDMixin, TimestampMixin):
             head_type__pk=head_type.id,
             head_id=self.id).order_by('-version', '-created')
 
-        print messages
-
         if messages:
             message = messages[0]
             # one could raise error here if len(messages) > 0

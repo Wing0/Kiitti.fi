@@ -25,12 +25,12 @@
             <span class="date" ng-bind="comment.created | date:'dd.mm.yyyy hh:mm'"></span>
           </div>
         </div>
-        <div class="buttons" ng-init="showCommentInput=false">
+        <div class="buttons" ng-if="message.message.content" ng-init="showCommentInput=false">
           <div class="button-alt" ng-click="showCommentInput=!showCommentInput">
             <i class="fa fa-pencil"></i><span>Lisää kommentti</span>
           </div>
-          <form ng-if="showCommentInput" ng-submit="submitComment()">
-            <input type="text" ng-model="comment.message.content">
+          <form ng-show="showCommentInput" ng-submit="submitComment()">
+            <input type="text" ng-model="comment.content">
             <br>
             <button type="submit">Lisää kommentti</button>
           </form>

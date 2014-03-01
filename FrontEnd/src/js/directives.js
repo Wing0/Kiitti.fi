@@ -10,7 +10,6 @@ module.directive('ktMessages', function() {
       /* Bind scope messages to message factory */
       $scope.$watch(function() { return MessageFactory.get(); }, function(data) {
         $scope.messages = data;
-        console.log($scope.messages);
       }, true);
     }
   }
@@ -20,7 +19,8 @@ module.directive('ktConversationMessage', function() {
   return {
     restrict: 'AE',
     scope: {
-      message: '=message'
+      message: '=message',
+      ridType: '@ridType'
     },
     transclude: false,
     templateUrl: '../templates/partial_conversation.message.html',
@@ -29,6 +29,8 @@ module.directive('ktConversationMessage', function() {
       $scope.submitMessage = {};
 
       $scope.submitComment = function() {
+        $scope.comment.rid = $scope.message.rid;
+        $scope.comment.ridType = $scope.ridType;
         $scope.comment.parentId = $scope.message.messageId;
 
         CommentAPI.save($scope.comment, function(comment) {
@@ -44,7 +46,12 @@ module.directive('ktConversationMessage', function() {
       };
 
       $scope.vote = function(direction) {
-        var vote = {"message_id": $scope.message.messageId, "direction": direction};
+        var vote = {
+          "rid": $scope.message.messageId,
+          "ridType": $scope.ridType,
+          "direction": direction
+        };
+
         VoteAPI.save(vote, function(vote) {
           if (direction > 0) {
             $scope.message.meta.votes.up++;

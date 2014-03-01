@@ -70,18 +70,19 @@ module.factory('AuthAPI', function($http, APIUrl, AuthToken, authService, $cooki
 });
 
 module.factory('QuestionAPI', function($resource, APIUrl) {
-  return $resource(APIUrl + '/questions/:rid', {},
-    { 'get': {method: 'GET', isArray: false} });
+  return $resource(APIUrl + '/questions/:rid', {rid: '@rid'});
 });
 
 module.factory('AnswerAPI', function($resource, APIUrl) {
-  return $resource(APIUrl + '/answers');
+  return $resource(APIUrl + '/answers/:rid', {rid: '@rid'});
 });
 
 module.factory('CommentAPI', function($resource, APIUrl) {
-  return $resource(APIUrl + '/comments');
+  return $resource(APIUrl + '/comments/:ridType/:rid',
+                   {rid: '@rid', ridType: '@ridType'});
 });
 
 module.factory('VoteAPI', function($resource, APIUrl) {
-  return $resource(APIUrl + '/votes');
+  return $resource(APIUrl + '/votes/:ridType/:rid',
+                   {rid: '@rid', ridType: '@ridType'});
 });

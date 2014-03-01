@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import exceptions as exc
 
 from QnA.models import Comment
-from QnA.serializers import MessageSerializerPOSTComment
+from QnA.serializers import MessageSerializerPOSTComment, CommentSerializerGET
 
 
 class CommentAPI(APIView):
@@ -44,7 +44,9 @@ class CommentAPI(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return Response("Comment succesfully created.", 201)
+            comment = serializer.object.head
+            get_serializer = CommentSerializerGET(comment)
+            return Response(get_serializer.data, 201)
         else:
             return Response(serializer.errors, 400)
 
