@@ -1,47 +1,59 @@
 var module = angular.module('ktAPI', ['ngResource', 'ngCookies']);
 
-module.factory('AuthAPI', function($http, APIUrl, authService, $cookieStore, $log) {
+module.factory('AuthAPI', function($http, APIUrl, AuthToken, authService, $cookieStore, $log) {
   var user;
-  var Methods = {
-    load: function() {
-      return $http.get(APIUrl + '/auth/load')
-        .success(function(data) {
-          user = data;
-        })
-        .error(function(response) {
-          $log.error("Could not load user");
-        });
-    },
-    logout: function() {
-      return $http.get(APIUrl + '/auth/logout')
-        .success(function(data) {
-          $cookieStore.remove('tursas');
-          delete $http.defaults.headers.common['Authorization'];
-          delete user;
-        });
-    },
-    register: function(user) {
-      return $http.post(APIUrl + '/auth/register', user);
-    }
+  var Methods = {};
+
+  Methods.user = function() {
+    return user;
+  };
+
+  Methods.setToken = function(token) {
+    /* set token into cookies */
+    $cookieStore.put(AuthToken, token);
+    $http.defaults.headers.common['Authorization'] = 'Token ' + token;
+  }
+
+  Methods.unSetToken = function() {
+    $cookieStore.remove(AuthToken);
+    delete $http.defaults.headers.common['Authorization'];
+    delete user;
+  };
+
+  Methods.load = function() {
+    return $http.get(APIUrl + '/auth/load')
+      .success(function(data) {
+        user = data;
+      })
+      .error(function(response) {
+        $log.error("Could not load user");
+        Methods.unSetToken();
+      });
+  };
+
+  Methods.logout = function() {
+    return $http.get(APIUrl + '/auth/logout')
+      .success(function(data) {
+        Methods.unSetToken();
+      });
   };
 
   Methods.login = function(user) {
     return $http.post(APIUrl + '/auth/login', user)
       .success(function(data) {
         /* set token into cookies */
-        try { var authtoken = data.token; }
+        try { var authtokenData = data.token; }
         catch(TypeError) {
           $log.info("Already logged in.")
         };
 
-        if (authtoken) {
-          /* set token into cookies */
-          $cookieStore.put('tursas', authtoken);
-          $http.defaults.headers.common['Authorization'] = 'Token ' + authtoken;
+        if (authtokenData) {
+          // set token
+          Methods.setToken(authtokenData);
 
           // get user data
           Methods.load(function() {
-            /* confirm login */
+            /* confirm login only after getting user data */
             authService.loginConfirmed();
           }, function() {
             $log.error("Unexpected error in loading user")
@@ -50,8 +62,8 @@ module.factory('AuthAPI', function($http, APIUrl, authService, $cookieStore, $lo
       });
   };
 
-  Methods.user = function() {
-    return user;
+  Methods.register = function(user) {
+    return $http.post(APIUrl + '/auth/register', user);
   };
 
   return Methods;
