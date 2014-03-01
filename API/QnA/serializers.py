@@ -140,6 +140,19 @@ class MessageSerializerPOSTQuestion(MessageSerializerPOSTAbstract):
     head = QuestionSerializerPOST()
 
 
+### POST ANSWER ###
+
+class AnswerSerializerPOST(serializers.ModelSerializer):
+
+    class Meta:
+        model = Answer
+        fields = ('user', 'question')
+
+class MessageSerializerPOSTAnswer(MessageSerializerPOSTAbstract):
+
+    head = AnswerSerializerPOST()
+
+
 ### POST COMMENT ###
 
 class CommentToQuestionSerializerPOST(serializers.ModelSerializer):

@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     url(r'^auth/load/?$', LoginAPI.as_view(), name="load"),
     url(r'^auth/logout/?$', LogoutAPI.as_view(), name="logout"),
 
+    url(r'^answers/(?P<rid>[0-9]{1,9})/?$', AnswerAPI.as_view()),
     url(r'^answers/?$', AnswerAPI.as_view()),
 
     url(r'^comments/(?P<content_type>question|answer|comment)/(?P<rid>[0-9]{1,9})/?$', CommentAPI.as_view()),

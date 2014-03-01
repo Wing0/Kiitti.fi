@@ -4,322 +4,38 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from QnA.models import Answer, User, Question
-from QnA.view_utils import post_abstract_message, serialize_answers, order_messages
-from QnA.utils import compose_message, create_message
+from QnA.serializers import MessageSerializerPOSTAnswer
 
 
 class AnswerAPI(APIView):
 
-    def get(self, request):
-        if request.GET.get("questionId") != None:
-            return self.by_question_id(request, request.GET.get("questionId"), request.GET.get("limit"), request.GET.get("order"))
-        elif request.GET.get("authorId") != None:
-            return self.by_author(request, request.GET.get("authorId"), request.GET.get("limit"), request.GET.get("order"))
-        # ToDo: get all latest/best answers?
-        else:
-            return Response({"user": request.user.serialize(), "questionId": request.GET.get("questionId")}, 404)
-
-    # ToDo: accept an answer -method
-    def post(self, request):
+    def post(self, request, rid):
         '''
-        This method takes answer information and produces an answer object accordingly.
-        @params
-            questionId, integer: The message id of the question which the answer relates to
-            content, string:
-            messageId, integer (optional): In case the message is modified, provide the initial messageId
         @example
             {
-                "questionId":1,
-                "content":"Example answer modified",
-                "messageId":3
+                "content": "Example answer modified",
             }
-        @perm
-            member: any member can post an answer
-        @return
-            201: Created, the answer was succesfully created
-            400: Bad request, parameters were missing or wrong type
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-                        }
-            401: Unauthorized, the user has to be loggend in to perform this action
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-            403: Forbidden, the user does not have permission for the action
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-
         '''
-        data = request.DATA
-        messages = []
+        try:
+            question = Question.objects.get(rid=rid)
+        except:
+            raise exc.ParseError("Cannot find question to answer.")
 
-        answer = post_abstract_message(Answer(), data)
-        if request.user.is_authenticated():
-            answer.user = request.user
-            answer.organization = request.user.organization
+        data_to_serialize = {
+            "user": request.user.pk,
+            "content": request.DATA.get('content', None),
+            "head": {
+                "question": question.pk,
+                "user": request.user.pk
+            }
+        }
+
+        serializer = MessageSerializerPOSTAnswer(data=data_to_serialize)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response("Answer succesfully created.", 201)
         else:
-            messages.append(compose_message("User must be logged in.", "user"))
-            return Response({"messages": messages}, 401)
+            return Response(serializer.errors, 400)
 
-        answer.accepted = data.get("accepted")
-        if answer.accepted == None:
-            answer.accepted = False
-        if data.get("questionId") != None:
-            try:
-                q_id = int(data.get("questionId"))
-                answer.question_id = q_id
-                question = Question.objects.get(message_id=q_id)
-                if not question.organization == request.user.organization:
-                    messages.append(
-                        compose_message("You are not allowed to perform this action."))
-                    return Response({"messages": messages}, 403)
-            except ValueError:
-                messages.append(
-                    compose_message("Question id must be positive integer", "questionId"))
-            except Exception, e:
-                messages.append(
-                    compose_message("Question was not found.", "questionId"))
-                return Response({"messages": messages}, 404)
-
-        else:
-            messages.append(
-                compose_message("Please provide question id.", "questionId"))
-        messages = answer.validate()
-        if len(messages) == 0:
-            if answer.message_id is None:
-                answer.save()
-                return Response(answer.serialize(), 201)
-            else:
-                answer.save_changes()
-                return Response(answer.serialize(), 201)
-        return Response({"messages": messages}, 400)
-
-    def by_question_id(self, request, question_id, limit=10, order="latest"):
-        '''
-        Retrieves all answers related to given question. The order and limit of answers can be chosen.
-
-        @params
-            request: the request parameter from get function
-            question_id: The id of the question in which the answers are related to
-            limit, integer (optional): The maximum number of answers retriveved. Default = 10
-            order, string (optional): The method for ordering the retrieved answers. "votes" or "latest". Default="latest".
-        @example
-            /answers/?questionId=123&limit=4&order=votes
-        @perm
-            member: All answer information can be given only for members of the organization
-        @return
-            200:
-                list of retrieved answers
-                example: {
-                            "answers":[{
-                                        "content":"An example answer",
-                                        "version":1,
-                                        "user": {
-                                            "username": "test",
-                                            "reputation": 0,
-                                            "lastLogin": "2014-02-02T19:00:31.568Z",
-                                            "firstName": "test",
-                                            "created": "2014-01-25T18:34:35Z",
-                                            "lastName": "test",
-                                            "userId": 2,
-                                            "email": "test@test.test"
-                                        },
-                                        "created": "2014-01-08T11:05:16",
-                                        "modified": "2014-01-08T11:05:16",
-                                        "messageId": 4,
-                                        "questionId":1,
-                                        "accepted":false
-                                        }]
-                        }
-            404: No content found
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-                        }
-            400: Bad request, parameters were missing or wrong type
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-                        }
-            401: Unauthorized, the user has to be logged in to perform this action
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-            403: Forbidden, the user does not have permission for the action
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-        '''
-        messages = []
-        if question_id == None:
-            messages.append(
-                {"content": "A question id has to be provided.", "identifier": "questionId"})
-        else:
-            if not request.user.is_authenticated():
-                messages.append(
-                    {"content": "User must be logged in.", "identifier": "user"})
-                return Response({"messages": messages}, 401)
-            try:
-                # Parameter check and default values
-                question_id = int(question_id)
-                if question_id < 0:
-                    raise ValueError("Value is not positive integer")
-
-                if limit == None:
-                    limit = 10
-                try:
-                    limit = int(limit)
-                    if limit < 0:
-                        raise ValueError("Value is not positive integer")
-                except ValueError:
-                    messages.append(
-                        {"content": "The limit has to be a positive integer.", "identifier": "limit"})
-
-                try:
-                    q = Question.objects.get(message_id=question_id)
-                    if not q.organization == request.user.organization:
-                        messages.append(
-                            compose_message("You are not allowed to perform this action."))
-                        return Response({"messages": messages}, 403)
-                except Exception, e:
-                    messages.append(
-                        {"content": "The question was not found. %s" % e, "identifier": "questionId"})
-                    return Response({"messages": messages}, 404)
-                if order == None:
-                    order = "latest"
-                if not order in ["latest", "votes"]:
-                    messages.append(
-                        {"content": "The order parameter can be only 'latest' or 'votes'", "identifier": "order"})
-
-                if len(messages) == 0:
-                    answers = list(
-                        Answer.objects.filter(question_id=question_id))
-                    if len(answers) == 0:
-                        messages.append(
-                            {"content": "The question does not have answers.", "identifier": ""})
-                        return Response({"messages": messages}, 404)
-
-                    answers = exclude_old_versions(answers)
-                    answers = order_messages(answers, order)
-                    return Response({"answers": serialize_answers(answers), "messages": messages}, 200)
-
-            except ValueError:
-                messages.append(
-                    {"content": "The question id has to be a positive integer.", "identifier": "questionId"})
-        return Response({"messages": messages}, 400)
-
-    def by_author(self, request, author_id, limit=10, order="latest"):
-        '''
-        Retrieves all answers written by given author. The order and limit of answers can be chosen.
-
-        @params
-            request: the request parameter from get function
-            author_id: The id of the author who has written the answers
-            limit, integer (optional): The maximum number of answers retriveved. Default = 10
-            order, string (optional): The method for ordering the retrieved answers. "votes" or "latest". Default="latest".
-        @example
-            /answers/?authorId=123&limit=4&order=votes
-        @perm
-            member: All answer information can be given only for members of the organization.
-        @return
-            200:
-                list of retrieved answers
-                example: {
-                            "answers":[{
-                                        "content":"An example answer",
-                                        "version":1,
-                                        "user": {
-                                            "username": "test",
-                                            "reputation": 0,
-                                            "lastLogin": "2014-02-02T19:00:31.568Z",
-                                            "firstName": "test",
-                                            "created": "2014-01-25T18:34:35Z",
-                                            "lastName": "test",
-                                            "userId": 2,
-                                            "email": "test@test.test"
-                                        },
-                                        "created": "2014-01-08T11:05:16",
-                                        "modified": "2014-01-08T11:05:16",
-                                        "messageId": 4,
-                                        "questionId":1,
-                                        "accepted":false
-                                        }]
-                        }
-            404: No content found
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-                        }
-            400: Bad request, parameters were missing or wrong type
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-                        }
-            401: Unauthorized, the user has to be logged in to perform this action
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-            403: Forbidden, the user does not have permission for the action
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-        '''
-        messages = []
-        if author_id == None:
-            messages.append(
-                {"content": "A author id has to be provided.", "identifier": "questionId"})
-        else:
-            try:
-                if not request.user.is_authenticated():
-                    messages.append(
-                        {"content": "User must be logged in.", "identifier": "user"})
-                    return Response({"messages": messages}, 401)
-                # Parameter check and default values
-                author_id = int(author_id)
-                if author_id < 0:
-                    raise ValueError("Value is not positive integer")
-
-                if limit == None:
-                    limit = 10
-                try:
-                    limit = int(limit)
-                    if limit < 0:
-                        raise ValueError("Value is not positive integer")
-                except ValueError:
-                    messages.append(
-                        {"content": "The limit has to be a positive integer.", "identifier": "limit"})
-
-                if order == None:
-                    order = "latest"
-                if not order in ["latest", "votes"]:
-                    messages.append(
-                        {"content": "The order parameter can be only 'latest' or 'votes'", "identifier": "order"})
-
-                if len(messages) == 0:
-                    try:
-                        author = User.objects.get(user_id=author_id)
-                        if not author.organization == request.user.organization:
-                            messages.append(
-                                compose_message("You are not allowed to perform this action."))
-                            return Response({"messages": messages}, 403)
-                    except:
-                        messages.append(
-                            {"content": "The author was not found.", "identifier": "questionId"})
-                        return Response({"messages": messages}, 404)
-
-                    answers = list(Answer.objects.filter(user=author))
-                    if len(answers) == 0:
-                        messages.append(
-                            {"content": "The user has not written any answers.", "identifier": ""})
-                        return Response({"messages": messages}, 404)
-
-                    answers = exclude_old_versions(answers)
-                    answers = order_messages(answers, order)
-                    return Response({"answers": serialize_answers(answers), "messages": messages}, 200)
-
-            except ValueError:
-                messages.append(
-                    {"content": "The author id has to be a positive integer.", "identifier": "questionId"})
-        return Response({"messages": messages}, 400)
+        raise exc.ParseError("Answer could not be created.")
