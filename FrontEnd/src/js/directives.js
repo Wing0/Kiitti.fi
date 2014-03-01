@@ -47,25 +47,15 @@ module.directive('ktConversationMessage', function() {
 
       $scope.vote = function(direction) {
         var vote = {
-          "rid": $scope.message.messageId,
+          "rid": $scope.message.rid,
           "ridType": $scope.ridType,
           "direction": direction
         };
 
         VoteAPI.save(vote, function(vote) {
-          if (direction > 0) {
-            $scope.message.meta.votes.up++;
-            if ($scope.message.meta.votedDown)
-              $scope.message.meta.votes.down--;
-            $scope.message.meta.votedDown = false;
-            $scope.message.meta.votedUp = true;
-          } else if (direction < 0) {
-            $scope.message.meta.votes.down++;
-            if ($scope.message.meta.votedUp)
-              $scope.message.meta.votes.up--;
-            $scope.message.meta.votedUp = false;
-            $scope.message.meta.votedDown = true;
-          }
+          $scope.message.votes_up = vote.votes_up;
+          $scope.message.votes_down = vote.votes_down;
+          $scope.message.user_vote = vote.user_vote;
         });
       };
     } // /controller

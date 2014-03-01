@@ -43,14 +43,23 @@ class VoteAPI(APIView):
                                        head_id=vote_target_object.pk,
                                        user=request.user)
             serializer = VoteSerializerPOST(tryvote, data=data_to_serialize)
-            if serializer.is_valid():
-                serializer.save()
-                return Response("Vote updated.", 200)
+            status = 200
         except Vote.DoesNotExist:
             # create new
             serializer = VoteSerializerPOST(data=data_to_serialize)
-            if serializer.is_valid():
-                serializer.save()
-                return Response("Vote created.", 201)
+            status = 201
+
+        if serializer.is_valid():
+            serializer.save()
+            response = {
+                "votes_up": Vote.objects.filter(head_id=vote_target_object.pk,
+                                                head_type=content_type.pk,
+                                                direction=1).count(),
+                "votes_down": Vote.objects.filter(head_id=vote_target_object.pk,
+                                                head_type=content_type.pk,
+                                                direction=-1).count(),
+                "user_vote": data_to_serialize['direction']
+            }
+            return Response(response, status)
 
         raise exc.ParseError("Vote could not be created.")

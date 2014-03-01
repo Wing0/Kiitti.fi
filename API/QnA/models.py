@@ -174,7 +174,7 @@ class CommentMixin(object):
 
     @property
     def comment_amount(self):
-        return len(self.comments.all())
+        return self.comments.count()
 
 
 class AbstractMessage(RIDMixin, TimestampMixin):
@@ -215,21 +215,27 @@ class AbstractMessage(RIDMixin, TimestampMixin):
 
     @property
     def votes_up(self):
-        head_type = ContentType.objects.get_for_model(self.__class__)
+        if not hasattr(self, '_votes_up'):
+            head_type = ContentType.objects.get_for_model(self.__class__)
 
-        votes = Vote.objects.filter(
-            head_type__pk=head_type.id,
-            head_id=self.id)
-        return len(votes.filter(direction=1))
+            votes = Vote.objects.filter(
+                head_type__pk=head_type.id,
+                head_id=self.id)
+            self._votes_up = votes.filter(direction=1).count()
+
+        return self._votes_up
 
     @property
     def votes_down(self):
-        head_type = ContentType.objects.get_for_model(self.__class__)
+        if not hasattr(self, '_votes_down'):
+            head_type = ContentType.objects.get_for_model(self.__class__)
 
-        votes = Vote.objects.filter(
-            head_type__pk=head_type.id,
-            head_id=self.id)
-        return len(votes.filter(direction=-1))
+            votes = Vote.objects.filter(
+                head_type__pk=head_type.id,
+                head_id=self.id)
+            self._votes_down = votes.filter(direction=-1).count()
+
+        return self._votes_down
 
 
 class Comment(AbstractMessage):

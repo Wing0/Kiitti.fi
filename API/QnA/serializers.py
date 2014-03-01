@@ -103,7 +103,8 @@ class AnswerSerializerGET(AbstractMessageGETSingle):
 
     class Meta:
         model = Answer
-        fields = ('rid', 'message', 'user', 'created', 'user_vote', 'comments')
+        fields = ('rid', 'message', 'user', 'created',
+                  'votes_up', 'votes_down', 'user_vote', 'comments')
         read_only_fields = ('rid',)
 
 
