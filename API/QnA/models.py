@@ -172,6 +172,10 @@ class CommentMixin(object):
 
         return self._comments
 
+    @property
+    def comment_amount(self):
+        return len(self.comments.all())
+
 
 class AbstractMessage(RIDMixin, TimestampMixin):
 

@@ -10,6 +10,7 @@ class OrganizationSerializerGET(serializers.ModelSerializer):
     class Meta:
         model = Organization
         fields = ('rid', 'name', 'address')
+        read_only_fields = ('rid',)
 
 
 class OrganizationSerializerPOST(serializers.ModelSerializer):
@@ -40,6 +41,8 @@ class UserSerializerPOST(serializers.ModelSerializer):
 
 
 class MessageSerializerGET(serializers.ModelSerializer):
+
+    user = UserSerializerGET()
 
     class Meta:
         model = Message
@@ -72,6 +75,7 @@ class AnswerSerializerGET(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = ('rid', 'message', 'user', 'created')
+        read_only_fields = ('rid',)
 
 
 class CommentSerializerGET(serializers.ModelSerializer):
@@ -85,6 +89,7 @@ class CommentSerializerGET(serializers.ModelSerializer):
         model = Comment
         fields = ('rid', 'message', 'user', 'votes_up',
                   'votes_down', 'created')
+        read_only_fields = ('rid',)
 
 
 class QuestionSerializerGETSingle(serializers.ModelSerializer):
@@ -94,14 +99,17 @@ class QuestionSerializerGETSingle(serializers.ModelSerializer):
     comments = CommentSerializerGET(many=True)
     tags = TagSerializerGet(many=True)
     slug = serializers.Field(source='slug')
+    user = UserSerializerGET()
+    comment_amount = serializers.Field(source='comment_amount')
     votes_up = serializers.Field(source='votes_up')
     votes_down = serializers.Field(source='votes_down')
 
     class Meta:
         model = Question
-        fields = ('rid', 'title', 'message', 'created',
-                  'modified', 'answers', 'comments', 'tags',
-                  'votes_up', 'votes_down', 'slug')
+        fields = ('rid', 'title', 'slug', 'user', 'votes_up',
+                  'votes_down', 'message', 'created', 'modified',
+                  'comment_amount', 'tags', 'comments', 'answers')
+        read_only_fields = ('rid', 'created')
 
 
 class QuestionSerializerGETMany(serializers.ModelSerializer):
@@ -110,13 +118,16 @@ class QuestionSerializerGETMany(serializers.ModelSerializer):
     message = MessageSerializerGET()
     tags = TagSerializerGet(many=True)
     slug = serializers.Field(source='slug')
+    comment_amount = serializers.Field(source='comment_amount')
     votes_up = serializers.Field(source='votes_up')
     votes_down = serializers.Field(source='votes_down')
 
     class Meta:
         model = Question
-        fields = ('rid', 'title', 'slug', 'message', 'user', 'created',
-                  'modified', 'tags', 'votes_up', 'votes_down')
+        fields = ('rid', 'title', 'slug', 'user', 'created',
+                  'modified', 'message', 'comment_amount',
+                  'tags', 'votes_up', 'votes_down')
+        read_only_fields = ('rid', 'created')
 
 
 ### POST (ABSTRACT MESSAGE) QUESTION/COMMENT/ANSWER ###
