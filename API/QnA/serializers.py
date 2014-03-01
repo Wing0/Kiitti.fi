@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.models import ContentType
+
 from rest_framework.serializers import ValidationError
 from rest_framework import serializers
 
@@ -54,9 +56,12 @@ class AbstractMessageGETSingle(serializers.ModelSerializer):
     user_vote = serializers.SerializerMethodField('get_user_vote')
 
     def get_user_vote(self, obj):
+        head_type = ContentType.objects.get_for_model(obj)
+
         if self.context.get('user', None):
             try:
                 vote = Vote.objects.get(head_id=obj.pk,
+                                        head_type=head_type,
                                         user=self.context['user'])
                 return vote.direction
             except: return 0
@@ -147,7 +152,7 @@ class QuestionSerializerGETMany(serializers.ModelSerializer):
         read_only_fields = ('rid', 'created')
 
     def get_answer_amount(self, obj):
-        return len(obj.answers.all())
+        return obj.answers.count()
 
 
 ### POST (ABSTRACT MESSAGE) QUESTION/COMMENT/ANSWER ###

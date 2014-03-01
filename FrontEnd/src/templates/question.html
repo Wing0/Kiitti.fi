@@ -9,7 +9,7 @@
     <div class="answers" ng-if="question.answers">
       <h2>Vastaukset</h2>
       <hr>
-      <div ng-repeat="answer in question.answers | orderBy: 'meta.votes.up - meta.votes.down':true">
+      <div ng-repeat="answer in question.answers | orderBy: 'votes_up - votes_down':true">
         <div kt-conversation-message message="answer" rid-type="answer"></div>
         <hr ng-if="!$last">
       </div>

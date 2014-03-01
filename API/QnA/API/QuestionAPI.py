@@ -71,7 +71,7 @@ class QuestionAPI(APIView):
         if not questions:
             raise NotFound("No questions could be found.")
 
-        serializer = QuestionSerializerGETMany(questions, many=True)
+        serializer = QuestionSerializerGETMany(questions, many=True, context={'user': request.user})
 
         return Response({"questions": serializer.data}, 200)
 

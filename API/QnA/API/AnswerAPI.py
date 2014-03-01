@@ -14,12 +14,10 @@ class AnswerAPI(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, rid):
-        '''
+        """
         @example
-            {
-                "content": "Example answer modified",
-            }
-        '''
+            {"content": string}
+        """
         # find question first
         try:
             question = Question.objects.get(rid=rid)
