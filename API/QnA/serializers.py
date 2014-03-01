@@ -79,19 +79,6 @@ class TagSerializerGet(serializers.ModelSerializer):
         fields = ('keyword', 'created')
 
 
-class AnswerSerializerGET(AbstractMessageGETSingle):
-
-    user = UserSerializerGET()
-    message = MessageSerializerGET()
-    votes_up = serializers.Field(source='votes_up')
-    votes_down = serializers.Field(source='votes_down')
-
-    class Meta:
-        model = Answer
-        fields = ('rid', 'message', 'user', 'created', 'user_vote')
-        read_only_fields = ('rid',)
-
-
 class CommentSerializerGET(AbstractMessageGETSingle):
 
     user = UserSerializerGET()
@@ -103,6 +90,20 @@ class CommentSerializerGET(AbstractMessageGETSingle):
         model = Comment
         fields = ('rid', 'message', 'user', 'votes_up',
                   'votes_down', 'created', 'user_vote')
+        read_only_fields = ('rid',)
+
+
+class AnswerSerializerGET(AbstractMessageGETSingle):
+
+    user = UserSerializerGET()
+    message = MessageSerializerGET()
+    comments = CommentSerializerGET(many=True)
+    votes_up = serializers.Field(source='votes_up')
+    votes_down = serializers.Field(source='votes_down')
+
+    class Meta:
+        model = Answer
+        fields = ('rid', 'message', 'user', 'created', 'user_vote', 'comments')
         read_only_fields = ('rid',)
 
 
@@ -135,13 +136,17 @@ class QuestionSerializerGETMany(serializers.ModelSerializer):
     comment_amount = serializers.Field(source='comment_amount')
     votes_up = serializers.Field(source='votes_up')
     votes_down = serializers.Field(source='votes_down')
+    answer_amount = serializers.SerializerMethodField('get_answer_amount')
 
     class Meta:
         model = Question
         fields = ('rid', 'title', 'slug', 'user', 'created',
                   'modified', 'message', 'comment_amount',
-                  'tags', 'votes_up', 'votes_down')
+                  'tags', 'votes_up', 'votes_down', 'answer_amount')
         read_only_fields = ('rid', 'created')
+
+    def get_answer_amount(self, obj):
+        return len(obj.answers.all())
 
 
 ### POST (ABSTRACT MESSAGE) QUESTION/COMMENT/ANSWER ###
