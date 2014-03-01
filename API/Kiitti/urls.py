@@ -27,7 +27,7 @@ urlpatterns = patterns('',
 
     url(r'^votes/(?P<content_type>question|answer|comment)/(?P<rid>[0-9]{1,9})/?$', VoteAPI.as_view()),
 
-    url(r'^questions/(?P<question_id>[0-9]{1,9})/?$', QuestionAPI.as_view()),
+    url(r'^questions/(?P<rid>[0-9]{1,9})/?$', QuestionAPI.as_view()),
     url(r'^questions/?$', QuestionAPI.as_view()),
 
     url(r'^tags/?$', TagAPI.as_view()),

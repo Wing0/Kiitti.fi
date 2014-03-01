@@ -16,14 +16,14 @@ class QuestionAPI(APIView):
 
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request, question_id=None):
+    def get(self, request, rid=None):
         '''
         Retrieves questions according to request parameters (such as question id, author id and tags)
         Functionality can be determined by providing different search parameters and searchInclusion method
 
         @params
             request: the request parameter from get function
-            question_id, integer (optional): The id of the question to be retrieved
+            rid, integer (optional): The id of the question to be retrieved
         @GETparams
             authorId, integer (optional): The id of the author who has written the questions
             authorName, string (optional): The name of the author who has written the questions
@@ -41,39 +41,16 @@ class QuestionAPI(APIView):
             /questions/?authorId=123&limit=4&order=votes
         @perm
             member: All question information can be given only for members of the organization.
-        @return
-            200:
-                list of retrieved questions
-                example: {
-                            "questions":[{
-                                        "title":"What is the question?",
-                                        "content":"An example question",
-                                        "version":1,
-                                        "user": {
-                                            "username": "admin",
-                                            "reputation": 0,
-                                            "lastLogin": "2014-02-08T14:16:58.926Z",
-                                            "firstName": "Ville",
-                                            "created": "2014-01-05T19:53:55Z",
-                                            "lastName": "Tolonen",
-                                            "userId": 1,
-                                            "email": "admin@admin.fi"
-                                        },
-                                        "created": "2014-01-08T11:05:16",
-                                        "modified": "2014-01-08T11:05:16",
-                                        "messageId": 4,
-                                        }]
-                        }
         '''
-        if question_id:
-            return self.get_single(request, question_id)
+        if rid:
+            return self.get_single(request, rid)
 
         return self.get_many(request)
 
-    def get_single(self, request, question_id):
+    def get_single(self, request, rid):
 
         try:
-            question = Question.objects.get(rid=question_id)
+            question = Question.objects.get(rid=rid)
         except Question.DoesNotExist:
             raise NotFound("Question could not be found.")
 
@@ -115,17 +92,6 @@ class QuestionAPI(APIView):
             }
         @perm
             member: any member can post an question
-        @return
-            201: Created, the question was succesfully created
-            400: Bad request, parameters were missing or wrong type
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
-                        }
-            401: Unauthorized, the user has to be loggend in to perform this action
-                list of appropriate error messages
-                example: {
-                            "messages":[{"content":"An example error message.","identifier":"example"}]
         '''
         request.DATA['head']['user'] = request.user.pk # important
         request.DATA['user'] = request.user.pk # important
@@ -141,6 +107,6 @@ class QuestionAPI(APIView):
 
         raise exc.ParseError("Question could not be created.")
 
-    def put(self, request, question_id):
+    def put(self, request, rid):
         # todo: add question updating
         pass
