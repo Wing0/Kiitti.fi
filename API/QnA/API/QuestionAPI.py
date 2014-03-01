@@ -83,7 +83,7 @@ class QuestionAPI(APIView):
 
     def get_many(self, request):
 
-        questions = Question.objects.all()
+        questions = Question.objects.all().order_by('-created')
 
         if request.GET.get('author_id', None):
             author = User.objects.get(rid=request.GET['author_id'])

@@ -1,5 +1,6 @@
 from rest_framework.serializers import ValidationError
 from rest_framework import serializers
+
 from QnA.models import User, Organization, Vote, Message, \
                        Question, Answer, Comment, Keyword, Tag
 
@@ -70,7 +71,7 @@ class AnswerSerializerGET(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ('rid', 'message', 'user')
+        fields = ('rid', 'message', 'user', 'created')
 
 
 class CommentSerializerGET(serializers.ModelSerializer):
@@ -82,7 +83,8 @@ class CommentSerializerGET(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('rid', 'message', 'user', 'votes_up', 'votes_down')
+        fields = ('rid', 'message', 'user', 'votes_up',
+                  'votes_down', 'created')
 
 
 class QuestionSerializerGETSingle(serializers.ModelSerializer):
@@ -91,6 +93,7 @@ class QuestionSerializerGETSingle(serializers.ModelSerializer):
     answers = AnswerSerializerGET(many=True)
     comments = CommentSerializerGET(many=True)
     tags = TagSerializerGet(many=True)
+    slug = serializers.Field(source='slug')
     votes_up = serializers.Field(source='votes_up')
     votes_down = serializers.Field(source='votes_down')
 
@@ -98,7 +101,7 @@ class QuestionSerializerGETSingle(serializers.ModelSerializer):
         model = Question
         fields = ('rid', 'title', 'message', 'created',
                   'modified', 'answers', 'comments', 'tags',
-                  'votes_up', 'votes_down')
+                  'votes_up', 'votes_down', 'slug')
 
 
 class QuestionSerializerGETMany(serializers.ModelSerializer):
@@ -106,12 +109,13 @@ class QuestionSerializerGETMany(serializers.ModelSerializer):
     user = UserSerializerGET()
     message = MessageSerializerGET()
     tags = TagSerializerGet(many=True)
+    slug = serializers.Field(source='slug')
     votes_up = serializers.Field(source='votes_up')
     votes_down = serializers.Field(source='votes_down')
 
     class Meta:
         model = Question
-        fields = ('rid', 'title', 'message', 'user', 'created',
+        fields = ('rid', 'title', 'slug', 'message', 'user', 'created',
                   'modified', 'tags', 'votes_up', 'votes_down')
 
 

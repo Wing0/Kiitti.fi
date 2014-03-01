@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.db import models
+from django.utils.text import slugify
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
@@ -251,6 +252,10 @@ class Question(AbstractMessage, CommentMixin):
 
     class Meta:
         db_table = 'QnA_questions'
+
+    @property
+    def slug(self):
+        return slugify(self.title)
 
 
 class Answer(AbstractMessage, CommentMixin):

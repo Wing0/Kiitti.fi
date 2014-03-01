@@ -6,7 +6,7 @@
       <div class="votes-container" ng-bind="question.meta.votes.up - question.meta.votes.down"></div>
     </aside>
     <header class="cell">
-      <h2><a href="/question/{{question.rid}}" ng-bind="question.title"></a></h2>
+      <h2><a href="/question/{{question.rid}}/{{question.slug}}" ng-bind="question.title"></a></h2>
       <p ng-bind="question.message.content | slice:{length:150}"></p>
     </header>
     <section class="content cell" ng-show="showContent">
