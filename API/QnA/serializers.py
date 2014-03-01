@@ -1,23 +1,24 @@
-from rest_framework.serializers import ModelSerializer, ValidationError, Field, RelatedField
+from rest_framework.serializers import ValidationError
+from rest_framework import serializers
 from QnA.models import User, Organization, Vote, Message, \
                        Question, Answer, Comment, Keyword, Tag
 
 
-class OrganizationSerializerGET(ModelSerializer):
+class OrganizationSerializerGET(serializers.ModelSerializer):
 
     class Meta:
         model = Organization
         fields = ('rid', 'name', 'address')
 
 
-class OrganizationSerializerPOST(ModelSerializer):
+class OrganizationSerializerPOST(serializers.ModelSerializer):
 
     class Meta:
         model = Organization
         fields = ('name', 'address')
 
 
-class UserSerializerGET(ModelSerializer):
+class UserSerializerGET(serializers.ModelSerializer):
 
     organization = OrganizationSerializerGET()
 
@@ -28,7 +29,7 @@ class UserSerializerGET(ModelSerializer):
         write_only_fields = ('password',)
 
 
-class UserSerializerPOST(ModelSerializer):
+class UserSerializerPOST(serializers.ModelSerializer):
 
     class Meta:
         model = User
@@ -37,43 +38,21 @@ class UserSerializerPOST(ModelSerializer):
         write_only_fields = ('password',)
 
 
-class VoteSerializerPOST(ModelSerializer):
-
-    class Meta:
-        model = Vote
-        fields = ('user', 'direction')
-
-    def validate(self, attrs):
-
-        # TODO: check that there is a message that can be voted
-
-        if attrs['direction'] not in [1, -1]:
-            raise ValidationError("Direction must be 1 or -1")
-        return attrs
-
-
-class MessageSerializerGET(ModelSerializer):
+class MessageSerializerGET(serializers.ModelSerializer):
 
     class Meta:
         model = Message
         fields = ('content', 'version', 'user', 'created', 'modified')
 
 
-class MessageSerializerPOSTAbstract(ModelSerializer):
-
-    class Meta:
-        model = Message
-        fields = ('content', 'user', 'head')
-
-
-class KeywordSerializer(ModelSerializer):
+class KeywordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Keyword
         fields = ('content', 'category')
 
 
-class TagSerializerGet(ModelSerializer):
+class TagSerializerGet(serializers.ModelSerializer):
 
     keyword = KeywordSerializer()
 
@@ -82,38 +61,38 @@ class TagSerializerGet(ModelSerializer):
         fields = ('keyword', 'created')
 
 
-class AnswerSerializerGET(ModelSerializer):
+class AnswerSerializerGET(serializers.ModelSerializer):
 
     user = UserSerializerGET()
     message = MessageSerializerGET()
-    votes_up = Field(source='votes_up')
-    votes_down = Field(source='votes_down')
+    votes_up = serializers.Field(source='votes_up')
+    votes_down = serializers.Field(source='votes_down')
 
     class Meta:
         model = Answer
         fields = ('rid', 'message', 'user')
 
 
-class CommentSerializerGET(ModelSerializer):
+class CommentSerializerGET(serializers.ModelSerializer):
 
     user = UserSerializerGET()
     message = MessageSerializerGET()
-    votes_up = Field(source='votes_up')
-    votes_down = Field(source='votes_down')
+    votes_up = serializers.Field(source='votes_up')
+    votes_down = serializers.Field(source='votes_down')
 
     class Meta:
         model = Comment
         fields = ('rid', 'message', 'user')
 
 
-class QuestionSerializerGETSingle(ModelSerializer):
+class QuestionSerializerGETSingle(serializers.ModelSerializer):
 
     message = MessageSerializerGET()
     answers = AnswerSerializerGET(many=True)
     comments = CommentSerializerGET(many=True)
     tags = TagSerializerGet(many=True)
-    votes_up = Field(source='votes_up')
-    votes_down = Field(source='votes_down')
+    votes_up = serializers.Field(source='votes_up')
+    votes_down = serializers.Field(source='votes_down')
 
     class Meta:
         model = Question
@@ -122,13 +101,13 @@ class QuestionSerializerGETSingle(ModelSerializer):
                   'votes_up', 'votes_down')
 
 
-class QuestionSerializerGETMany(ModelSerializer):
+class QuestionSerializerGETMany(serializers.ModelSerializer):
 
     user = UserSerializerGET()
     message = MessageSerializerGET()
     tags = TagSerializerGet(many=True)
-    votes_up = Field(source='votes_up')
-    votes_down = Field(source='votes_down')
+    votes_up = serializers.Field(source='votes_up')
+    votes_down = serializers.Field(source='votes_down')
 
     class Meta:
         model = Question
@@ -136,7 +115,20 @@ class QuestionSerializerGETMany(ModelSerializer):
                   'modified', 'tags', 'votes_up', 'votes_down')
 
 
-class QuestionSerializerPOST(ModelSerializer):
+### POST (ABSTRACT MESSAGE) QUESTION/COMMENT/ANSWER ###
+
+class MessageSerializerPOSTAbstract(serializers.ModelSerializer):
+
+    #! Define head in sub class
+
+    class Meta:
+        model = Message
+        fields = ('content', 'user', 'head')
+
+
+### POST QUESTION ###
+
+class QuestionSerializerPOST(serializers.ModelSerializer):
 
     class Meta:
         model = Question
@@ -146,3 +138,30 @@ class QuestionSerializerPOST(ModelSerializer):
 class MessageSerializerPOSTQuestion(MessageSerializerPOSTAbstract):
 
     head = QuestionSerializerPOST()
+
+
+### POST COMMENT ###
+
+class CommentToQuestionSerializerPOST(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comment
+        fields = ('user', 'head_id', 'head_type')
+
+class MessageSerializerPOSTComment(MessageSerializerPOSTAbstract):
+
+    head = CommentToQuestionSerializerPOST()
+
+
+### POST VOTE ###
+
+class VoteSerializerPOST(serializers.ModelSerializer):
+
+    class Meta:
+        model = Vote
+        fields = ('user', 'direction', 'head_id', 'head_type')
+
+    def validate(self, attrs):
+        if attrs.get('direction', None) not in [1, -1]:
+            raise ValidationError("Direction must be 1 or -1")
+        return attrs

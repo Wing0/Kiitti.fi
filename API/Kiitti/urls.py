@@ -22,7 +22,9 @@ urlpatterns = patterns('',
 
     url(r'^answers/?$', AnswerAPI.as_view()),
 
-    url(r'^comments/?$', CommentAPI.as_view()),
+    url(r'^comments/(?P<content_type>question|answer|comment)/(?P<rid>[0-9]{1,9})/?$', CommentAPI.as_view()),
+
+    url(r'^votes/(?P<content_type>question|answer|comment)/(?P<rid>[0-9]{1,9})/?$', VoteAPI.as_view()),
 
     url(r'^questions/(?P<question_id>[0-9]{1,9})/?$', QuestionAPI.as_view()),
     url(r'^questions/?$', QuestionAPI.as_view()),
@@ -37,7 +39,6 @@ urlpatterns = patterns('',
     url(r'^users/(?P<user_id>[0-9]{1,9})/?$', UserAPI.as_view()),
     url(r'^users/?$', UserAPI.as_view()),
 
-    url(r'^votes/(?P<message_type>question|answer|comment)/?$', VoteAPI.as_view()),
 
     url(r'^reset/?$', ResetPasswordAPI.as_view()),
 )

@@ -147,8 +147,6 @@ class Message(TimestampMixin):
                         head_id=self.head_id).aggregate(models.Max('version'))
         max_version = max_version_dict['version__max']
 
-        print max_version_dict
-
         if max_version:
             self.version = max_version + 1
         else:

@@ -16,70 +16,41 @@ class VoteAPI(APIView):
 
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request, message_type):
-        '''
-        This method saves a vote for a question or answer matching the given message_id
-        @params
-            direction, integer: vote value, can be either 1 or -1
-            messageId, positive integer: message id of the target
+    def post(self, request, content_type=None, rid=None):
+        """
         @example:
             {
-                "direction": 1,
-                "message_id": 3
+                "direction": 1
             }
-        @perm
-            member: any member can vote
-        '''
-
-        if not message_type.lower() in ["question", "answer", "comment"]:
-            raise exc.ParseError("Must have type question/answer/comment in URL.")
-        if not request.DATA.get('message_id', None):
-            raise exc.ParseError("Must have message_id.")
+        """
 
         try:
-            content_type = ContentType.objects.get(name=message_type)
-            voteobject = content_type.get_object_for_this_type(rid=request.DATA['message_id'])
+            content_type = ContentType.objects.get(name=content_type)
+            vote_target_object = content_type.get_object_for_this_type(rid=rid)
         except:
             raise exc.ParseError("Cannot find message to vote.")
 
-        request.DATA['user'] = request.user.pk # important
+        data_to_serialize = {
+            "user": request.user.pk,
+            "direction": request.DATA.get('direction', None),
+            "head_id": vote_target_object.pk,
+            "head_type": content_type.pk,
+        }
 
-        # check for existing vote
-        tryvote = Vote.objects.filter(
-            head_type__model=message_type,
-            head_id=voteobject.pk,
-            user=request.user)
+        try:
+            # update old
+            tryvote = Vote.objects.get(head_type=content_type.pk,
+                                       head_id=vote_target_object.pk,
+                                       user=request.user)
+            serializer = VoteSerializerPOST(tryvote, data=data_to_serialize)
+            if serializer.is_valid():
+                serializer.save()
+                return Response("Vote updated.", 200)
+        except Vote.DoesNotExist:
+            # create new
+            serializer = VoteSerializerPOST(data=data_to_serialize)
+            if serializer.is_valid():
+                serializer.save()
+                return Response("Vote created.", 201)
 
-        # update old
-        if tryvote:
-            tryvote[0].direction = request.DATA['direction']
-            tryvote.save()
-            return Response("Vote updated.", 200)
-
-        # create new
-        vote = Vote(direction=request.DATA['direction'],
-                    user=request.user,
-                    head_type=content_type,
-                    head_id=voteobject.pk)
-        vote.save()
-
-        return Response("vote created", 201)
-
-        # Better saving method in development:
-
-        # if tryvote:
-        #     # vote exists with same direction
-        #     if tryvote[0].direction == request.DATA.get("direction"):
-        #         raise exc.ParseError("Vote exists already.")
-        #     # vote needs to be updated
-        #     else:
-        #         serializer = VoteSerializerPOST(tryvote[0], data=request.DATA)
-        # else:
-        #     serializer = VoteSerializerPOST(data=request.DATA)
-
-        # # validate and save
-        # if serializer.is_valid():
-        #     serializer.save()
-        #     return Response(serializer.data, 201)
-        # else:
-        #     return Response(serializer.errors, 400)
+        raise exc.ParseError("Vote could not be created.")
