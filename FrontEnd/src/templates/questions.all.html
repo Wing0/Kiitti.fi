@@ -3,7 +3,8 @@
 
   <div ng-repeat="question in data.questions" class="single-question table" ng-init="showContent=false">
     <aside class="votes cell">
-      <div class="votes-container" ng-bind="question.meta.votes.up - question.meta.votes.down"></div>
+      <div class="votes-container">vot <span ng-bind="question.votes_up - question.votes_down"></span></div>
+      <div class="votes-container">ans <span ng-bind="question.answer_amount"></span></div>
     </aside>
     <header class="cell">
       <h2><a href="/question/{{question.rid}}/{{question.slug}}" ng-bind="question.title"></a></h2>
