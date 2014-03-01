@@ -66,11 +66,11 @@ module.controller('BrowseQuestionsController', function($scope, QuestionAPI) {
 module.controller('SingleQuestionController', function($scope, question, AnswerAPI, MessageFactory) {
 
   $scope.question = question;
-  $scope.answer = {"message": {}};
+  $scope.answer = {};
   $scope.submitMessage = {};
 
   $scope.submitAnswer = function() {
-    $scope.answer.questionId = $scope.question.messageId;
+    $scope.answer.rid = $scope.question.rid;
 
     AnswerAPI.save($scope.answer, function(answer) {
       $scope.question.answers.push(answer);

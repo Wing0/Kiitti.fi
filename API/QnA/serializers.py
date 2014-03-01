@@ -49,6 +49,20 @@ class MessageSerializerGET(serializers.ModelSerializer):
         fields = ('content', 'version', 'user', 'created', 'modified')
 
 
+class AbstractMessageGETSingle(serializers.ModelSerializer):
+
+    user_vote = serializers.SerializerMethodField('get_user_vote')
+
+    def get_user_vote(self, obj):
+        if self.context.get('user', None):
+            try:
+                vote = Vote.objects.get(head_id=obj.pk,
+                                        user=self.context['user'])
+                return vote.direction
+            except: return 0
+        return None
+
+
 class KeywordSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -65,7 +79,7 @@ class TagSerializerGet(serializers.ModelSerializer):
         fields = ('keyword', 'created')
 
 
-class AnswerSerializerGET(serializers.ModelSerializer):
+class AnswerSerializerGET(AbstractMessageGETSingle):
 
     user = UserSerializerGET()
     message = MessageSerializerGET()
@@ -74,11 +88,11 @@ class AnswerSerializerGET(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ('rid', 'message', 'user', 'created')
+        fields = ('rid', 'message', 'user', 'created', 'user_vote')
         read_only_fields = ('rid',)
 
 
-class CommentSerializerGET(serializers.ModelSerializer):
+class CommentSerializerGET(AbstractMessageGETSingle):
 
     user = UserSerializerGET()
     message = MessageSerializerGET()
@@ -88,11 +102,11 @@ class CommentSerializerGET(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('rid', 'message', 'user', 'votes_up',
-                  'votes_down', 'created')
+                  'votes_down', 'created', 'user_vote')
         read_only_fields = ('rid',)
 
 
-class QuestionSerializerGETSingle(serializers.ModelSerializer):
+class QuestionSerializerGETSingle(AbstractMessageGETSingle):
 
     message = MessageSerializerGET()
     answers = AnswerSerializerGET(many=True)
@@ -108,7 +122,7 @@ class QuestionSerializerGETSingle(serializers.ModelSerializer):
         model = Question
         fields = ('rid', 'title', 'slug', 'user', 'votes_up',
                   'votes_down', 'message', 'created', 'modified',
-                  'comment_amount', 'tags', 'comments', 'answers')
+                  'comment_amount', 'tags', 'comments', 'answers', 'user_vote')
         read_only_fields = ('rid', 'created')
 
 

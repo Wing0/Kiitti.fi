@@ -21,7 +21,7 @@
       <div ng-if="submitMessage" ng-bind="submitMessage.message.content" class="submitMessage {{submitMessage.type}}"></div>
       <form class="add-answer">
         <label for="message">Vastauksesi</label>
-        <div text-angular ng-model="answer.message.content"></div>
+        <div text-angular ng-model="answer.content"></div>
         <button ng-click="submitAnswer()" class="emphasis-1">Lähetä vastaus</button>
       </form>
     </div>

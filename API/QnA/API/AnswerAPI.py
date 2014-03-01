@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import exceptions as exc
 
 from QnA.models import Answer, User, Question
-from QnA.serializers import MessageSerializerPOSTAnswer
+from QnA.serializers import MessageSerializerPOSTAnswer, AnswerSerializerGET
 
 
 class AnswerAPI(APIView):
@@ -20,6 +20,7 @@ class AnswerAPI(APIView):
                 "content": "Example answer modified",
             }
         '''
+        # find question first
         try:
             question = Question.objects.get(rid=rid)
         except:
@@ -38,7 +39,9 @@ class AnswerAPI(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return Response("Answer succesfully created.", 201)
+            answer = serializer.object.head
+            get_serializer = AnswerSerializerGET(answer)
+            return Response(get_serializer.data, 201)
         else:
             return Response(serializer.errors, 400)
 
