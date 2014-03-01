@@ -7,6 +7,7 @@ var app = angular.module('app', [
 /* CONFIG */
 
 app.constant("APIUrl", 'http://127.0.0.1:8000');
+app.constant("AuthToken", 'tursas');
 
 app.config(function($locationProvider, $httpProvider, $cookiesProvider) {
 
@@ -43,15 +44,15 @@ app.config(function($locationProvider, $httpProvider, $cookiesProvider) {
   });
 });
 
-app.run(function($rootScope, $cookieStore, $http, AuthAPI, MessageFactory) {
+app.run(function($rootScope, $cookieStore, $http, AuthAPI, MessageFactory, AuthToken) {
 
   $rootScope.$on('$stateChangeStart', function() {
     MessageFactory.clear();
   });
 
   /* Get user if already logged in */
-  if ($cookieStore.get('tursas')) {
-    $http.defaults.headers.common['Authorization'] = 'Token ' + $cookieStore.get('tursas');
+  if ($cookieStore.get(AuthToken)) {
+    $http.defaults.headers.common['Authorization'] = 'Token ' + $cookieStore.get(AuthToken);
     AuthAPI.load().success(function(data) {
       $rootScope.user = data.user;
     });
