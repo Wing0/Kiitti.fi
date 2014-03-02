@@ -84,7 +84,7 @@ class KeywordSerializer(serializers.ModelSerializer):
         fields = ('content', 'categories')
 
 
-class TagSerializerGet(serializers.ModelSerializer):
+class TagSerializerGET(serializers.ModelSerializer):
 
     keyword = KeywordSerializer()
 
@@ -136,7 +136,7 @@ class QuestionSerializerGETSingle(AbstractMessageGETSingle):
     message = MessageSerializerGET()
     answers = AnswerSerializerGET(many=True)
     comments = CommentSerializerGET(many=True)
-    tags = TagSerializerGet(many=True)
+    tags = TagSerializerGET(many=True)
     slug = serializers.Field(source='slug')
     user = UserSerializerGET()
     comment_amount = serializers.Field(source='comment_amount')
@@ -155,7 +155,7 @@ class QuestionSerializerGETMany(serializers.ModelSerializer):
 
     user = UserSerializerGET()
     message = MessageSerializerGET()
-    tags = TagSerializerGet(many=True)
+    tags = TagSerializerGET(many=True)
     slug = serializers.Field(source='slug')
     comment_amount = serializers.Field(source='comment_amount')
     votes_up = serializers.Field(source='votes_up')
