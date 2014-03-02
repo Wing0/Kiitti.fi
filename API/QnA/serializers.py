@@ -68,6 +68,13 @@ class AbstractMessageGETSingle(serializers.ModelSerializer):
         return None
 
 
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Category
+        fields = ('title', 'description')
+
+
 class KeywordSerializer(serializers.ModelSerializer):
 
     class Meta:
