@@ -6,11 +6,20 @@ $vote-width: 100px;
 $thumb-size: 40px;
 $conversation-max-width: 670px;
 
+.inline-block-container {
+  text-align: center;
+}
+
+.conversation, .question-meta {
+  display: inline-block;
+  text-align: left;
+}
+
 .conversation {
   h1, h2 {
     padding-bottom: 7px;
   }
-  max-width: $conversation-max-width;
+  max-width: $page-container-max-width;
   min-width: 300px;
 }
 

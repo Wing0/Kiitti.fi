@@ -32,9 +32,6 @@ body {
 .container {
   max-width: 800px;
   margin: 0 auto;
-  & > section, & > div, & > header, & > footer, p, ul {
-    text-align: left;
-  }
 }
 
 .table {
@@ -246,13 +243,11 @@ pre {
 }
 
 #main-content {
-  text-align: center;
+  min-width: $page-min-width;
+  max-width: $page-max-width;
   @include clearfix;
   .container {
-    min-width: $page-min-width;
-    max-width: $page-max-width;
     margin: 50px auto;
-    text-align: center;
   }
 }
 
