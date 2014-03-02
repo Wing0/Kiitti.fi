@@ -30,7 +30,7 @@ body {
 }
 
 .container {
-  display: inline-block;
+  max-width: 800px;
   margin: 0 auto;
   & > section, & > div, & > header, & > footer, p, ul {
     text-align: left;
