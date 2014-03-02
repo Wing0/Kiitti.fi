@@ -72,7 +72,7 @@ class KeywordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Keyword
-        fields = ('content', 'category')
+        fields = ('content', 'categories')
 
 
 class TagSerializerGet(serializers.ModelSerializer):
