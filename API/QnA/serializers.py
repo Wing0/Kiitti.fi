@@ -77,6 +77,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class KeywordSerializer(serializers.ModelSerializer):
 
+    categories = CategorySerializer(many=True)
+
     class Meta:
         model = Keyword
         fields = ('content', 'categories')
