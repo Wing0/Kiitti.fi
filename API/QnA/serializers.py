@@ -93,6 +93,15 @@ class TagSerializerGet(serializers.ModelSerializer):
         fields = ('keyword', 'created')
 
 
+class CourseSerializer(serializers.ModelSerializer):
+
+    categories = CategorySerializer(many=True)
+
+    class Meta:
+        model = Course
+        fields = ('name', 'code', 'categories', 'organization', 'moderators', 'tags')
+
+
 class CommentSerializerGET(AbstractMessageGETSingle):
 
     user = UserSerializerGET()
