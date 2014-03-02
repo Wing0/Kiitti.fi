@@ -2,9 +2,11 @@ from django.contrib.contenttypes.models import ContentType
 
 from rest_framework.serializers import ValidationError
 from rest_framework import serializers
+from rest_framework import exceptions as exc
 
 from QnA.models import User, Organization, Vote, Message, \
-                       Question, Answer, Comment, Keyword, Tag
+                       Question, Answer, Comment, Keyword, Tag, \
+                       Course, Category
 
 
 class OrganizationSerializerGET(serializers.ModelSerializer):
@@ -93,13 +95,48 @@ class TagSerializerGET(serializers.ModelSerializer):
         fields = ('keyword', 'created')
 
 
-class CourseSerializer(serializers.ModelSerializer):
+class CourseSerializerPOST(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        categories = kwargs["data"].get('categories', None)
+        category_objects = []
 
-    categories = CategorySerializer(many=True)
+        try:
+            kwargs["data"]["organization"] = kwargs["context"]["user"].organization.pk
+        except:
+            pass
+
+        try:
+            kwargs["data"]["moderators"] = [kwargs["context"]["user"].pk]
+        except:
+            pass
+
+        if kwargs.get("context") and kwargs["context"].get('user', None) and categories:
+            for category in categories:
+                try:
+                    category_objects.append(
+                        Category.objects.get(title = category).pk
+                        )
+                except:
+                    raise exc.ParseError("Course could not be created.")
+        print "objektit:", category_objects
+        kwargs["data"]['categories'] = category_objects
+
+        super(CourseSerializerPOST, self).__init__(*args, **kwargs)
 
     class Meta:
         model = Course
-        fields = ('name', 'code', 'categories', 'organization', 'moderators', 'tags')
+        fields = ('name', 'code', 'categories', 'organization', 'moderators')
+
+
+class CourseSerializerGET(serializers.ModelSerializer):
+
+    categories = CategorySerializer(many=True)
+    organization = OrganizationSerializerGET()
+    moderators = UserSerializerGET(many=True)
+
+    class Meta:
+        model = Course
+        fields = ('name', 'code', 'categories', 'organization', 'moderators')
 
 
 class CommentSerializerGET(AbstractMessageGETSingle):
