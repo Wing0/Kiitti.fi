@@ -17,23 +17,15 @@ class CourseAPI(APIView):
 
     def post(self, request):
         '''
-        This method saves new question into database
-        @params (this means body parameters, not autoinserted by django or other methods)
-            title, string: title of the Question
-            content, string: content text of the Question
-            messageId, positive integer: message id of the Question. For client: set this only if you are updating old message. save() method
-            will give new messageId for new messages!
         @example:
             {
                 "name": string,
                 "code": string,
                 "categories": [
-                    {"title"},
-                    {}
+                    "category1",
+                    "category2"
                 ]
             }
-        @perm
-            member: any member can post an question
         '''
 
 
