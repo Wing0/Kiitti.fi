@@ -59,14 +59,16 @@ class QuestionAPI(APIView):
         return Response(serializer.data, 200)
 
     def get_many(self, request):
+        # set max result amount
+        limit = int(request.GET.get('limit', 50))
 
-        questions = Question.objects.all().order_by('-created')
+        questions = Question.objects.all()
 
         if request.GET.get('author_id', None):
             author = User.objects.get(rid=request.GET['author_id'])
-            questions.filter(user=author)
-        if request.GET.get('limit', None):
-            questions = questions[:limit]
+            questions = questions.filter(user=author)
+
+        questions = questions.order_by('-created')[:limit]
 
         if not questions:
             raise NotFound("No questions could be found.")
@@ -87,8 +89,8 @@ class QuestionAPI(APIView):
             {
                 "head": {
                     "title": string
-                }
-                "content": string,
+                },
+                "content": string
             }
         @perm
             member: any member can post an question

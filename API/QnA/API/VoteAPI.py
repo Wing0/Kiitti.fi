@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import exceptions as exc
 
 from QnA.models import Vote
+from QnA.exceptions import NotFound
 from QnA.serializers import VoteSerializerPOST
 
 
@@ -18,16 +19,13 @@ class VoteAPI(APIView):
     def post(self, request, content_type=None, rid=None):
         """
         @example:
-            {
-                "direction": 1
-            }
+            {"direction": 1}
         """
-
         try:
             content_type = ContentType.objects.get(name__iexact=content_type)
             vote_target_object = content_type.get_object_for_this_type(rid=rid)
         except:
-            raise exc.ParseError("Cannot find message to vote.")
+            raise NotFound("Cannot find message to vote.")
 
         data_to_serialize = {
             "user": request.user.pk,
@@ -52,12 +50,8 @@ class VoteAPI(APIView):
         if serializer.is_valid():
             serializer.save()
             response = {
-                "votes_up": Vote.objects.filter(head_id=vote_target_object.pk,
-                                                head_type=content_type.pk,
-                                                direction=1).count(),
-                "votes_down": Vote.objects.filter(head_id=vote_target_object.pk,
-                                                head_type=content_type.pk,
-                                                direction=-1).count(),
+                "votes_up": vote_target_object.votes_up,
+                "votes_down": vote_target_object.votes_down,
                 "user_vote": data_to_serialize['direction']
             }
             return Response(response, status)

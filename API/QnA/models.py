@@ -24,9 +24,9 @@ class RIDMixin(models.Model):
         max_rid = rid_dict['rid__max']
 
         if max_rid < settings.RID_MINIMUM_VALUE:
-            max_rid = settings.RID_MINIMUM_VALUE - 1
-
-        self.rid = max_rid + 1
+            self.rid = settings.RID_MINIMUM_VALUE
+        else:
+            self.rid = max_rid + 1
 
         super(RIDMixin, self).save(*args, **kwargs)
 
@@ -156,27 +156,6 @@ class Message(TimestampMixin):
         super(Message, self).save(*args, **kwargs)
 
 
-
-class CommentMixin(object):
-
-    @property
-    def comments(self):
-        head_type = ContentType.objects.get_for_model(self.__class__)
-
-        comments = Comment.objects.filter(
-            head_type__pk=head_type.id,
-            head_id=self.id)
-
-        if not hasattr(self, "_comments"):
-            self._comments = message
-
-        return self._comments
-
-    @property
-    def comment_amount(self):
-        return self.comments.count()
-
-
 class AbstractMessage(RIDMixin, TimestampMixin):
 
     user     = models.ForeignKey(User)
@@ -196,22 +175,23 @@ class AbstractMessage(RIDMixin, TimestampMixin):
         """
         Returns the message with highest version number
         """
-        head_type = ContentType.objects.get_for_model(self.__class__)
-
-        messages = Message.objects.filter(
-            head_type__pk=head_type.id,
-            head_id=self.id).order_by('-version', '-created')
-
-        if messages:
-            message = messages[0]
-            # one could raise error here if len(messages) > 0
-        else:
-            message = None
-
         if not hasattr(self, "_message"):
+            head_type = ContentType.objects.get_for_model(self.__class__)
+
+            messages = Message.objects.filter(
+                head_type__pk=head_type.id,
+                head_id=self.id).order_by('-version', '-created')
+
+            if messages:
+                message = messages[0]
+                # one could raise error here if len(messages) > 0
+            else:
+                message = None
+
             self._message = message
 
         return self._message
+
 
     @property
     def votes_up(self):
@@ -249,14 +229,24 @@ class Comment(AbstractMessage):
         db_table = 'QnA_comments'
 
 
+class CommentMixin(models.Model):
+
+    comments = generic.GenericRelation(Comment,
+                    content_type_field='head_type',
+                    object_id_field='head_id')
+
+    class Meta:
+        abstract = True
+
+    @property
+    def comment_amount(self):
+        return self.comments.count()
+
+
 class Question(AbstractMessage, CommentMixin):
 
     title  = models.CharField(max_length=512)
     tags   = generic.GenericRelation(Tag,
-                    content_type_field='head_type',
-                    object_id_field='head_id')
-
-    comments = generic.GenericRelation(Comment,
                     content_type_field='head_type',
                     object_id_field='head_id')
 
@@ -271,13 +261,10 @@ class Question(AbstractMessage, CommentMixin):
 class Answer(AbstractMessage, CommentMixin):
     '''
     Represents an answer to a question (Question()).
+
     '''
     question = models.ForeignKey(Question, related_name='answers')
     accepted = models.BooleanField(default=False)
-
-    comments = generic.GenericRelation(Comment,
-                    content_type_field='head_type',
-                    object_id_field='head_id')
 
     class Meta:
         db_table = 'QnA_answers'

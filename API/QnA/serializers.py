@@ -195,7 +195,7 @@ class MessageSerializerPOSTAnswer(MessageSerializerPOSTAbstract):
 
 ### POST COMMENT ###
 
-class CommentToQuestionSerializerPOST(serializers.ModelSerializer):
+class CommentToAbstractMessageSerializerPOST(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
@@ -203,7 +203,7 @@ class CommentToQuestionSerializerPOST(serializers.ModelSerializer):
 
 class MessageSerializerPOSTComment(MessageSerializerPOSTAbstract):
 
-    head = CommentToQuestionSerializerPOST()
+    head = CommentToAbstractMessageSerializerPOST()
 
 
 ### POST VOTE ###
