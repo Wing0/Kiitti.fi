@@ -89,11 +89,10 @@ class Category(RIDMixin):
     def __unicode__(self):
         return self.title
 
-
 class Keyword(models.Model):
 
     content = models.CharField(max_length=63, unique=True)
-    category = models.ManyToManyField(Category, blank=True, null=True)
+    categories = models.ManyToManyField(Category, blank=True, null=True)
 
     class Meta:
         db_table = 'QnA_keywords'
@@ -119,6 +118,24 @@ class Tag(RIDMixin, TimestampMixin):
     def __unicode__(self):
         return "%s for ID%d" % (self.keyword.content, self.head_id)
 
+
+class Course(RIDMixin):
+
+    name       = models.CharField(max_length=255)
+    code       = models.CharField(max_length=255, blank = True)
+    organization  = models.ForeignKey(Organization, blank = True, null = True)
+    categories = models.ManyToManyField(Category, blank=True, null=True)
+    moderators = models.ManyToManyField(User)
+    tags       = generic.GenericRelation(Tag,
+                    content_type_field='head_type',
+                    object_id_field='head_id')
+
+    class Meta:
+        unique_together = (('name', 'organization'),)
+        db_table = 'QnA_courses'
+
+    def __unicode__(self):
+        return self.name
 
 class Message(TimestampMixin):
 
