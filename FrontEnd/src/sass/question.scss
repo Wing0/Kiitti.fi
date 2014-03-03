@@ -4,26 +4,16 @@
 
 $vote-width: 100px;
 $thumb-size: 40px;
-$conversation-max-width: 670px;
-
-.inline-block-container {
-  text-align: center;
-}
-
-.conversation, .question-meta {
-  display: inline-block;
-  text-align: left;
-}
 
 .conversation {
   h1, h2 {
     padding-bottom: 7px;
   }
-  max-width: $page-container-max-width;
-  min-width: 300px;
 }
 
 .message-block {
+  @include clearfix;
+
   margin: 20px 0;
 
   .toolbar {
@@ -34,8 +24,7 @@ $conversation-max-width: 670px;
     vertical-align: top;
   }
   .votes {
-    padding-left: 5px;
-    padding-right: 30px;
+    @include span(1 static isolate inside-static nobreak);
     text-align: center;
 
     .votes-amount {
@@ -62,10 +51,12 @@ $conversation-max-width: 670px;
     }
   }
   .message-stack {
-    width: 100%;
+    @include span(12 fluid);
+    padding-left: span(1 static isolate inside-static nobreak);
+    float: none;
 
     .content {
-      max-width: $conversation-max-width - 80;
+      //max-width: $conversation-max-width - 80;
       word-wrap: break-word;
       font-size: 0.95em;
       font-weight: 400;
@@ -82,7 +73,7 @@ $conversation-max-width: 670px;
     .comment {
       padding: 7px 0;
       line-height: 1.3;
-      max-width: $conversation-max-width - 80;
+      //max-width: $conversation-max-width - 80;
 
       &:not(:last-of-type) {
         border-bottom: 2px dotted lighten($color-background-dark, 8);
@@ -126,22 +117,14 @@ $conversation-max-width: 670px;
 }
 
 .question-meta {
-  padding-left: 50px;
-  vertical-align: top;
-  width: 150px;
-
-  & > div {
+  & > section {
     margin-bottom: 30px;
   }
-
   h2 {
     margin-bottom: 8px;
   }
   .tags {
     margin-top: 10px;
-    li {
-      margin: 3px 0;
-    }
   }
   .related {
     li {

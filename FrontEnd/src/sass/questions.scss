@@ -1,16 +1,15 @@
 @import "_base";
 
 .single-question {
-  padding: 20px 0;
+  padding: 15px 0;
   &:not(:last-of-type) { border-bottom: 1px solid $color-background-dark; }
 
-  header, .content {
+  .content {
     word-wrap: break-word;
     max-width: $page-container-max-width - 60;
-  }
+    vertical-align: top;
 
-  .votes {
-    width: 50px;
+    padding-left: 10px;
   }
 
   h2 {
@@ -23,4 +22,25 @@
       font-weight: 600;
     }
   }
+
+  .votes {
+    width: 150px;
+    min-width: 150px;
+
+    .text {
+      font-size: 0.75em;
+    }
+    .amount {
+      font-size: 1.2em;
+      display: block;
+    }
+  }
+}
+
+.votes-container {
+  width: 65px;
+  min-width: 65px;
+  text-align: center;
+  display: inline-block;
+  padding: 5px;
 }

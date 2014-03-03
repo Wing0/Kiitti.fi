@@ -3,15 +3,34 @@
 
   <div ng-repeat="question in data.questions" class="single-question table" ng-init="showContent=false">
     <aside class="votes cell">
-      <div class="votes-container">vot <span ng-bind="question.votes_up - question.votes_down"></span></div>
-      <div class="votes-container">ans <span ng-bind="question.answer_amount"></span></div>
+      <div class="votes-container" ng-init="question.totalvotes = question.votes_up - question.votes_down">
+        <span class="amount" ng-bind="question.totalvotes"></span>
+        <span class="text"
+              ng-pluralize
+              count="question.totalvotes"
+              when="{'1': 'ääni',
+                     '-1': 'ääni',
+                     'other': 'ääntä'}">
+              </span>
+      </div>
+      <div class="votes-container">
+        <span class="amount" ng-bind="question.answer_amount"></span>
+        <span class="text"
+              ng-pluralize
+              count="question.totalvotes"
+              when="{'1': 'vastaus',
+                     'other': 'vastausta'}">
+              </span>
+      </div>
     </aside>
-    <header class="cell">
-      <h2><a href="/question/{{question.rid}}/{{question.slug}}" ng-bind="question.title"></a></h2>
-      <p ng-bind="question.message.content | slice:{length:150}"></p>
-    </header>
-    <section class="content cell" ng-show="showContent">
-      <div ng-bind="question.message.content"></div>
+    <section class="content cell">
+      <header>
+        <h2><a href="/question/{{question.rid}}/{{question.slug}}" ng-bind="question.title"></a></h2>
+        <p ng-bind="question.message.content | slice:{length:150}"></p>
+      </header>
+      <section class="content cell" ng-show="showContent">
+        <div ng-bind="question.message.content"></div>
+      </section>
     </section>
   </div>
 </div>

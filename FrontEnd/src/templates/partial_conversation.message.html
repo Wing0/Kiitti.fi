@@ -1,41 +1,37 @@
 <div class="message-block">
-  <div class="table">
-    <div class="votes cell">
-      <div>
-        <div class="vote up" ng-class="{active: message.user_vote===(1)}" title="Äänestä viestiä hyväksi" ng-click="vote(1)">
-          <i class="fa fa-chevron-up"></i>
-        </div>
-        <div class="votes-amount" title="Saatujen äänien summa" ng-bind="message.votes_up - message.votes_down"></div>
-        <div class="vote down" ng-class="{active: message.user_vote===(-1)}" title="Äänestä viestiä huonoksi" ng-click="vote(-1)">
-          <i class="fa fa-chevron-down"></i>
-        </div>
+  <div class="votes">
+    <div>
+      <div class="vote up" ng-class="{active: message.user_vote===(1)}" title="Äänestä viestiä hyväksi" ng-click="vote(1)">
+        <i class="fa fa-chevron-up"></i>
+      </div>
+      <div class="votes-amount" title="Saatujen äänien summa" ng-bind="message.votes_up - message.votes_down"></div>
+      <div class="vote down" ng-class="{active: message.user_vote===(-1)}" title="Äänestä viestiä huonoksi" ng-click="vote(-1)">
+        <i class="fa fa-chevron-down"></i>
       </div>
     </div>
+  </div>
 
-    <div class="cell message-stack">
-      <div class="content">
-        <p ng-bind="message.message.content"></p>
+  <div class="message-stack">
+    <div class="content" ng-bind-html="message.message.content"></div>
+
+    <div class="comment-block">
+      <div class="comments">
+        <div class="comment" ng-repeat="comment in message.comments">
+          <span class="content" ng-bind="comment.message.content"></span>
+          <span class="username"><a href="#" ng-bind="comment.user.username"></a></span>
+          <span class="date" ng-bind="comment.created | date:'dd.mm.yyyy hh:mm'"></span>
+        </div>
       </div>
-
-      <div class="comment-block">
-        <div class="comments">
-          <div class="comment" ng-repeat="comment in message.comments">
-            <span class="content" ng-bind="comment.message.content"></span>
-            <span class="username"><a href="#" ng-bind="comment.user.username"></a></span>
-            <span class="date" ng-bind="comment.created | date:'dd.mm.yyyy hh:mm'"></span>
-          </div>
+      <div class="buttons" ng-if="message.message.content" ng-init="showCommentInput=false">
+        <div class="button-alt" ng-click="showCommentInput=!showCommentInput">
+          <i class="fa fa-pencil"></i><span>Lisää kommentti</span>
         </div>
-        <div class="buttons" ng-if="message.message.content" ng-init="showCommentInput=false">
-          <div class="button-alt" ng-click="showCommentInput=!showCommentInput">
-            <i class="fa fa-pencil"></i><span>Lisää kommentti</span>
-          </div>
-          <form ng-show="showCommentInput" ng-submit="submitComment()">
-            <input type="text" ng-model="comment.content">
-            <br>
-            <button type="submit" ng-disabled="comment.content.length < 3">Lisää kommentti</button>
-          </form>
-        </div>
+        <form ng-show="showCommentInput" ng-submit="submitComment()">
+          <input type="text" ng-model="comment.content">
+          <br>
+          <button type="submit" ng-disabled="comment.content.length < 3">Lisää kommentti</button>
+        </form>
       </div>
     </div>
-  </div><!--/table-->
+  </div>
 </div><!--/message-block-->

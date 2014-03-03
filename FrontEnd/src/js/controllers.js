@@ -73,6 +73,8 @@ module.controller('SingleQuestionController', function($scope, question, AnswerA
     $scope.answer.rid = $scope.question.rid;
 
     AnswerAPI.save($scope.answer, function(answer) {
+      if (!$scope.question.answers)
+        $scope.question.answers = [];
       $scope.question.answers.push(answer);
       $scope.submitMessage.type = "success";
       $scope.submitMessage.content = "Vastaus lisätty onnistuneesti.";
