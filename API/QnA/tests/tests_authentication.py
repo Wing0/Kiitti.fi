@@ -13,7 +13,7 @@ class AuthenticationTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.organization = Organization(
-            organization_id=1, name="testorganization")
+            rid=1, name="testorganization")
         self.user = User.objects.create_user(
             username='test', email='test@test.test', password='test', organization=self.organization)
 
