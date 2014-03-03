@@ -8,6 +8,7 @@ from QnA.API.OrganizationAPI import OrganizationAPI
 from QnA.API.LoginAPI import LoginAPI
 from QnA.API.LogoutAPI import LogoutAPI
 from QnA.API.VoteAPI import VoteAPI
+from QnA.API.CourseAPI import CourseAPI
 from QnA.API.ResetPasswordAPI import ResetPasswordAPI
 
 from django.contrib import admin
@@ -34,6 +35,8 @@ urlpatterns = patterns('',
 
     url(r'^organizations/(?P<organization_id>[0-9]{1,9})/?$', OrganizationAPI.as_view()),
     url(r'^organizations/?$', OrganizationAPI.as_view()),
+
+    url(r'^courses/?$', CourseAPI.as_view()),
 
     url(r'^admin/', include(admin.site.urls)),
 

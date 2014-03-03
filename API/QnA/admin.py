@@ -22,6 +22,8 @@ admin.site.register(ResetEntry)
 admin.site.register(Vote)
 admin.site.register(Tag)
 admin.site.register(Keyword)
+admin.site.register(Category)
+admin.site.register(Course)
 
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Message, MessageAdmin)
