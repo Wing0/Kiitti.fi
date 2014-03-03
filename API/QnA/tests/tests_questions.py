@@ -24,7 +24,7 @@ class QuestionTests(APITestCase):
         self.factory = APIRequestFactory()
 
         self.organization = Organization(
-            organization_id=1, name="testorganization")
+            rid=1, name="testorganization")
         self.user = User(
             username='test', email='test@test.test', password='test', organization=self.organization)
 

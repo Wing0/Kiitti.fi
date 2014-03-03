@@ -1,1 +1,55 @@
-[{"pk": 1, "model": "QnA.organization", "fields": {"organization_id": 0, "address": "abc123", "modified": "2014-01-07", "name": "ads", "created": "2014-01-07"}}, {"pk": 1, "model": "QnA.user", "fields": {"username": "admin", "first_name": "", "last_name": "", "user_id": 1, "groups": [], "is_active": true, "is_superuser": true, "is_staff": true, "last_login": "2014-02-22T14:45:51.733Z", "reputation": 0, "user_permissions": [], "organization": 0, "password": "pbkdf2_sha256$12000$u6D4GYkA3gjL$uFGG9DJXNc727knfN7r+8yhTHCxGQlSAFBWr7qmrarw=", "email": "admin@admin.fi", "date_joined": "2014-01-05T19:53:55Z"}}, {"pk": 2, "model": "QnA.user", "fields": {"username": "test", "first_name": "test", "last_name": "test", "user_id": 2, "groups": [], "is_active": true, "is_superuser": false, "is_staff": false, "last_login": "2014-02-02T19:00:31.568Z", "reputation": 0, "user_permissions": [], "organization": 0, "password": "pbkdf2_sha256$12000$X6qPlWqnISY7$xULMCP4xM/+9A+UcjbLaCSMENapQeqLeKFFQtIjDV0c=", "email": "test@test.test", "date_joined": "2014-01-25T18:34:35Z"}}]
+[
+  {
+    "pk": 1,
+    "model": "QnA.organization",
+    "fields": {
+      "rid": 0,
+      "address": "abc123",
+      "modified": "2014-01-07",
+      "name": "ads",
+      "created": "2014-01-07"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "QnA.user",
+    "fields": {
+      "username": "admin",
+      "first_name": "",
+      "last_name": "",
+      "rid": 1,
+      "groups": [],
+      "is_active": true,
+      "is_superuser": true,
+      "is_staff": true,
+      "last_login": "2014-02-22T14:45:51.733Z",
+      "reputation": 0,
+      "user_permissions": [],
+      "organization": 0,
+      "password": "pbkdf2_sha256$12000$u6D4GYkA3gjL$uFGG9DJXNc727knfN7r+8yhTHCxGQlSAFBWr7qmrarw=",
+      "email": "admin@admin.fi",
+      "date_joined": "2014-01-05T19:53:55Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "QnA.user",
+    "fields": {
+      "username": "test",
+      "first_name": "test",
+      "last_name": "test",
+      "rid": 2,
+      "groups": [],
+      "is_active": true,
+      "is_superuser": false,
+      "is_staff": false,
+      "last_login": "2014-02-02T19:00:31.568Z",
+      "reputation": 0,
+      "user_permissions": [],
+      "organization": 0,
+      "password": "pbkdf2_sha256$12000$X6qPlWqnISY7$xULMCP4xM/+9A+UcjbLaCSMENapQeqLeKFFQtIjDV0c=",
+      "email": "test@test.test",
+      "date_joined": "2014-01-25T18:34:35Z"
+    }
+  }
+]
