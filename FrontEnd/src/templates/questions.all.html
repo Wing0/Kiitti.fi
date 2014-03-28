@@ -26,7 +26,7 @@
     <section class="content cell">
       <header>
         <h2><a href="/question/{{question.rid}}/{{question.slug}}" ng-bind="question.title"></a></h2>
-        <p ng-bind="question.message.content | slice:{length:150}"></p>
+        <p ng-bind="question.message.content | stripHTML | slice:{length:150}"></p>
       </header>
       <section class="content cell" ng-show="showContent">
         <div ng-bind="question.message.content"></div>

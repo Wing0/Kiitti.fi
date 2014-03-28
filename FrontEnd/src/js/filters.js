@@ -21,3 +21,9 @@ module.filter('slice', function() {
     return sliced;
   }
 });
+
+module.filter('stripHTML', function() {
+  return function(text) {
+    return String(text).replace(/<[^>]+>/gm, '');
+  }
+});
