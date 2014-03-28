@@ -26,6 +26,7 @@
     <section class="content cell">
       <header>
         <h2><a href="/question/{{question.rid}}/{{question.slug}}" ng-bind="question.title"></a></h2>
+        <p class="date" ng-bind="question.created | date:'dd.MM.yyyy hh:mm'"></p>
         <p ng-bind="question.message.content | stripHTML | slice:{length:150}"></p>
       </header>
       <section class="content cell" ng-show="showContent">
