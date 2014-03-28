@@ -1,11 +1,4 @@
-// Generated on 2014-01-22 using generator-angular 0.7.1
 'use strict';
-
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
-// 'test/spec/**/*.js'
 
 module.exports = function (grunt) {
 
@@ -68,7 +61,7 @@ module.exports = function (grunt) {
         port: 9000,
         base: '<%= app.src %>',
         // change this to '0.0.0.0' to access the server from outside
-        hostname: '127.0.0.1',
+        hostname: '0.0.0.0',
         //livereload: 35729,
         middleware: function (connect, options) {
           var middlewares = [];
