@@ -4,15 +4,15 @@
   <form id="new_question" ng-submit="send()">
     <label for="title">Otsikko</label>
     <input type="text" id="title" name="title" ng-model="question.head.title" required>
-    <p class="input-help">Otsikon tulee olla mahdollisimman yksityiskohtainen, ytimekäs ja aihetta kuvaava.</p>
+    <p class="input-help muted">Otsikon tulee olla mahdollisimman yksityiskohtainen, ytimekäs ja aihetta kuvaava.</p>
 
     <label>Tagit (avainsanat)</label>
     <input type="text" id="tags" name="tags" ng-model="question.tags">
-    <p class="input-help">Tagit pilkulla erotettuna. Lisää kysymykseen liittyviä avainsanoja mahdollisimman monta, jotta kysymyksesi on helppo löytää.</p>
+    <p class="input-help muted">Tagit pilkulla erotettuna. Lisää kysymykseen liittyviä avainsanoja mahdollisimman monta, jotta kysymyksesi on helppo löytää.</p>
 
     <label for="text-angular">Viesti</label>
     <div text-angular ng-model="question.content"></div>
-    <p class="input-help">Muotoile kysymyksesi niin, että se on helppo ymmärtää, jotka eivät tunne taustatietoja.</p>
+    <p class="input-help muted">Muotoile kysymyksesi niin, että se on helppo ymmärtää, jotka eivät tunne taustatietoja.</p>
 
     <input type="submit" class="emphasis-1" value="Lähetä kysymys">
   </form>

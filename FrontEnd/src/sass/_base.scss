@@ -65,6 +65,7 @@ $block-padding-horizontal: 30px; // deprecated
 $font-stack: 'Open Sans', sans-serif;
 $font-header: 'Open Sans Condensed', sans-serif;
 $font-paragraph: 'Arvo', serif;
+$font-message: 'Arvo', serif;
 $font-code: 'Droid Sans Mono', monospace;
 
 $header-height: 60px;
@@ -73,3 +74,6 @@ $default-border-radius: 3px;
 
 $color-button: $color-emphasis-1;
 
+.muted {
+  color: rgb(187,180,161);
+}
