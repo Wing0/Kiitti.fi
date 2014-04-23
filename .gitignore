@@ -1,9 +1,3 @@
 *.pyc
 *.DS_Store
-*.sass-cache
-FrontEnd/Grunt
-FrontEnd/node_modules/
-FrontEnd/.tmp/
-FrontEnd/src/bower_components/
-FrontEnd/dist
 **/*.sqlite3
