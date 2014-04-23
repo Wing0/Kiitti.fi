@@ -4,7 +4,7 @@ DEBUG = False
 TEMPLATE_DEBUG = False
 ALLOWED_HOSTS = ('.kiitti.fi',)
 
-STATIC_ROOT = '/var/www/staticfiles/kiitti-backend-admin'
+STATIC_ROOT = '/var/www/staticfiles/kiitti-backend'
 
 # DATABASES = {
 #     'default': {
