@@ -10,6 +10,7 @@ from QnA.API.LogoutAPI import LogoutAPI
 from QnA.API.VoteAPI import VoteAPI
 from QnA.API.CourseAPI import CourseAPI
 from QnA.API.ResetPasswordAPI import ResetPasswordAPI
+from QnA.API.SubscriptionAPI import SubscriptionAPI
 
 from django.contrib import admin
 admin.autodiscover()
@@ -45,4 +46,6 @@ urlpatterns = patterns('',
 
 
     url(r'^reset/?$', ResetPasswordAPI.as_view()),
+
+    url(r'^subscriptions/?$', SubscriptionAPI.as_view())
 )

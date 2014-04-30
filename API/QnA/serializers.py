@@ -6,7 +6,7 @@ from rest_framework import exceptions as exc
 
 from QnA.models import User, Organization, Vote, Message, \
                        Question, Answer, Comment, Keyword, Tag, \
-                       Course, Category
+                       Course, Category, Subscription
 
 
 class OrganizationSerializerGET(serializers.ModelSerializer):
@@ -273,3 +273,16 @@ class VoteSerializerPOST(serializers.ModelSerializer):
         if attrs.get('direction', None) not in [1, -1]:
             raise ValidationError("Direction must be 1 or -1")
         return attrs
+
+class SubscriptionSerializerGET(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subscription
+        fields = ('rid', 'email', 'subscribed')
+        read_only_fields = ('rid',)
+
+class SubscriptionSerializerPOST(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subscription
+        fields = ('email',)
