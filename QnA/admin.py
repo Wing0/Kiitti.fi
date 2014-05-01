@@ -16,10 +16,6 @@ class MessageAdmin(admin.ModelAdmin):
     list_filter = ('head_type',)
 
 
-class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('email',)
-
-
 admin.site.register(User)
 admin.site.register(Organization)
 admin.site.register(ResetEntry)
@@ -34,5 +30,3 @@ admin.site.register(Question, QuestionAdmin)
 admin.site.register(Message, MessageAdmin)
 admin.site.register(Answer)
 admin.site.register(Comment)
-
-admin.site.register(Subscription, SubscriptionAdmin)
