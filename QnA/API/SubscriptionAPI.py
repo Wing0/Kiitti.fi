@@ -31,7 +31,8 @@ class SubscriptionAPI(APIView):
         if email is None:
             raise exc.ParseError("No email for subscription provided.")
         if self.is_subscribed(email):
-            return Response(create_message("Email is already subscribed."), 400)
+            # return status 200 to differentiate from invalid email
+            return Response(create_message("Email is already subscribed."), 200)
         serializer = SubscriptionSerializerPOST(data=request.DATA)
         if serializer.is_valid():
             serializer.save()
