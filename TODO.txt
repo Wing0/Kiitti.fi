@@ -1,0 +1,45 @@
+# TODO
+
+## Asioita, joita pitäisi ensisijaisesti miettiä ja koodata
+
+– API käyttäjäprofiilin hallintaan: käyttäjän nimen, kuvan ym. tietojen muuttaminen (huom. PUT-metodi)
+
+– paginointi kysymyksille: frontista halutaan joskus kutsua vain osa kysymyksistä
+  ja näyttää kysymykset eri sivuilla tai niitä lisää automaattisesti alaspäin vieritettäessä
+
+- Algoritmi löytämään kysymykseen liittyvät muut kysymykset, jotka näytetään sivupalkissa.
+  Tarvitaan siis jonkinlainen tieto kysymyksistä, jotka todennäköisesti kiinnostaisivat aktiivisen
+  kysymyksen lukijaa.
+
+- Haku-toiminnallisuus: django-haystackin integrointi jonkin haku-softan kanssa, kuten Solr (???)
+
+- Rekisteröityminen Kiittiin: kuka, missä ja miten voi rekisteröityä Kiittiin? Tarvitaanko
+  esimerkiksi organisaatioille kutsu, mutta käyttäjät voivat rekisteröityä ilman kutsua? Voivatko
+  organisaatiot tehdä suoraan käyttäjiä (esim. opiskelijat), vai pitääkö käyttäjien itse rekisteröityä?
+
+- Organisaatio-toiminnallisuus: mahdollisuus luoda ja muokata organisaatiota, sekä liittää niihin
+  käyttäjiä ja erilaisia käyttäjien oikeustasoja
+
+- Kurssi-toiminnallisuus: mahdollisuus luoda ja muokata kursseja kouluille (organisaatioille), sekä
+  liittää niihin käyttäjiä. Pitäisi miettiä kuinka toimitaan, kun halutaan luoda kysymys,
+  joka ei liity mihinkään kurssiin. Entä, jos kysymys halutaan osoittaa useampaan kurssiin
+  yhtä aikaa? Käsitetäänkö abstraktisti ajatellet kysymykset kurssin osina, vai pikemminkin
+  päinvastoin kurssit kysymyksiin liittyvänä datana?
+
+## Muuta
+
+Backendia suunnitellessa tulisi miettiä kaikkia mahdollisia use-caseja frontissa. On tässä vaiheessa
+esimerkiksi vaikea sanoa mitä tapahtuu kun painaa jotain esimerkiksi (hash)tagia – näyttääkö se sitten
+kaikki siihen tagiin liittyvät kysymykset vai esimerkiksi kysymykset vain viimeisimmän viikon ajalta,
+mutta myös kaikkien aikojen parhaat kysymykset äänestysten perusteella, vaikka ne olisivat kuinka vanhoja.
+Tällaisten "algoritmien" tekemiseen saa menemään rutosti aikaa, mutta ne ovat aika tärkeitä käyttökokemuksen
+kannalta.
+
+Tulisi miettiä käyttäjien palkitsemista – kuinka se on mahdollista? Käyttäjille voisi luoda esimerkiksi oman
+erillisen taulun, jossa pidettäisiin tietoa käyttäjän saavutuksista. Taulun tietue päivitettäisiin esimerkiksi aina
+kun käyttäjä luo kysymyksen, äänestää tai vastaa. Näin data laskettaisiin vain tarpeen tullen, eikä
+esimerkiksi dynaamisesti käyttäjän historiasta jokaisella requestilla. Tämä on kuitenkin vain yksi mahdollinen
+toteutustapa.
+
+Tulisi miettiä myös mahdollisia väärinkäyttötilanteita: miten toimitaan, jos käyttäjä esimerkiksi lähettää
+kysymyksen, jonka on 1000000000... merkkiä pitkä?
