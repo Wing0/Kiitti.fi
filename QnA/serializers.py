@@ -274,15 +274,3 @@ class VoteSerializerPOST(serializers.ModelSerializer):
             raise ValidationError("Direction must be 1 or -1")
         return attrs
 
-class SubscriptionSerializerGET(serializers.ModelSerializer):
-
-    class Meta:
-        model = Subscription
-        fields = ('rid', 'email', 'subscribed')
-        read_only_fields = ('rid',)
-
-class SubscriptionSerializerPOST(serializers.ModelSerializer):
-
-    class Meta:
-        model = Subscription
-        fields = ('email',)

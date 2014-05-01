@@ -305,10 +305,3 @@ class ResetEntry(models.Model):
         has = m.hexdigest()
 
         return has[:10]
-
-
-class Subscription(RIDMixin):
-
-    email = models.EmailField()
-    subscribed = models.DateTimeField(auto_now_add=True)
-
