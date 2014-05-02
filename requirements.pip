@@ -2,3 +2,4 @@ Django==1.6.2
 South==0.8.4
 djangorestframework==2.3.10
 django-cors-headers==0.12
+mailchimp==2.0.7
